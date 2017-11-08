@@ -1,0 +1,71 @@
+{
+    "name": "dmk/mkvarnish",
+    "type": "typo3-cms-extension",
+    "description": "Varnish extension for TYPO3",
+    "keywords": [
+        "TYPO3",
+        "extension",
+        "cache",
+        "varnish"
+    ],
+    "homepage": "http://www.dmk-ebusiness.de/",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Michael Wagner",
+            "email": "michael.wagner@dmk-ebusiness.de",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "dev@dmk-ebusiness.de",
+        "source": "https://github.com/DMKEBUSINESSGMBH/mkvarnish",
+        "issues": "https://github.com/DMKEBUSINESSGMBH/mkvarnish"
+    },
+    "replace": {
+        "mkvarnish": "self.version",
+        "typo3-ter/mkvarnish": "self.version"
+    },
+    "require": {
+        "php": ">=5.6",
+        "typo3/cms-core": "~6.2 || ~7.6 || ~8.7",
+        "digedag/rn-base": ">=1.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "DMK\\Mkvarnish\\" : "Classes"
+        }
+    },
+    "require-dev": {
+        "namelesscoder/typo3-repository-client": "^1.2",
+        "nimut/testing-framework": "^1.0",
+        "mikey179/vfsStream": "^1.4",
+        "phpunit/phpunit": "^4.7 || ^5.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DMK\\Mkvarnish\\Tests\\" : "Tests/Classes",
+            "TYPO3\\CMS\\Core\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/core/Tests/",
+            "TYPO3\\CMS\\Fluid\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/fluid/Tests/"
+        }
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin",
+        "preferred-install": {
+            "typo3/cms": "source"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "mkdir -p .Build/Web/typo3conf/ext/",
+            "[ -L .Build/Web/typo3conf/ext/mkvarnish ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/mkvarnish"
+        ]
+    },
+    "extra": {
+        "typo3/cms": {
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "web-dir": ".Build/Web"
+        }
+    }
+}
