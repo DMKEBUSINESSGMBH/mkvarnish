@@ -68,7 +68,7 @@ class FrontendHook
      */
     protected function getHeaders()
     {
-        $headers = array();
+        $headers = [];
 
         // set cache tags for varnish if a reverseProxyIP was configured
         if ($this->isRevProxy()) {
@@ -115,7 +115,7 @@ class FrontendHook
         $cacheTags = $property->getValue($tsfe);
 
         if (empty($cacheTags)) {
-            $cacheTags = array('pages', 'pageId_' . $tsfe->id);
+            $cacheTags = ['pages', 'pageId_' . $tsfe->id];
         }
 
         return $cacheTags;

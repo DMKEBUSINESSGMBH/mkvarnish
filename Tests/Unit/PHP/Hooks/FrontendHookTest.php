@@ -51,7 +51,7 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
 
         $mock = $this->getMock(
             FrontendHook::class,
-            array('isRevProxy', 'getTsFe', 'getHeaders', 'sendHeaders')
+            ['isRevProxy', 'getTsFe', 'getHeaders', 'sendHeaders']
         );
 
         $mock->expects($this->once())->method('getHeaders')->will($this->returnValue($headers));
@@ -72,10 +72,10 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
     {
         $mock = $this->getMock(
             FrontendHook::class,
-            array('isRevProxy', 'getTsFe', 'getHeaders', 'sendHeaders')
+            ['isRevProxy', 'getTsFe', 'getHeaders', 'sendHeaders']
         );
 
-        $mock->expects($this->once())->method('getHeaders')->will($this->returnValue(array()));
+        $mock->expects($this->once())->method('getHeaders')->will($this->returnValue([]));
         $mock->expects($this->never())->method('sendHeaders');
 
         $mock->handleHeaders();
@@ -93,7 +93,7 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
     {
         $mock = $this->getMock(
             FrontendHook::class,
-            array('isRevProxy')
+            ['isRevProxy']
         );
 
         $mock->expects($this->once())->method('isRevProxy')->will($this->returnValue(false));
@@ -120,11 +120,11 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
         // prepare tsfe
         $tsfe = new \stdclass();
         $tsfe->newHash = 'asd123hjk678';
-        $tsfe->config['INTincScript'] = array('one', 'two');
+        $tsfe->config['INTincScript'] = ['one', 'two'];
 
         $mock = $this->getMock(
             FrontendHook::class,
-            array('isRevProxy', 'getTsFe', 'getCacheTags', 'getSitename')
+            ['isRevProxy', 'getTsFe', 'getCacheTags', 'getSitename']
         );
 
         $mock->expects($this->once())->method('isRevProxy')->will($this->returnValue(true));
@@ -133,7 +133,7 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
         ($mock
             ->expects($this->once())
             ->method('getCacheTags')
-            ->will($this->returnValue(array('pages', 'pages_419')))
+            ->will($this->returnValue(['pages', 'pages_419']))
         );
 
         $headers = $this->callInaccessibleMethod(

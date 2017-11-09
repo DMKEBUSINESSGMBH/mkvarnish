@@ -69,18 +69,18 @@ class DataHandlerHook
             return;
         }
 
-        $header = array(
+        $header = [
             // 'X-Cache-Tags' => '',
             // 'X-Varnish-Ban-All' => '0',
             'X-TYPO3-Sitename' => $this->getSitename(),
-        );
+        ];
 
         if (isset($params['cacheCmd'])) {
             // purge the whole varnish cache
             $header['X-Varnish-Purge-All'] = '1';
         } else {
             // purge the varnich based on cache tags
-            $cacheTags = array();
+            $cacheTags = [];
             $cacheTags[] = $params['table'];
             $cacheTags[] = $params['table'] . '_' . $params['uid'];
             $cacheTags[] = 'pageId_' . $params['uid_page'];
@@ -101,7 +101,7 @@ class DataHandlerHook
     protected function executePurge(array $options)
     {
         // map the header options
-        $headers = array();
+        $headers = [];
         foreach ($options as $key => $value) {
             $headers[] = $key . ': ' . $value;
         }

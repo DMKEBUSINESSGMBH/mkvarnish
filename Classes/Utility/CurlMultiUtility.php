@@ -79,7 +79,7 @@ class CurlMultiUtility
 
         // initialize cURL Multi-Handle Queue
         $this->curlQueue = curl_multi_init();
-        $this->curlHandles = array();
+        $this->curlHandles = [];
     }
 
     /**
@@ -95,13 +95,13 @@ class CurlMultiUtility
     {
         // create Handle and at it to the Multi-Handle Queue
         $curlHandle = curl_init();
-        $curlOptions = array (
+        $curlOptions = [
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_URL => $url,
             CURLOPT_HTTPHEADER => $header,
             CURLOPT_TIMEOUT => 1,
             CURLOPT_RETURNTRANSFER => 1,
-        );
+        ];
 
         curl_setopt_array($curlHandle, $curlOptions);
         curl_multi_add_handle($this->curlQueue, $curlHandle);

@@ -4,7 +4,7 @@
  * Extension Manager/Repository config file for ext "mkvarnish".
  ***************************************************************/
 
-$EM_CONF[$_EXTKEY] = array(
+$EM_CONF[$_EXTKEY] = [
     'title' => 'MK Varnish',
     'description' => '',
     'category' => 'plugin',
@@ -24,15 +24,15 @@ $EM_CONF[$_EXTKEY] = array(
     'modify_tables' => '',
     'clearCacheOnLoad' => 1,
     'lockType' => '',
-    'constraints' => array(
-        'depends' => array(
+    'constraints' => [
+        'depends' => [
             'typo3' => '6.2.0-8.7.99'
-        ),
-        'conflicts' => array(),
-        'suggests' => array()
-    ),
-    'suggests' => array(),
-    'classmap' => array(
+        ],
+        'conflicts' => [],
+        'suggests' => []
+    ],
+    'suggests' => [],
+    'classmap' => [
         'Classes/'
-    )
-);
+    ]
+];

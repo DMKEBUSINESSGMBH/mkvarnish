@@ -47,19 +47,19 @@ class DataHandlerHookTest extends \tx_rnbase_tests_BaseTestCase
      */
     public function testClearCachePostProcForCacheCmdSystem()
     {
-        $headers = array();
+        $headers = [];
         $headers['X-TYPO3-Sitename'] = 'sda12367';
         $headers['X-Varnish-Purge-All'] = '1';
 
         $mock = $this->getMock(
             DataHandlerHook::class,
-            array('getSitename', 'executePurge')
+            ['getSitename', 'executePurge']
         );
 
         $mock->expects($this->once())->method('getSitename')->will($this->returnValue('sda12367'));
         $mock->expects($this->once())->method('executePurge')->with($headers);
 
-        $mock->clearCachePostProc(array('cacheCmd' => 'system'));
+        $mock->clearCachePostProc(['cacheCmd' => 'system']);
     }
 
     /**
@@ -72,20 +72,20 @@ class DataHandlerHookTest extends \tx_rnbase_tests_BaseTestCase
      */
     public function testClearCachePostProcForTtContent()
     {
-        $headers = array();
+        $headers = [];
         $headers['X-TYPO3-Sitename'] = 'sda12367';
-        $headers['X-Cache-Tags'] = array('tt_content', 'tt_content_5', 'pageId_7');
+        $headers['X-Cache-Tags'] = ['tt_content', 'tt_content_5', 'pageId_7'];
 
         $mock = $this->getMock(
             DataHandlerHook::class,
-            array('getSitename', 'executePurge', 'convertCacheTagsForPurge')
+            ['getSitename', 'executePurge', 'convertCacheTagsForPurge']
         );
 
         $mock->expects($this->once())->method('getSitename')->will($this->returnValue('sda12367'));
         $mock->expects($this->once())->method('convertCacheTagsForPurge')->will($this->returnArgument(0));
         $mock->expects($this->once())->method('executePurge')->with($headers);
 
-        $mock->clearCachePostProc(array('table' => 'tt_content', 'uid' => '5', 'uid_page' => '7'));
+        $mock->clearCachePostProc(['table' => 'tt_content', 'uid' => '5', 'uid_page' => '7']);
     }
 
     /**
@@ -98,15 +98,15 @@ class DataHandlerHookTest extends \tx_rnbase_tests_BaseTestCase
      */
     public function testConvertCacheTagsForPurge()
     {
-        $tags = array('tt_content', 'tt_content_5', 'pageId_7');
+        $tags = ['tt_content', 'tt_content_5', 'pageId_7'];
 
         $mock = $this->getMock(
             DataHandlerHook::class
         );
 
         $converted = $this->callInaccessibleMethod(
-            array($mock, 'convertCacheTagsForPurge'),
-            array($tags)
+            [$mock, 'convertCacheTagsForPurge'],
+            [$tags]
         );
 
         // check if the right regex was returned

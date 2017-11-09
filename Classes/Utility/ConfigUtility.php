@@ -54,6 +54,6 @@ class ConfigUtility
      */
     public static function getHostnames()
     {
-        return array(GeneralUtility::getIndpEnv('HTTP_HOST'));
+        return [GeneralUtility::getIndpEnv('HTTP_HOST')];
     }
 }
