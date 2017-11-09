@@ -172,17 +172,6 @@ sub vcl_hash {
 
 sub vcl_backend_response {
 
-    # Set default cache to 24 hours
-    set beresp.ttl = 24h;
-
-    # Deliver old content up to 1 day
-    set beresp.grace = 24h;
-
-    # Set cache for 3 days
-    if (bereq.url ~ "\.(png|gif|jpeg|jpg|ico|swf|css|css\.gzip|js|js\.gzip|pdf|txt)(\?|$)") {
-        set beresp.ttl = 72h;
-    }
-
     # Delete cookies if not required (no session data or fe_typo_user)
     if (bereq.method == "POST" || bereq.url ~ "^/typo3" || bereq.url ~ "(\?|&)eID=") {
     } else {
