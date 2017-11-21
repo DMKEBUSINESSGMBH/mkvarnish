@@ -71,7 +71,7 @@ class FrontendHook
         $headers = [];
 
         // set cache tags for varnish if a reverseProxyIP was configured
-        if ($this->isRevProxy()) {
+        if ($this->isSendCacheHeadersEnabled()) {
             $tsfe = $this->getTsFe();
             $headers['X-Cache-Tags'] = implode(',', $this->getCacheTags());
             $headers['X-TYPO3-Sitename'] = $this->getSitename();
@@ -128,7 +128,7 @@ class FrontendHook
      */
     protected function getSitename()
     {
-        return \DMK\Mkvarnish\Utility\ConfigUtility::getSitename();
+        return \DMK\Mkvarnish\Utility\ConfigUtility::instance()->getSitename();
     }
 
     /**
@@ -136,9 +136,9 @@ class FrontendHook
      *
      * @return bool
      * */
-    protected function isRevProxy()
+    protected function isSendCacheHeadersEnabled()
     {
-        return \Tx_Rnbase_Utility_T3General::getIndpEnv('TYPO3_REV_PROXY');
+        return \DMK\Mkvarnish\Utility\ConfigUtility::instance()->isSendCacheHeadersEnabled();
     }
 
     /**

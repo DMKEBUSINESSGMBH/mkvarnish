@@ -61,7 +61,7 @@ composer require dmk/mkvarnish
 ### Configuration
 
  *  set `$TYPO3_CONF_VARS['SYS']['reverseProxyIP']` to the IP address
-    which is used by Varnish to connect to your Webserver
+    which is used by Varnish to connect to your Webserver ore enable the caching in the extension configuration by set `sendCacheHeaders` to `Force Enabled`.
  *  do not use sessions, the fe_typo_user cookie will disable the caching
  *  dont set `no_cache=1`
  *  the use of *_INT objects will disable the cache too, dont use it

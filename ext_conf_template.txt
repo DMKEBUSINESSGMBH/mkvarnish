@@ -1,0 +1,2 @@
+# cat=basic; type=options[reverse Proxy Check=0,Force Enabled=1,Force Disabled=2]; label=Should de advanced cache headers be send?: By default the configured reverseProxyIP will be checked agains the REMOTE_ADDR. If there is a match we will send the cache headers. You can force orde disable the header direktly too.
+sendCacheHeaders = 0

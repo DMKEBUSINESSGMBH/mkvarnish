@@ -24,11 +24,8 @@
 
 defined('TYPO3_MODE') || die('Access denied.');
 
-
 call_user_func(
     function () {
-        global $TYPO3_CONF_VARS;
-
         switch (TYPO3_MODE) {
             case 'FE':
                 // add static ts
@@ -39,13 +36,16 @@ call_user_func(
                     43
                 );
                 // Hook to add the cache tags
-                $TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['isOutputting']['mkvarnish'] = 'DMK\\Mkvarnish\\Hook\\FrontendHook->handleHeaders';
+                $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']
+                    ['tslib/class.tslib_fe.php']['isOutputting']['mkvarnish']
+                        = 'DMK\\Mkvarnish\\Hook\\FrontendHook->handleHeaders';
                 break;
             case 'BE':
                 // Hook for clear cache
-                $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc']['mkvarnish'] = 'DMK\\Mkvarnish\\Hook\\DataHandlerHook->clearCachePostProc';
+                $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']
+                    ['t3lib/class.t3lib_tcemain.php']['clearCachePostProc']['mkvarnish']
+                        = 'DMK\\Mkvarnish\\Hook\\DataHandlerHook->clearCachePostProc';
                 break;
         }
     }
 );
-

@@ -63,6 +63,10 @@ class DataHandlerHook
          * table:tt_news, uid:88, uid_page:3333 > edit tt_news element on storage
          */
 
+        if (!$this->isSendCacheHeadersEnabled()) {
+            return;
+        }
+
 
         // if uid_page is -1, were in a draft workspace and skip Varnish clearing
         if (isset($params['uid_page']) && $params['uid_page'] == -1) {
@@ -92,6 +96,16 @@ class DataHandlerHook
     }
 
     /**
+     * Check if we are behind a reverse proxy
+     *
+     * @return bool
+     * */
+    protected function isSendCacheHeadersEnabled()
+    {
+        return \DMK\Mkvarnish\Utility\ConfigUtility::instance()->isSendCacheHeadersEnabled();
+    }
+
+    /**
      * Creates the PURGE requests
      *
      * @param array $options
@@ -109,7 +123,7 @@ class DataHandlerHook
         $method = 'PURGE';
 
         $varnishHttp = CurlMultiUtility::instance();
-        foreach (ConfigUtility::getHostnames() as $hostname) {
+        foreach (ConfigUtility::instance()->getHostnames() as $hostname) {
             $varnishHttp->addCommand($method, $hostname, $headers);
         }
     }
@@ -135,6 +149,6 @@ class DataHandlerHook
      */
     protected function getSitename()
     {
-        return \DMK\Mkvarnish\Utility\ConfigUtility::getSitename();
+        return \DMK\Mkvarnish\Utility\ConfigUtility::instance()->getSitename();
     }
 }

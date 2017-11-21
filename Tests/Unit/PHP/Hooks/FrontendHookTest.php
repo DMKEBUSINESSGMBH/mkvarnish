@@ -51,7 +51,7 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
 
         $mock = $this->getMock(
             FrontendHook::class,
-            ['isRevProxy', 'getTsFe', 'getHeaders', 'sendHeaders']
+            ['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders']
         );
 
         $mock->expects($this->once())->method('getHeaders')->will($this->returnValue($headers));
@@ -72,7 +72,7 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
     {
         $mock = $this->getMock(
             FrontendHook::class,
-            ['isRevProxy', 'getTsFe', 'getHeaders', 'sendHeaders']
+            ['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders']
         );
 
         $mock->expects($this->once())->method('getHeaders')->will($this->returnValue([]));
@@ -93,10 +93,10 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
     {
         $mock = $this->getMock(
             FrontendHook::class,
-            ['isRevProxy']
+            ['isSendCacheHeadersEnabled']
         );
 
-        $mock->expects($this->once())->method('isRevProxy')->will($this->returnValue(false));
+        $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(false));
 
         $headers = $this->callInaccessibleMethod(
             $mock,
@@ -124,10 +124,10 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
 
         $mock = $this->getMock(
             FrontendHook::class,
-            ['isRevProxy', 'getTsFe', 'getCacheTags', 'getSitename']
+            ['isSendCacheHeadersEnabled', 'getTsFe', 'getCacheTags', 'getSitename']
         );
 
-        $mock->expects($this->once())->method('isRevProxy')->will($this->returnValue(true));
+        $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
         $mock->expects($this->once())->method('getTsFe')->will($this->returnValue($tsfe));
         $mock->expects($this->once())->method('getSitename')->will($this->returnValue('345dfg'));
         ($mock
