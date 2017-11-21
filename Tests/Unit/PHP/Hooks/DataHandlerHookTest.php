@@ -53,9 +53,10 @@ class DataHandlerHookTest extends \tx_rnbase_tests_BaseTestCase
 
         $mock = $this->getMock(
             DataHandlerHook::class,
-            ['getSitename', 'executePurge']
+            ['isSendCacheHeadersEnabled', 'getSitename', 'executePurge']
         );
 
+        $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
         $mock->expects($this->once())->method('getSitename')->will($this->returnValue('sda12367'));
         $mock->expects($this->once())->method('executePurge')->with($headers);
 
@@ -78,9 +79,10 @@ class DataHandlerHookTest extends \tx_rnbase_tests_BaseTestCase
 
         $mock = $this->getMock(
             DataHandlerHook::class,
-            ['getSitename', 'executePurge', 'convertCacheTagsForPurge']
+            ['isSendCacheHeadersEnabled', 'getSitename', 'executePurge', 'convertCacheTagsForPurge']
         );
 
+        $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
         $mock->expects($this->once())->method('getSitename')->will($this->returnValue('sda12367'));
         $mock->expects($this->once())->method('convertCacheTagsForPurge')->will($this->returnArgument(0));
         $mock->expects($this->once())->method('executePurge')->with($headers);
