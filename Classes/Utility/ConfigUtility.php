@@ -51,7 +51,7 @@ class ConfigUtility implements \Tx_Rnbase_Interface_Singleton
      */
     public static function instance()
     {
-        return new self();
+        return \tx_rnbase::makeInstance(get_called_class());
     }
 
     /**
