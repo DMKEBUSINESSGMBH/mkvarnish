@@ -150,15 +150,39 @@ class ConfigUtilityTest extends \tx_rnbase_tests_BaseTestCase
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
             ['sendCacheHeaders' => '2']
-        );
+            );
 
         $mock = $this->getMock(
             ConfigUtility::class,
             ['isRevProxy']
-        );
+            );
         $mock->expects($this->never())->method('isRevProxy');
 
         // should return rp
         $this->assertFalse($mock->isSendCacheHeadersEnabled());
+    }
+
+    /**
+     * Test the getHostnames method
+     *
+     * @return void
+     *
+     * @group unit
+     * @test
+     */
+    public function testGetHostnames()
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
+            ['hostnames' => '127.0.0.1, 192.168.0.1']
+        );
+
+        $mock = new ConfigUtility();
+
+        $hostnames = $mock->getHostnames();
+
+        $this->assertCount(3, $hostnames);
+        $this->assertEquals('127.0.0.1', $hostnames[0]);
+        $this->assertEquals('192.168.0.1', $hostnames[1]);
+        $this->assertEquals($_SERVER['HTTP_HOST'], $hostnames[2]);
     }
 }

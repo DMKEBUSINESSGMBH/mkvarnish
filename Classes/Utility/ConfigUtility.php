@@ -120,6 +120,13 @@ class ConfigUtility implements \Tx_Rnbase_Interface_Singleton
      */
     public function getHostnames()
     {
-        return [GeneralUtility::getIndpEnv('HTTP_HOST')];
+        $hosts = \Tx_Rnbase_Utility_Strings::trimExplode(
+            ',',
+            self::getExtConfValue('hostnames'),
+            true
+        );
+        $hosts[] = GeneralUtility::getIndpEnv('HTTP_HOST');
+
+        return $hosts;
     }
 }
