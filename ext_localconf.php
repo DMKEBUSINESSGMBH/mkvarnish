@@ -28,13 +28,20 @@ call_user_func(
     function () {
         switch (TYPO3_MODE) {
             case 'FE':
-                // add static ts
+                $typoScriptSetup =
+                    '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:mkvarnish/Configuration/TypoScript/setup.txt">';
+
+                if (\DMK\Mkvarnish\Utility\ConfigUtility::instance()->isSendCacheHeadersEnabled()) {
+                    $typoScriptSetup .= LF . 'config.sendCacheHeaders = 1';
+                }
+
                 \tx_rnbase_util_Extensions::addTypoScript(
                     'varnish',
                     'setup',
-                    '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:mkvarnish/Configuration/TypoScript/setup.txt">',
+                    $typoScriptSetup,
                     43
                 );
+
                 // Hook to add the cache tags
                 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']
                     ['tslib/class.tslib_fe.php']['isOutputting']['mkvarnish']
