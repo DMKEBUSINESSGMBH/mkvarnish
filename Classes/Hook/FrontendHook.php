@@ -48,17 +48,6 @@ class FrontendHook
         if (!empty($headers)) {
             $this->sendHeaders($headers);
         }
-
-        // enable this debug to find out the *_int scripts
-//         $tsfe = $this->getTsFe();
-//         echo '<h1>DEBUG: '.__FILE__.'LINE: '.__LINE__.'</h1><pre>'.var_export(array(
-//             'cHash' => $tsfe->cHash ?: $tsfe->newHash,
-//             'int_script_count' => count($tsfe->config['INTincScript']),
-//             'max-age' => $tsfe->cacheExpires - $GLOBALS['EXEC_TIME'],
-//             'cachable' => $tsfe->isStaticCacheble(),
-//             'cachable.' => [!$tsfe->no_cache, !$tsfe->isINTincScript(), !$tsfe->isUserOrGroupSet()],
-//             'int_scripts.' => ($tsfe->config['INTincScript']),
-//             ), TRUE).'</pre>';
     }
 
     /**
@@ -70,15 +59,24 @@ class FrontendHook
     {
         $headers = [];
 
-        // set cache tags for varnish if a reverseProxyIP was configured
         if ($this->isSendCacheHeadersEnabled()) {
-            $tsfe = $this->getTsFe();
-            $headers['X-Cache-Tags'] = implode(',', $this->getCacheTags());
-            $headers['X-TYPO3-Sitename'] = $this->getSitename();
-            /// developer infos only. this headers should be removed in varnich vcl
-            $headers['X-TYPO3-cHash'] = $tsfe->newHash ?: $tsfe->cHash;
-            $headers['X-TYPO3-INTincScripts'] = count($tsfe->config['INTincScript']);
+            $headers = $this->getHeadersForVarnish();
         }
+
+        return $headers;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getHeadersForVarnish()
+    {
+        $tsfe = $this->getTsFe();
+        $headers['X-Cache-Tags'] = implode(',', $this->getCacheTags());
+        $headers['X-TYPO3-Sitename'] = $this->getSitename();
+        /// developer infos only. this headers should be removed in varnich vcl
+        $headers['X-TYPO3-cHash'] = $tsfe->newHash ?: $tsfe->cHash;
+        $headers['X-TYPO3-INTincScripts'] = count($tsfe->config['INTincScript']);
 
         return $headers;
     }
