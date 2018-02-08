@@ -49,6 +49,11 @@ call_user_func(
                 break;
         }
 
+        // autoloading in TYPO3 6.2 does not work at the moment
+        if (!tx_rnbase_util_TYPO3::isTYPO70OrHigher()) {
+            tx_rnbase::load('DMK\Mkvarnish\Cache\VarnishBackend');
+            tx_rnbase::load('DMK\Mkvarnish\Utility\CurlQueue');
+        }
         if ($configurationUtility->isSendCacheHeadersEnabled()) {
             $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['varnish'] = array(
                 'backend' => 'DMK\Mkvarnish\Cache\VarnishBackend',

@@ -32,7 +32,9 @@ $EM_CONF[$_EXTKEY] = [
         'suggests' => []
     ],
     'suggests' => [],
-    'classmap' => [
-        'Classes/'
+    'autoload' => [
+        'classmap' => [
+            'Classes'
+        ]
     ]
 ];
