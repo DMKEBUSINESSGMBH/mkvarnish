@@ -172,12 +172,18 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
      */
     public function testGetHeadersForCacheTagsIfCacheTagsPresent()
     {
-        \tx_rnbase_util_TYPO3::getTSFE()->addCacheTags(['tag1', 'tag2']);
-
-        $headers = $this->callInaccessibleMethod(
-            new Frontend(),
-            'getHeadersForCacheTags'
+        $tsfe = $this->getAccessibleMock(
+            \tx_rnbase_util_Typo3Classes::getTypoScriptFrontendControllerClass(),
+            ['determineId'],
+            [],
+            '',
+            false
         );
+        $tsfe->addCacheTags(['tag1', 'tag2']);
+
+        $hook = $this->getMock(Frontend::class, ['getTsFe']);
+        $hook->expects($this->once())->method('getTsFe')->will($this->returnValue($tsfe));
+        $headers = $this->callInaccessibleMethod($hook, 'getHeadersForCacheTags');
 
         $this->assertTrue(is_array($headers));
         $this->assertCount(1, $headers);
@@ -192,10 +198,16 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
      */
     public function testGetHeadersForCacheTagsIfCacheTagsNotPresent()
     {
-        $headers = $this->callInaccessibleMethod(
-            new Frontend(),
-            'getHeadersForCacheTags'
+        $tsfe = $this->getAccessibleMock(
+            \tx_rnbase_util_Typo3Classes::getTypoScriptFrontendControllerClass(),
+            ['determineId'],
+            [],
+            '',
+            false
         );
+        $hook = $this->getMock(Frontend::class, ['getTsFe']);
+        $hook->expects($this->once())->method('getTsFe')->will($this->returnValue($tsfe));
+        $headers = $this->callInaccessibleMethod($hook, 'getHeadersForCacheTags');
 
         $this->assertTrue(is_array($headers));
         $this->assertCount(1, $headers);
