@@ -1,5 +1,5 @@
 <?php
-namespace DMK\Mkvarnish\Tests\Hooks;
+namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 
 /***************************************************************
  * Copyright notice
@@ -24,7 +24,7 @@ namespace DMK\Mkvarnish\Tests\Hooks;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use DMK\Mkvarnish\Hook\FrontendHook;
+use DMK\Mkvarnish\Hook\Frontend;
 
 /**
  * This class communicates with the varnish server
@@ -35,8 +35,20 @@ use DMK\Mkvarnish\Hook\FrontendHook;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
+class FrontendTest extends \tx_rnbase_tests_BaseTestCase
 {
+
+    /**
+     * {@inheritDoc}
+     * @see PHPUnit_Framework_TestCase::tearDown()
+     */
+    protected function tearDown()
+    {
+        if (isset($GLOBALS['TSFE'])) {
+            unset($GLOBALS['TSFE']);
+        }
+    }
+
     /**
      * Test the handleHeaders method
      *
@@ -50,7 +62,7 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
         $headers['name'] = 'wert';
 
         $mock = $this->getMock(
-            FrontendHook::class,
+            Frontend::class,
             ['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders']
         );
 
@@ -71,7 +83,7 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
     public function testHandleHeadersWithoutHeaders()
     {
         $mock = $this->getMock(
-            FrontendHook::class,
+            Frontend::class,
             ['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders']
         );
 
@@ -92,7 +104,7 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
     public function testGetHeadersWithoutVarnish()
     {
         $mock = $this->getMock(
-            FrontendHook::class,
+            Frontend::class,
             ['isSendCacheHeadersEnabled']
         );
 
@@ -123,17 +135,17 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
         $tsfe->config['INTincScript'] = ['one', 'two'];
 
         $mock = $this->getMock(
-            FrontendHook::class,
-            ['isSendCacheHeadersEnabled', 'getTsFe', 'getCacheTags', 'getSitename']
+            Frontend::class,
+            ['isSendCacheHeadersEnabled', 'getTsFe', 'getHeadersForCacheTags', 'getHmacForSitename']
         );
 
         $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
         $mock->expects($this->once())->method('getTsFe')->will($this->returnValue($tsfe));
-        $mock->expects($this->once())->method('getSitename')->will($this->returnValue('345dfg'));
+        $mock->expects($this->once())->method('getHmacForSitename')->will($this->returnValue('345dfg'));
         ($mock
             ->expects($this->once())
-            ->method('getCacheTags')
-            ->will($this->returnValue(['pages', 'pages_419']))
+            ->method('getHeadersForCacheTags')
+            ->will($this->returnValue(['X-Cache-Tags' => 'pages,pages_419']))
         );
 
         $headers = $this->callInaccessibleMethod(
@@ -152,5 +164,43 @@ class FrontendHookTest extends \tx_rnbase_tests_BaseTestCase
         $this->assertEquals('asd123hjk678', $headers['X-TYPO3-cHash']);
         $this->assertArrayHasKey('X-TYPO3-INTincScripts', $headers);
         $this->assertEquals(2, $headers['X-TYPO3-INTincScripts']);
+    }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function testGetHeadersForCacheTagsIfCacheTagsPresent()
+    {
+        \tx_rnbase_util_TYPO3::getTSFE()->addCacheTags(['tag1', 'tag2']);
+
+        $headers = $this->callInaccessibleMethod(
+            new Frontend(),
+            'getHeadersForCacheTags'
+        );
+
+        $this->assertTrue(is_array($headers));
+        $this->assertCount(1, $headers);
+
+        $this->assertArrayHasKey('X-Cache-Tags', $headers);
+        $this->assertEquals('tag1,tag2', $headers['X-Cache-Tags']);
+    }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function testGetHeadersForCacheTagsIfCacheTagsNotPresent()
+    {
+        $headers = $this->callInaccessibleMethod(
+            new Frontend(),
+            'getHeadersForCacheTags'
+        );
+
+        $this->assertTrue(is_array($headers));
+        $this->assertCount(1, $headers);
+
+        $this->assertArrayHasKey('Cache-control', $headers);
+        $this->assertEquals('private, no-store', $headers['Cache-control']);
     }
 }

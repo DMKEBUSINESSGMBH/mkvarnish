@@ -24,8 +24,6 @@ namespace DMK\Mkvarnish\Utility;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 /**
  * TYPO3 Hook to extend the header with cache tags
  *
@@ -35,7 +33,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class ConfigUtility implements \Tx_Rnbase_Interface_Singleton
+class Configuration implements \Tx_Rnbase_Interface_Singleton
 {
     /**
      * The extension configuration
@@ -43,16 +41,6 @@ class ConfigUtility implements \Tx_Rnbase_Interface_Singleton
      * @var array
      */
     private $extConf = null;
-
-    /**
-     * Returns an instance of this config
-     *
-     * @return \DMK\Mkvarnish\Utility\ConfigUtility
-     */
-    public static function instance()
-    {
-        return \tx_rnbase::makeInstance(get_called_class());
-    }
 
     /**
      * Gets a config value from extension configuration
@@ -108,9 +96,9 @@ class ConfigUtility implements \Tx_Rnbase_Interface_Singleton
      *
      * @return mixed
      */
-    public function getSitename()
+    public function getHmacForSitename()
     {
-        return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+        return \Tx_Rnbase_Utility_T3General::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
     }
 
     /**
@@ -118,14 +106,16 @@ class ConfigUtility implements \Tx_Rnbase_Interface_Singleton
      *
      * @return array
      */
-    public function getHostnames()
+    public function getHostNamesForPurge()
     {
         $hosts = \Tx_Rnbase_Utility_Strings::trimExplode(
             ',',
             self::getExtConfValue('hostnames'),
             true
         );
-        $hosts[] = GeneralUtility::getIndpEnv('HTTP_HOST');
+        if (empty($hosts)) {
+            $hosts[] = \Tx_Rnbase_Utility_T3General::getIndpEnv('HTTP_HOST');
+        }
 
         return $hosts;
     }

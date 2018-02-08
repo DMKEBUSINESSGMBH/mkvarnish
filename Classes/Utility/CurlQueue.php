@@ -33,8 +33,9 @@ namespace DMK\Mkvarnish\Utility;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class CurlMultiUtility
+class CurlQueue implements \Tx_Rnbase_Interface_Singleton
 {
+
     /**
      * Queue ressource for curl multi-handle
      *
@@ -42,28 +43,13 @@ class CurlMultiUtility
      */
 
     protected $curlQueue;
+
     /**
      * Queue for curl child handle
      *
      * @var array
      */
     protected $curlHandles;
-
-    /**
-     * Creates an instance of this utility
-     *
-     * @return \DMK\Mkvarnish\Utility\CurlMultiUtility
-     */
-    public static function instance()
-    {
-        static $instance;
-
-        if ($instance === null) {
-            $instance = new self();
-        }
-
-        return $instance;
-    }
 
     /**
      * Class constructor

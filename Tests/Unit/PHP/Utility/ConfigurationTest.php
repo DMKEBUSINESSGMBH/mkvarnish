@@ -1,5 +1,5 @@
 <?php
-namespace DMK\Mkvarnish\Tests\Utility;
+namespace DMK\Mkvarnish\Tests\Unit\Utility;
 
 /***************************************************************
  * Copyright notice
@@ -24,7 +24,7 @@ namespace DMK\Mkvarnish\Tests\Utility;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use \DMK\Mkvarnish\Utility\ConfigUtility;
+use \DMK\Mkvarnish\Utility\Configuration;
 
 /**
  * This class communicates with the varnish server
@@ -35,16 +35,20 @@ use \DMK\Mkvarnish\Utility\ConfigUtility;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class ConfigUtilityTest extends \tx_rnbase_tests_BaseTestCase
+class ConfigurationTest extends \tx_rnbase_tests_BaseTestCase
 {
-    protected $extConfBackup = null;
+
+    /**
+     * @var array
+     */
+    protected $extConfBackup = [];
 
     /**
      * Set up the Test
      *
      * @return void
      */
-    public function setUp()
+    protected function setUp()
     {
         $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'];
     }
@@ -53,7 +57,7 @@ class ConfigUtilityTest extends \tx_rnbase_tests_BaseTestCase
      *
      * @return void
      */
-    public function tearDown()
+    protected function tearDown()
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = $this->extConfBackup;
     }
@@ -72,7 +76,7 @@ class ConfigUtilityTest extends \tx_rnbase_tests_BaseTestCase
             ['my_key' => 'my_value']
         );
 
-        $mock = $this->getMock(ConfigUtility::class);
+        $mock = $this->getMock(Configuration::class);
 
         // should return right value
         $this->assertEquals(
@@ -101,7 +105,7 @@ class ConfigUtilityTest extends \tx_rnbase_tests_BaseTestCase
         );
 
         $mock = $this->getMock(
-            ConfigUtility::class,
+            Configuration::class,
             ['isRevProxy']
         );
 
@@ -129,7 +133,7 @@ class ConfigUtilityTest extends \tx_rnbase_tests_BaseTestCase
         );
 
         $mock = $this->getMock(
-            ConfigUtility::class,
+            Configuration::class,
             ['isRevProxy']
         );
         $mock->expects($this->never())->method('isRevProxy');
@@ -153,7 +157,7 @@ class ConfigUtilityTest extends \tx_rnbase_tests_BaseTestCase
             );
 
         $mock = $this->getMock(
-            ConfigUtility::class,
+            Configuration::class,
             ['isRevProxy']
             );
         $mock->expects($this->never())->method('isRevProxy');
@@ -163,26 +167,42 @@ class ConfigUtilityTest extends \tx_rnbase_tests_BaseTestCase
     }
 
     /**
-     * Test the getHostnames method
+     * Test the getHostNamesForPurge method
      *
      * @return void
      *
      * @group unit
      * @test
      */
-    public function testGetHostnames()
+    public function testGetHostNamesForPurgeIfConfigured()
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
             ['hostnames' => '127.0.0.1, 192.168.0.1']
         );
 
-        $mock = new ConfigUtility();
+        $mock = new Configuration();
 
-        $hostnames = $mock->getHostnames();
+        $hostnames = $mock->getHostNamesForPurge();
 
-        $this->assertCount(3, $hostnames);
+        $this->assertCount(2, $hostnames);
         $this->assertEquals('127.0.0.1', $hostnames[0]);
         $this->assertEquals('192.168.0.1', $hostnames[1]);
-        $this->assertEquals($_SERVER['HTTP_HOST'], $hostnames[2]);
+    }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function testGetHostNamesForPurgeIfNoneConfigured()
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
+            ['hostnames' => '']
+        );
+        $mock = new Configuration();
+
+        $hostnames = $mock->getHostNamesForPurge();
+
+        $this->assertCount(1, $hostnames);
+        $this->assertEquals($_SERVER['HTTP_HOST'], $hostnames[0]);
     }
 }

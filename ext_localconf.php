@@ -26,12 +26,12 @@ defined('TYPO3_MODE') || die('Access denied.');
 
 call_user_func(
     function () {
+        $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
         switch (TYPO3_MODE) {
             case 'FE':
                 $typoScriptSetup =
                     '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:mkvarnish/Configuration/TypoScript/setup.txt">';
-
-                if (\DMK\Mkvarnish\Utility\ConfigUtility::instance()->isSendCacheHeadersEnabled()) {
+                if ($configurationUtility->isSendCacheHeadersEnabled()) {
                     $typoScriptSetup .= LF . 'config.sendCacheHeaders = 1';
                 }
 
@@ -45,14 +45,16 @@ call_user_func(
                 // Hook to add the cache tags
                 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']
                     ['tslib/class.tslib_fe.php']['isOutputting']['mkvarnish']
-                        = 'DMK\\Mkvarnish\\Hook\\FrontendHook->handleHeaders';
+                        = 'DMK\\Mkvarnish\\Hook\\Frontend->handleHeaders';
                 break;
-            case 'BE':
-                // Hook for clear cache
-                $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']
-                    ['t3lib/class.t3lib_tcemain.php']['clearCachePostProc']['mkvarnish']
-                        = 'DMK\\Mkvarnish\\Hook\\DataHandlerHook->clearCachePostProc';
-                break;
+        }
+
+        if ($configurationUtility->isSendCacheHeadersEnabled()) {
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['varnish'] = array(
+                'backend' => 'DMK\Mkvarnish\Cache\VarnishBackend',
+                'frontend' => 'TYPO3\CMS\Core\Cache\Frontend\VariableFrontend',
+                'groups' => array('pages', 'all')
+            );
         }
     }
 );

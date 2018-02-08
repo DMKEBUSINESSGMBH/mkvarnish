@@ -34,7 +34,7 @@ namespace DMK\Mkvarnish\Hook;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class FrontendHook
+class Frontend
 {
     /**
      * ContentPostProc-output hook to add cache headers.
@@ -72,8 +72,9 @@ class FrontendHook
     protected function getHeadersForVarnish()
     {
         $tsfe = $this->getTsFe();
-        $headers['X-Cache-Tags'] = implode(',', $this->getCacheTags());
-        $headers['X-TYPO3-Sitename'] = $this->getSitename();
+
+        $headers = $this->getHeadersForCacheTags();
+        $headers['X-TYPO3-Sitename'] = $this->getHmacForSitename();
         /// developer infos only. this headers should be removed in varnich vcl
         $headers['X-TYPO3-cHash'] = $tsfe->newHash ?: $tsfe->cHash;
         $headers['X-TYPO3-INTincScripts'] = count($tsfe->config['INTincScript']);
@@ -101,7 +102,7 @@ class FrontendHook
      *
      * @return array
      */
-    protected function getCacheTags()
+    protected function getHeadersForCacheTags()
     {
         $tsfe = $this->getTsFe();
 
@@ -112,11 +113,26 @@ class FrontendHook
 
         $cacheTags = $property->getValue($tsfe);
 
+        // if we have no cache tags this means that the page is requested
+        // for the second time and is now taken from the TYPO3 page cache as
+        // TYPO3 sets the pageCacheTags only when the page is cached initially.
+        // This also means that varnish was not able to cache the first request.
+        // Othwerwise we wouldn't be here. Possible reasons could be that some USER plugin triggered
+        // the creation of the fe_typo_user cookie for example by writing session data.
+        // As the plugin is cached the fe_typo_user wouldn't be written for subsequent
+        // requests of other users. This would cause varnish to cache the second request
+        // (cached version of TYPO3). This is problematic as the actual cache tags
+        // of this page are missing. The page would be cached by varnish without correct cache
+        // tags. When the cache is cleared in the BE by cache tags we wouldn't clear the correct
+        // pages in varnish because of wrong cache tags. That's why it's better to disable caching
+        // by varnish so the problem can be investigated.
         if (empty($cacheTags)) {
-            $cacheTags = ['pages', 'pageId_' . $tsfe->id];
+            $headers['Cache-control'] = 'private, no-store';
+        } else {
+            $headers['X-Cache-Tags'] = implode(',', $cacheTags);
         }
 
-        return $cacheTags;
+        return $headers;
     }
 
     /**
@@ -124,9 +140,11 @@ class FrontendHook
      *
      * @return mixed
      */
-    protected function getSitename()
+    protected function getHmacForSitename()
     {
-        return \DMK\Mkvarnish\Utility\ConfigUtility::instance()->getSitename();
+        $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
+
+        return $configurationUtility->getHmacForSitename();
     }
 
     /**
@@ -136,7 +154,9 @@ class FrontendHook
      * */
     protected function isSendCacheHeadersEnabled()
     {
-        return \DMK\Mkvarnish\Utility\ConfigUtility::instance()->isSendCacheHeadersEnabled();
+        $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
+
+        return $configurationUtility->isSendCacheHeadersEnabled();
     }
 
     /**
