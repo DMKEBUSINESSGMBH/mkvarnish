@@ -172,7 +172,7 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
      */
     public function testGetHeadersForCacheTagsIfCacheTagsPresent()
     {
-        $tsfe = $this->getAccessibleMock(
+        $tsfe = $this->getMock(
             \tx_rnbase_util_Typo3Classes::getTypoScriptFrontendControllerClass(),
             ['determineId'],
             [],
@@ -198,7 +198,7 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
      */
     public function testGetHeadersForCacheTagsIfCacheTagsNotPresent()
     {
-        $tsfe = $this->getAccessibleMock(
+        $tsfe = $this->getMock(
             \tx_rnbase_util_Typo3Classes::getTypoScriptFrontendControllerClass(),
             ['determineId'],
             [],
