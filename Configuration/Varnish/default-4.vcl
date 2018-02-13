@@ -77,11 +77,6 @@ sub vcl_recv {
             return (synth(200, "Banned cache tags " + req.http.X-Cache-Tags)) ;
         }
 
-        if (req.url ~ "\*") {
-            ### plusserver fallback ban
-            ban("obj.http.X-Purge-URL ~ " + req.url + " && obj.http.X-Purge-Host == " + req.http.host);
-            return (synth (200, "Purge added"));
-        }
         return (purge);
     }
 
@@ -185,22 +180,6 @@ sub vcl_recv {
         unset req.http.Cookie;
     }
 
-    # Handle compression correctly. Different browsers send different
-    # "Accept-Encoding" headers, even though they mostly all support the same
-    # compression mechanisms.
-    if (req.http.Accept-Encoding) {
-        if (req.http.Accept-Encoding ~ "gzip") {
-            # If the browser supports gzip, that is what we use
-            set req.http.Accept-Encoding = "gzip";
-        } else if (req.http.Accept-Encoding ~ "deflate") {
-            # Next try deflate encoding
-            set req.http.Accept-Encoding = "deflate";
-        } else {
-            # Unknown algorithm. Remove it and send unencoded.
-            unset req.http.Accept-Encoding;
-        }
-    }
-
     return (pass);
 }
 
@@ -232,7 +211,6 @@ sub vcl_pass {
 sub vcl_purge {
     return (synth(200, "Object purged"));
 }
-
 
 #
 ## Called to determine the hash key used to look up
