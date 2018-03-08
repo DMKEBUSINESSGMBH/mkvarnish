@@ -31,11 +31,6 @@ sub vcl_recv {
     # debug id for customer
     set req.http.X-Debug-ID = "12473148735471684";
 
-    # enable force-refresh from clients
-    if (req.http.Cache-Control ~ "no-cache") {
-      set req.hash_always_miss = true;
-    }
-
     # X-Forwarded-For Behandlung
     if (req.restarts == 0) {
       if (req.http.x-forwarded-for) {
@@ -109,6 +104,24 @@ sub vcl_recv {
         return (pipe);
     }
 
+    if (req.url ~ "(\?|&)(utm_source|utm_medium|utm_campaign|utm_content|gclid|cx|ie|cof|siteurl)=") {
+        set req.url = regsuball(req.url, "&(utm_source|utm_medium|utm_campaign|utm_content|gclid|cx|ie|cof|siteurl)=([A-z0-9_\-\.%25]+)", "");
+        set req.url = regsuball(req.url, "\?(utm_source|utm_medium|utm_campaign|utm_content|gclid|cx|ie|cof|siteurl)=([A-z0-9_\-\.%25]+)", "?");
+        set req.url = regsub(req.url, "\?&", "?");
+        set req.url = regsub(req.url, "\?$", "");
+    }
+
+    # Remove any Google Analytics based cookies
+    set req.http.Cookie = regsuball(req.http.Cookie, "__utm.=[^;]+(; )?", "");
+    set req.http.Cookie = regsuball(req.http.Cookie, "_ga=[^;]+(; )?", "");
+    set req.http.Cookie = regsuball(req.http.Cookie, "_gat=[^;]+(; )?", "");
+    set req.http.Cookie = regsuball(req.http.Cookie, "utmctr=[^;]+(; )?", "");
+    set req.http.Cookie = regsuball(req.http.Cookie, "utmcmd.=[^;]+(; )?", "");
+    set req.http.Cookie = regsuball(req.http.Cookie, "utmccn.=[^;]+(; )?", "");
+
+    # remove piwik cookies
+    set req.http.Cookie = regsuball(req.http.Cookie, "(^|;\s*)(_pk_(ses|id)[\.a-z0-9]*)=[^;]*", "");
+
     # Discard any X-Forwarded-Protocol-Header for security reasons
     if (req.http.X-Forwarded-Protocol) {
          unset req.http.X-Forwarded-Protocol;
@@ -152,10 +165,29 @@ sub vcl_recv {
     # normalize url in case of leading HTTP scheme and domain
     set req.url = regsub(req.url, "^http[s]?://", "");
 
-    # static files are always cacheable. remove SSL flag and cookie
-    if (req.url ~ "\.(ico|css|css\.gzip|js|js\.gzip|jpg|jpeg|png|gif|tiff|bmp|mp3|ogg|svg|swf|woff|woff2|eot|ttf|otf)$") {
-        unset req.http.Https;
+    # Remove a ";" prefix in the cookie if present
+    set req.http.Cookie = regsuball(req.http.Cookie, "^;\s*", "");
+
+    # Are there cookies left with only spaces or that are empty?
+    if (req.http.cookie ~ "^\s*$") {
+        unset req.http.cookie;
+    }
+
+    # Large static files are delivered directly to the end-user without
+    # waiting for Varnish to fully read the file first.
+    # Varnish 4 fully supports Streaming, so set do_stream in vcl_backend_response()
+    if (req.url ~ "^[^?]*\.(7z|avi|bz2|flac|flv|gz|gzip|mka|mkv|mov|mp3|mp4|mpeg|mpg|ogg|ogm|opus|rar|tar|tgz|tbz|txz|wav|webm|xz|zip)(\?.*)?$") {
         unset req.http.Cookie;
+        return (hash);
+    }
+
+    # Remove all cookies for static files
+    # A valid discussion could be held on this line: do you really need to cache static files that don't cause load? Only if you have memory left.
+    # Sure, there's disk I/O, but chances are your OS will already have these files in their buffers (thus memory).
+    # Before you blindly enable this, have a read here: https://ma.ttias.be/stop-caching-static-files/
+    if (req.url ~ "^[^?]*\.(7z|avi|bmp|bz2|css|csv|doc|docx|eot|flac|flv|gif|gz|ico|jpeg|jpg|js|less|mka|mkv|mov|mp3|mp4|mpeg|mpg|odt|otf|ogg|ogm|opus|pdf|png|ppt|pptx|rar|rtf|svg|svgz|swf|tar|tbz|tgz|tiff|ttf|txt|txz|wav|webm|webp|woff|woff2|xls|xlsx|xml|xz|zip)(\?.*)?$") {
+          unset req.http.Cookie;
+          return (hash);
     }
 
     # If any autorisation was set do not cache
@@ -274,6 +306,17 @@ sub vcl_backend_response {
     set beresp.http.X-Purge-URL = bereq.url;
     set beresp.http.X-Purge-Host = bereq.http.host;
 
+    # Enabling cache for static files
+    if (bereq.url ~ "^[^?]*\.(7z|avi|bmp|bz2|css|csv|doc|docx|eot|flac|flv|gif|gz|ico|jpeg|jpg|js|less|mka|mkv|mov|mp3|mp4|mpeg|mpg|odt|otf|ogg|ogm|opus|pdf|png|ppt|pptx|rar|rtf|svg|svgz|swf|tar|tbz|tgz|tiff|ttf|txt|txz|wav|webm|webp|woff|woff2|xls|xlsx|xml|xz|zip)(\?.*)?$") {
+        unset beresp.http.set-cookie;
+    }
+
+    # Varnish 4 fully supports Streaming, so use streaming here to avoid locking.
+    if (bereq.url ~ "^[^?]*\.(7z|avi|bz2|flac|flv|gz|gzip|mka|mkv|mov|mp3|mp4|mpeg|mpg|ogg|ogm|opus|rar|tar|tgz|tbz|txz|wav|webm|xz|zip)(\?.*)?$") {
+      unset beresp.http.set-cookie;
+      set beresp.do_stream = true;  # Check memory usage it'll grow in fetch_chunksize blocks (128k by default) if the backend doesn't send a Content-Length header, so only enable it for big objects
+    }
+
     # A response is considered cacheable if it is valid (see above), the
     # HTTP status code is 200, 203, 300, 301, 302, 404 or 410 and it has a
     # non-zero time-to-live when Expires and Cache-Control headers are taken
@@ -283,6 +326,7 @@ sub vcl_backend_response {
     if (beresp.ttl <= 0s || beresp.http.Set-Cookie || beresp.http.Vary == "*" ||
         beresp.http.Cache-Control ~ "(?:private|no-store|no-cache)" ||
         beresp.http.Pragma == "no-cache") {
+        set beresp.uncacheable = true;
         return (deliver);
     }
 
