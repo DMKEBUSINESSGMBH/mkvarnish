@@ -299,7 +299,7 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
             ->expects(self::once())
             ->method('truncateTable');
 
-        $varnishBackend = $this->getAccessibleMock(
+        $varnishBackend = $this->getMock(
             VarnishBackend::class,
             ['getCacheTagsRepository'],
             ['Testing'],
@@ -311,7 +311,7 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
             ->method('getCacheTagsRepository')
             ->will($this->returnValue($cacheTagsRepository));
 
-        $varnishBackend->_call('truncateCacheTagsTable');
+        $this->callInaccessibleMethod($varnishBackend, 'truncateCacheTagsTable');
     }
 
     /**
@@ -327,7 +327,7 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
             ->method('deleteByTag')
             ->with('test_tag');
 
-        $varnishBackend = $this->getAccessibleMock(
+        $varnishBackend = $this->getMock(
             VarnishBackend::class,
             ['getCacheTagsRepository'],
             ['Testing'],
@@ -339,7 +339,7 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
             ->method('getCacheTagsRepository')
             ->will($this->returnValue($cacheTagsRepository));
 
-        $varnishBackend->_call('deleteFromCacheTagsTableByTag', 'test_tag');
+        $this->callInaccessibleMethod($varnishBackend, 'deleteFromCacheTagsTableByTag', 'test_tag');
     }
 
     /**

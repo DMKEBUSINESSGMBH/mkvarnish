@@ -261,13 +261,13 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
             ->method('insertByTagAndCacheHash')
             ->with('tag_2', 123);
 
-        $hook = $this->getAccessibleMock(Frontend::class, ['getCacheTagsRepository']);
+        $hook = $this->getMock(Frontend::class, ['getCacheTagsRepository']);
         $hook
             ->expects(self::once())
             ->method('getCacheTagsRepository')
             ->will($this->returnValue($cacheTagsRepository));
 
-        $hook->_call('saveCacheTagsByCacheHash', ['tag_1', 'tag_2'], 123);
+        $this->callInaccessibleMethod($hook, 'saveCacheTagsByCacheHash', ['tag_1', 'tag_2'], 123);
     }
 
     /**
@@ -287,7 +287,7 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
                 1 => ['cache_hash' => 123, 'tag' => 'tag_2'],
             ]));
 
-        $hook = $this->getAccessibleMock(Frontend::class, ['getCacheTagsRepository']);
+        $hook = $this->getMock(Frontend::class, ['getCacheTagsRepository']);
         $hook
             ->expects(self::once())
             ->method('getCacheTagsRepository')
@@ -295,7 +295,7 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
 
         self::assertEquals(
             ['tag_1', 'tag_2'],
-            $hook->_call('getCacheTagsByCacheHash', 123)
+            $this->callInaccessibleMethod($hook, 'getCacheTagsByCacheHash', 123)
         );
     }
 
@@ -313,15 +313,15 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
             false
         );
         $tsfe->cHash = 123;
-        $hook = $this->getAccessibleMock(Frontend::class, ['getTsFe', 'getCacheTagsByCacheHash']);
+        $hook = $this->getMock(Frontend::class, ['getTsFe', 'getCacheTagsByCacheHash']);
         $hook
             ->expects($this->any())
             ->method('getTsFe')
             ->will($this->returnValue($tsfe));
 
-        self::assertEquals(123, $hook->_call('getCurrentCacheHash'));
+        self::assertEquals(123, $this->callInaccessibleMethod($hook, 'getCurrentCacheHash'));
 
         $tsfe->newHash = 456;
-        self::assertEquals(456, $hook->_call('getCurrentCacheHash'));
+        self::assertEquals(456, $this->callInaccessibleMethod($hook, 'getCurrentCacheHash'));
     }
 }
