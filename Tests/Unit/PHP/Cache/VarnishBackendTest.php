@@ -3,6 +3,7 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 
 use DMK\Mkvarnish\Cache\VarnishBackend;
 use DMK\Mkvarnish\Utility\CurlQueue;
+use DMK\Mkvarnish\Repository\CacheTagsRepository;
 
 /***************************************************************
  * Copyright notice
@@ -225,7 +226,7 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
     {
         $varnishBackend = $this->getMock(
             VarnishBackend::class,
-            ['executePurge'],
+            ['executePurge', 'truncateCacheTagsTable'],
             ['Testing'],
             '',
             false
@@ -235,6 +236,10 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
             ->expects(self::once())
             ->method('executePurge')
             ->with(['X-Varnish-Purge-All' => 1]);
+
+        $varnishBackend
+            ->expects(self::once())
+            ->method('truncateCacheTagsTable');
 
         $varnishBackend->flush();
     }
@@ -246,7 +251,7 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
     {
         $varnishBackend = $this->getMock(
             VarnishBackend::class,
-            ['executePurge', 'convertCacheTagForPurge'],
+            ['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag'],
             ['Testing'],
             '',
             false
@@ -263,7 +268,78 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
             ->method('executePurge')
             ->with(['X-Cache-Tags' => 'convertedTag']);
 
+        $varnishBackend
+            ->expects(self::once())
+            ->method('deleteFromCacheTagsTableByTag')
+            ->with('testTag');
+
         $varnishBackend->flushByTag('testTag');
+    }
+
+    /**
+     * @group unit
+     */
+    public function testGetCacheTagsRepository()
+    {
+        self::assertInstanceOf(
+            CacheTagsRepository::class,
+            $this->callInaccessibleMethod($this->getVarnishBackendInstance(), 'getCacheTagsRepository')
+        );
+    }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function testTruncateCacheTagsTable()
+    {
+        $cacheTagsRepository = $this->getMock(CacheTagsRepository::class, ['truncateTable']);
+
+        $cacheTagsRepository
+            ->expects(self::once())
+            ->method('truncateTable');
+
+        $varnishBackend = $this->getAccessibleMock(
+            VarnishBackend::class,
+            ['getCacheTagsRepository'],
+            ['Testing'],
+            '',
+            false
+        );
+        $varnishBackend
+            ->expects(self::once())
+            ->method('getCacheTagsRepository')
+            ->will($this->returnValue($cacheTagsRepository));
+
+        $varnishBackend->_call('truncateCacheTagsTable');
+    }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function testDeleteFromCacheTagsTableByTag()
+    {
+        $cacheTagsRepository = $this->getMock(CacheTagsRepository::class, ['deleteByTag']);
+
+        $cacheTagsRepository
+            ->expects(self::once())
+            ->method('deleteByTag')
+            ->with('test_tag');
+
+        $varnishBackend = $this->getAccessibleMock(
+            VarnishBackend::class,
+            ['getCacheTagsRepository'],
+            ['Testing'],
+            '',
+            false
+        );
+        $varnishBackend
+            ->expects(self::once())
+            ->method('getCacheTagsRepository')
+            ->will($this->returnValue($cacheTagsRepository));
+
+        $varnishBackend->_call('deleteFromCacheTagsTableByTag', 'test_tag');
     }
 
     /**

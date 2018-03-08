@@ -3,6 +3,7 @@ namespace DMK\Mkvarnish\Cache;
 
 use DMK\Mkvarnish\Utility\Configuration;
 use DMK\Mkvarnish\Utility\CurlQueue;
+use DMK\Mkvarnish\Repository\CacheTagsRepository;
 
 /***************************************************************
  * Copyright notice
@@ -108,6 +109,7 @@ class VarnishBackend
     public function flush()
     {
         $this->executePurge(['X-Varnish-Purge-All' => 1]);
+        $this->truncateCacheTagsTable();
     }
 
     /**
@@ -117,6 +119,7 @@ class VarnishBackend
     public function flushByTag($tag)
     {
         $this->executePurge(['X-Cache-Tags' => $this->convertCacheTagForPurge($tag)]);
+        $this->deleteFromCacheTagsTableByTag($tag);
     }
 
     /**
@@ -180,6 +183,33 @@ class VarnishBackend
         $configurationUtility = new Configuration();
 
         return $configurationUtility->getHostNamesForPurge();
+    }
+
+    /**
+     * @return void
+     */
+    protected function truncateCacheTagsTable()
+    {
+        $this->getCacheTagsRepository()->truncateTable();
+    }
+
+    /**
+     * @param string $tag
+     *
+     * @return void
+     */
+    protected function deleteFromCacheTagsTableByTag($tag)
+    {
+        $this->getCacheTagsRepository()->deleteByTag($tag);
+    }
+
+
+    /**
+     * @return \DMK\Mkvarnish\Repository\CacheTagsRepository
+     */
+    protected function getCacheTagsRepository()
+    {
+        return new CacheTagsRepository();
     }
 
     /**

@@ -25,6 +25,7 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
  ***************************************************************/
 
 use DMK\Mkvarnish\Hook\Frontend;
+use DMK\Mkvarnish\Repository\CacheTagsRepository;
 
 /**
  * This class communicates with the varnish server
@@ -140,7 +141,7 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
         );
 
         $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
-        $mock->expects($this->once())->method('getTsFe')->will($this->returnValue($tsfe));
+        $mock->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
         $mock->expects($this->once())->method('getHmacForSitename')->will($this->returnValue('345dfg'));
         ($mock
             ->expects($this->once())
@@ -179,10 +180,12 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
             '',
             false
         );
-        $tsfe->addCacheTags(['tag1', 'tag2']);
+        $tsfe->newHash = 123;
+        $tsfe->addCacheTags(['tag1', 'tag2', 'tag2']);
 
-        $hook = $this->getMock(Frontend::class, ['getTsFe']);
-        $hook->expects($this->once())->method('getTsFe')->will($this->returnValue($tsfe));
+        $hook = $this->getMock(Frontend::class, ['getTsFe', 'saveCacheTagsByCacheHash']);
+        $hook->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
+        $hook->expects($this->once())->method('saveCacheTagsByCacheHash')->with(['tag1', 'tag2'], 123);
         $headers = $this->callInaccessibleMethod($hook, 'getHeadersForCacheTags');
 
         $this->assertTrue(is_array($headers));
@@ -205,14 +208,120 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
             '',
             false
         );
-        $hook = $this->getMock(Frontend::class, ['getTsFe']);
-        $hook->expects($this->once())->method('getTsFe')->will($this->returnValue($tsfe));
+        $tsfe->newHash = 123;
+        $hook = $this->getMock(Frontend::class, ['getTsFe', 'getCacheTagsByCacheHash']);
+        $hook->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
+        $hook
+            ->expects(self::once())
+            ->method('getCacheTagsByCacheHash')
+            ->with(123)
+            ->will(self::returnValue(['tag1', 'tag2']));
+
         $headers = $this->callInaccessibleMethod($hook, 'getHeadersForCacheTags');
 
         $this->assertTrue(is_array($headers));
         $this->assertCount(1, $headers);
 
-        $this->assertArrayHasKey('Cache-control', $headers);
-        $this->assertEquals('private, no-store', $headers['Cache-control']);
+        $this->assertArrayHasKey('X-Cache-Tags', $headers);
+        $this->assertEquals('tag1,tag2', $headers['X-Cache-Tags']);
+    }
+
+    /**
+     * @group unit
+     */
+    public function testGetCacheTagsRepository()
+    {
+        self::assertInstanceOf(
+            CacheTagsRepository::class,
+            $this->callInaccessibleMethod(new Frontend(), 'getCacheTagsRepository')
+        );
+    }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function testSaveCacheTagsByCacheHash()
+    {
+        $cacheTagsRepository = $this->getMock(
+            CacheTagsRepository::class,
+            ['insertByTagAndCacheHash', 'deleteByCacheHash']
+        );
+
+        $cacheTagsRepository
+            ->expects(self::at(0))
+            ->method('deleteByCacheHash')
+            ->with(123);
+        $cacheTagsRepository
+            ->expects(self::at(1))
+            ->method('insertByTagAndCacheHash')
+            ->with('tag_1', 123);
+        $cacheTagsRepository
+            ->expects(self::at(2))
+            ->method('insertByTagAndCacheHash')
+            ->with('tag_2', 123);
+
+        $hook = $this->getAccessibleMock(Frontend::class, ['getCacheTagsRepository']);
+        $hook
+            ->expects(self::once())
+            ->method('getCacheTagsRepository')
+            ->will($this->returnValue($cacheTagsRepository));
+
+        $hook->_call('saveCacheTagsByCacheHash', ['tag_1', 'tag_2'], 123);
+    }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function testGetCacheTagsByCacheHash()
+    {
+        $cacheTagsRepository = $this->getMock(CacheTagsRepository::class, ['getByCacheHash']);
+
+        $cacheTagsRepository
+            ->expects(self::once())
+            ->method('getByCacheHash')
+            ->with(123)
+            ->will(self::returnValue([
+                0 => ['cache_hash' => 123, 'tag' => 'tag_1'],
+                1 => ['cache_hash' => 123, 'tag' => 'tag_2'],
+            ]));
+
+        $hook = $this->getAccessibleMock(Frontend::class, ['getCacheTagsRepository']);
+        $hook
+            ->expects(self::once())
+            ->method('getCacheTagsRepository')
+            ->will($this->returnValue($cacheTagsRepository));
+
+        self::assertEquals(
+            ['tag_1', 'tag_2'],
+            $hook->_call('getCacheTagsByCacheHash', 123)
+        );
+    }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function testGetCurrentCacheHash()
+    {
+        $tsfe = $this->getMock(
+            \tx_rnbase_util_Typo3Classes::getTypoScriptFrontendControllerClass(),
+            ['determineId'],
+            [],
+            '',
+            false
+        );
+        $tsfe->cHash = 123;
+        $hook = $this->getAccessibleMock(Frontend::class, ['getTsFe', 'getCacheTagsByCacheHash']);
+        $hook
+            ->expects($this->any())
+            ->method('getTsFe')
+            ->will($this->returnValue($tsfe));
+
+        self::assertEquals(123, $hook->_call('getCurrentCacheHash'));
+
+        $tsfe->newHash = 456;
+        self::assertEquals(456, $hook->_call('getCurrentCacheHash'));
     }
 }
