@@ -53,6 +53,7 @@ call_user_func(
         if (!tx_rnbase_util_TYPO3::isTYPO70OrHigher()) {
             tx_rnbase::load('DMK\Mkvarnish\Cache\VarnishBackend');
             tx_rnbase::load('DMK\Mkvarnish\Utility\CurlQueue');
+            tx_rnbase::load('DMK\\Mkvarnish\\Repository\\CacheTagsRepository');
         }
         if ($configurationUtility->isSendCacheHeadersEnabled()) {
             $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['varnish'] = array(
