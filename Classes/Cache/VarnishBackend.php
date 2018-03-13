@@ -108,8 +108,10 @@ class VarnishBackend
      */
     public function flush()
     {
-        $this->executePurge(['X-Varnish-Purge-All' => 1]);
-        $this->truncateCacheTagsTable();
+        if ($this->getConfigurationUtility()->isSendCacheHeadersEnabled()) {
+            $this->executePurge(['X-Varnish-Purge-All' => 1]);
+            $this->truncateCacheTagsTable();
+        }
     }
 
     /**
@@ -118,8 +120,10 @@ class VarnishBackend
      */
     public function flushByTag($tag)
     {
-        $this->executePurge(['X-Cache-Tags' => $this->convertCacheTagForPurge($tag)]);
-        $this->deleteFromCacheTagsTableByTag($tag);
+        if ($this->getConfigurationUtility()->isSendCacheHeadersEnabled()) {
+            $this->executePurge(['X-Cache-Tags' => $this->convertCacheTagForPurge($tag)]);
+            $this->deleteFromCacheTagsTableByTag($tag);
+        }
     }
 
     /**
@@ -162,9 +166,7 @@ class VarnishBackend
      */
     protected function getHmacForSitename()
     {
-        $configurationUtility = new Configuration();
-
-        return $configurationUtility->getHmacForSitename();
+        return $this->getConfigurationUtility()->getHmacForSitename();
     }
 
     /**
@@ -180,9 +182,15 @@ class VarnishBackend
      */
     protected function getHostNamesForPurge()
     {
-        $configurationUtility = new Configuration();
+        return $this->getConfigurationUtility()->getHostNamesForPurge();
+    }
 
-        return $configurationUtility->getHostNamesForPurge();
+    /**
+     * @return \DMK\Mkvarnish\Utility\Configuration
+     */
+    protected function getConfigurationUtility()
+    {
+        return new Configuration();
     }
 
     /**

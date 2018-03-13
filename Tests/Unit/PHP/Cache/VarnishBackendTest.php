@@ -4,6 +4,7 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 use DMK\Mkvarnish\Cache\VarnishBackend;
 use DMK\Mkvarnish\Utility\CurlQueue;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use DMK\Mkvarnish\Utility\Configuration;
 
 /***************************************************************
  * Copyright notice
@@ -224,13 +225,24 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
      */
     public function testFlush()
     {
+        $configurationUtility = $this->getMock(Configuration::class, ['isSendCacheHeadersEnabled']);
+        $configurationUtility
+            ->expects(self::once())
+            ->method('isSendCacheHeadersEnabled')
+            ->will(self::returnValue(true));
+
         $varnishBackend = $this->getMock(
             VarnishBackend::class,
-            ['executePurge', 'truncateCacheTagsTable'],
+            ['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'],
             ['Testing'],
             '',
             false
         );
+
+        $varnishBackend
+            ->expects(self::once())
+            ->method('getConfigurationUtility')
+            ->will(self::returnValue($configurationUtility));
 
         $varnishBackend
             ->expects(self::once())
@@ -247,15 +259,61 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
     /**
      * @return void
      */
-    public function testFlushByTag()
+    public function testFlushWhenNotSendCacheHeaderEnabled()
     {
+        $configurationUtility = $this->getMock(Configuration::class, ['isSendCacheHeadersEnabled']);
+        $configurationUtility
+            ->expects(self::once())
+            ->method('isSendCacheHeadersEnabled')
+            ->will(self::returnValue(false));
+
         $varnishBackend = $this->getMock(
             VarnishBackend::class,
-            ['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag'],
+            ['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'],
             ['Testing'],
             '',
             false
         );
+
+        $varnishBackend
+            ->expects(self::once())
+            ->method('getConfigurationUtility')
+            ->will(self::returnValue($configurationUtility));
+
+        $varnishBackend
+            ->expects(self::never())
+            ->method('executePurge');
+
+        $varnishBackend
+            ->expects(self::never())
+            ->method('truncateCacheTagsTable');
+
+        $varnishBackend->flush();
+    }
+
+    /**
+     * @return void
+     */
+    public function testFlushByTag()
+    {
+        $configurationUtility = $this->getMock(Configuration::class, ['isSendCacheHeadersEnabled']);
+        $configurationUtility
+            ->expects(self::once())
+            ->method('isSendCacheHeadersEnabled')
+            ->will(self::returnValue(true));
+
+        $varnishBackend = $this->getMock(
+            VarnishBackend::class,
+            ['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'],
+            ['Testing'],
+            '',
+            false
+        );
+
+        $varnishBackend
+            ->expects(self::once())
+            ->method('getConfigurationUtility')
+            ->will(self::returnValue($configurationUtility));
 
         $varnishBackend
             ->expects(self::once())
@@ -272,6 +330,45 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
             ->expects(self::once())
             ->method('deleteFromCacheTagsTableByTag')
             ->with('testTag');
+
+        $varnishBackend->flushByTag('testTag');
+    }
+
+    /**
+     * @return void
+     */
+    public function testFlushByTagWhenNotSendCacheHeaderEnabled()
+    {
+        $configurationUtility = $this->getMock(Configuration::class, ['isSendCacheHeadersEnabled']);
+        $configurationUtility
+            ->expects(self::once())
+            ->method('isSendCacheHeadersEnabled')
+            ->will(self::returnValue(false));
+
+        $varnishBackend = $this->getMock(
+            VarnishBackend::class,
+            ['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'],
+            ['Testing'],
+            '',
+            false
+        );
+
+        $varnishBackend
+            ->expects(self::once())
+            ->method('getConfigurationUtility')
+            ->will(self::returnValue($configurationUtility));
+
+        $varnishBackend
+            ->expects(self::never())
+            ->method('convertCacheTagForPurge');
+
+        $varnishBackend
+            ->expects(self::never())
+            ->method('executePurge');
+
+        $varnishBackend
+            ->expects(self::never())
+            ->method('deleteFromCacheTagsTableByTag');
 
         $varnishBackend->flushByTag('testTag');
     }
@@ -340,6 +437,17 @@ class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
             ->will($this->returnValue($cacheTagsRepository));
 
         $this->callInaccessibleMethod($varnishBackend, 'deleteFromCacheTagsTableByTag', 'test_tag');
+    }
+
+    /**
+     * @group unit
+     */
+    public function testGetConfigurationUtility()
+    {
+        self::assertInstanceOf(
+            Configuration::class,
+            $this->callInaccessibleMethod($this->getVarnishBackendInstance(), 'getConfigurationUtility')
+        );
     }
 
     /**
