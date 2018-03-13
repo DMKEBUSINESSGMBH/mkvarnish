@@ -28,7 +28,9 @@ sub vcl_fini {
 #
 sub vcl_recv {
 
+    #### CAUTION
     # debug id for customer
+    # change th ID when copying the configuration!
     set req.http.X-Debug-ID = "12473148735471684";
 
     # X-Forwarded-For Behandlung
