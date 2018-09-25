@@ -118,9 +118,9 @@ class CurlQueue implements \Tx_Rnbase_Interface_Singleton
         do {
             $status = curl_multi_exec($this->curlQueue, $running);
             if($status > 0) {
-                \tx_rnbase_util_Logger::fatal(
-                    'curl request failed. Check devlog for more information.',
+                \Tx_Rnbase_Utility_Logger::error(
                     'mkvarnish',
+                    'curl request failed. Check devlog for more information.',
                     [
                         'status' => $status,
                         'error message' => curl_multi_strerror($status),
@@ -134,9 +134,9 @@ class CurlQueue implements \Tx_Rnbase_Interface_Singleton
         // destroy all the handles
         foreach ($this->curlHandles as $handle) {
             if (curl_getinfo($handle, CURLINFO_HTTP_CODE) != 200) {
-                \tx_rnbase_util_Logger::fatal(
-                    'curl request returned no 200 HTTP code. Check devlog for more information.',
+                \Tx_Rnbase_Utility_Logger::error(
                     'mkvarnish',
+                    'curl request returned no 200 HTTP code. Check devlog for more information.',
                     ['handle' => curl_getinfo($handle)]
                 );
             }
