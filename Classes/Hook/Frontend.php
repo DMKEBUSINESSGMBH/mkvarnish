@@ -92,7 +92,7 @@ class Frontend
         $headers['X-TYPO3-Sitename'] = $this->getHmacForSitename();
         /// developer infos only. this headers should be removed in varnich vcl
         $headers['X-TYPO3-cHash'] = $this->getCurrentCacheHash();
-        $headers['X-TYPO3-INTincScripts'] = count($tsfe->config['INTincScript']);
+        $headers['X-TYPO3-INTincScripts'] = count((array) $tsfe->config['INTincScript']);
 
         return $headers;
     }
