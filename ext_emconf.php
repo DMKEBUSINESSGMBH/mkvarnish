@@ -6,7 +6,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'MK Varnish',
-    'description' => 'This extension takes of care of connecting TYPO3 to Varnish servers for proper caching.',
+    'description' => 'This extension takes care of connecting TYPO3 to Varnish servers for proper caching.',
     'category' => 'plugin',
     'author' => 'Michael Wagner',
     'author_email' => 'dev@dmk-ebusiness.de',
