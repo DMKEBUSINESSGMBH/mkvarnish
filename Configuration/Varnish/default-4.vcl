@@ -15,7 +15,6 @@ backend be_localhost {
 
 acl purge {
     "127.0.0.1";
-    "192.168.255.0"/24;
 }
 
 sub vcl_fini {
