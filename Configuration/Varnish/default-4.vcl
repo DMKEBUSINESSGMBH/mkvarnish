@@ -212,7 +212,7 @@ sub vcl_recv {
     }
 
     ### if varnish is only in front of cacheable domains
-    ### only the content of the if branch is needed
+    ### only the content of the if branch (return (hash);)is needed
     if (req.http.host == "example.com") {
         return (hash);
     } else {

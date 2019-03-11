@@ -54,7 +54,9 @@ composer require dmk/mkvarnish
 ### Requirements
 
  *  you should make yourself familiar with Varnish and how you want to implement Varnish in your specific setup.
- *  Varnish has to be up and running. You can find a sample configuration in `Configuration/Varnish`.
+ *  Varnish has to be up and running. You can find a sample configuration in `EXT:mkvarnish/Configuration/Varnish/default-4.vcl`. Make sure to 
+ change or remove the Debug ID at the beginning of sub vcl_recv. Furthermore you should check the last comment in sub vcl_recv
+ and act accordingly. 
  *  requests to all static files should send appropriate expires headers
 
 
