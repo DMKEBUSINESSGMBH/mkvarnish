@@ -204,11 +204,6 @@ sub vcl_recv {
             ban("req.url == " + req.url);
         }
         return (pass);
-    } else {
-        # Pass all no_cache=1 sites and eID scripts
-        if (req.url ~ "(\?|&)no_cache=1" || req.url ~ "(\?|&)eID=") {
-            return (pass);
-        }
     }
 
     ### if varnish is only in front of cacheable domains
