@@ -343,6 +343,16 @@ sub vcl_backend_response {
 ## or the web server) is sent to the requesting client.
 #
 sub vcl_deliver {
+    ### if we got a page from TYPO3 we don't want the browser to cache the HTML response
+    ### but ask Varnish. Otherwise we have no complete control over the cache.
+    if (resp.http.X-TYPO3-Sitename) {
+        set resp.http.Expires = 0;
+        set resp.http.Pragma = "no-cache";
+        set resp.http.Cache-Control = "no-store, no-cache, must-revalidate, max-age=0";
+        /* By definition we have a fresh object */
+        set resp.http.age = "0";
+    }
+
     # if we receive a debug header, print some more debugging http-headers.
     # default debug header should be set to the lb system order
     # number - usually the first order number in an cluster
