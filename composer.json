@@ -23,7 +23,6 @@
         "issues": "https://github.com/DMKEBUSINESSGMBH/mkvarnish"
     },
     "replace": {
-        "mkvarnish": "self.version",
         "typo3-ter/mkvarnish": "self.version"
     },
     "require": {
@@ -65,6 +64,7 @@
     "extra": {
         "typo3/cms": {
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "extension-key": "mkvarnish",
             "web-dir": ".Build/Web"
         }
     }
