@@ -1,6 +1,9 @@
 <?php
 namespace DMK\Mkvarnish\Utility;
 
+use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /***************************************************************
  * Copyright notice
  *
@@ -33,7 +36,7 @@ namespace DMK\Mkvarnish\Utility;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class CurlQueue implements \Tx_Rnbase_Interface_Singleton
+class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
 {
 
     /**
@@ -118,8 +121,7 @@ class CurlQueue implements \Tx_Rnbase_Interface_Singleton
         do {
             $status = curl_multi_exec($this->curlQueue, $running);
             if($status > 0) {
-                \Tx_Rnbase_Utility_Logger::error(
-                    'mkvarnish',
+                GeneralUtility::makeInstance(LogManager::class)->getLogger('mkvarnish')->error(
                     'curl request failed. Check devlog for more information.',
                     [
                         'status' => $status,
@@ -134,8 +136,7 @@ class CurlQueue implements \Tx_Rnbase_Interface_Singleton
         // destroy all the handles
         foreach ($this->curlHandles as $handle) {
             if (curl_getinfo($handle, CURLINFO_HTTP_CODE) != 200) {
-                \Tx_Rnbase_Utility_Logger::error(
-                    'mkvarnish',
+                GeneralUtility::makeInstance(LogManager::class)->getLogger('mkvarnish')->error(
                     'curl request returned no 200 HTTP code. Check devlog for more information.',
                     ['handle' => curl_getinfo($handle)]
                 );

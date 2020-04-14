@@ -38,7 +38,7 @@ use DMK\Mkvarnish\Utility\Configuration;
  * @license         http://www.gnu.org/licenses/lgpl.html
  *                  GNU Lesser General Public License, version 3 or later
  */
-class VarnishBackendTest extends \tx_rnbase_tests_BaseTestCase
+class VarnishBackendTest extends \PHPUnit\Framework\TestCase
 {
 
     /**

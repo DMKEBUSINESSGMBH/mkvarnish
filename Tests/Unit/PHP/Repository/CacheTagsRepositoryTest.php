@@ -35,7 +35,7 @@ use DMK\Mkvarnish\Repository\CacheTagsRepository;
  * @license         http://www.gnu.org/licenses/lgpl.html
  *                  GNU Lesser General Public License, version 3 or later
  */
-class CacheTagsRepositoryTest extends \tx_rnbase_tests_BaseTestCase
+class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
 {
 
     /**

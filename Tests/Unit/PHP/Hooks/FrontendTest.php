@@ -26,6 +26,7 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 
 use DMK\Mkvarnish\Hook\Frontend;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * This class communicates with the varnish server
@@ -36,7 +37,7 @@ use DMK\Mkvarnish\Repository\CacheTagsRepository;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class FrontendTest extends \tx_rnbase_tests_BaseTestCase
+class FrontendTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
@@ -174,7 +175,7 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
     public function testGetHeadersForCacheTagsIfCacheTagsPresent()
     {
         $tsfe = $this->getMock(
-            \tx_rnbase_util_Typo3Classes::getTypoScriptFrontendControllerClass(),
+            TypoScriptFrontendController::class,
             ['determineId'],
             [],
             '',
@@ -202,7 +203,7 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
     public function testGetHeadersForCacheTagsIfCacheTagsNotPresent()
     {
         $tsfe = $this->getMock(
-            \tx_rnbase_util_Typo3Classes::getTypoScriptFrontendControllerClass(),
+            TypoScriptFrontendController::class,
             ['determineId'],
             [],
             '',
@@ -306,7 +307,7 @@ class FrontendTest extends \tx_rnbase_tests_BaseTestCase
     public function testGetCurrentCacheHash()
     {
         $tsfe = $this->getMock(
-            \tx_rnbase_util_Typo3Classes::getTypoScriptFrontendControllerClass(),
+            TypoScriptFrontendController::class,
             ['determineId'],
             [],
             '',

@@ -1,6 +1,8 @@
 <?php
 namespace DMK\Mkvarnish\Utility;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /***************************************************************
  * Copyright notice
  *
@@ -33,7 +35,7 @@ namespace DMK\Mkvarnish\Utility;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class Configuration implements \Tx_Rnbase_Interface_Singleton
+class Configuration implements \TYPO3\CMS\Core\SingletonInterface
 {
     /**
      * The extension configuration
@@ -88,7 +90,7 @@ class Configuration implements \Tx_Rnbase_Interface_Singleton
      * */
     public function isRevProxy()
     {
-        return \Tx_Rnbase_Utility_T3General::getIndpEnv('TYPO3_REV_PROXY');
+        return GeneralUtility::getIndpEnv('TYPO3_REV_PROXY');
     }
 
     /**
@@ -98,7 +100,7 @@ class Configuration implements \Tx_Rnbase_Interface_Singleton
      */
     public function getHmacForSitename()
     {
-        return \Tx_Rnbase_Utility_T3General::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+        return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
     }
 
     /**
@@ -108,13 +110,13 @@ class Configuration implements \Tx_Rnbase_Interface_Singleton
      */
     public function getHostNamesForPurge()
     {
-        $hosts = \Tx_Rnbase_Utility_Strings::trimExplode(
+        $hosts = GeneralUtility::trimExplode(
             ',',
             self::getExtConfValue('hostnames'),
             true
         );
         if (empty($hosts)) {
-            $hosts[] = \Tx_Rnbase_Utility_T3General::getIndpEnv('HTTP_HOST');
+            $hosts[] = GeneralUtility::getIndpEnv('HTTP_HOST');
         }
 
         return $hosts;

@@ -139,7 +139,7 @@ class Frontend
      */
     protected function getTsFe()
     {
-        return \tx_rnbase_util_TYPO3::getTSFE();
+        return $GLOBALS['TSFE'];
     }
 
     /**
