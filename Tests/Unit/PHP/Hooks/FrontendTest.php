@@ -1,4 +1,5 @@
 <?php
+
 namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 
 /***************************************************************
@@ -30,19 +31,17 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
- * This class communicates with the varnish server
+ * This class communicates with the varnish server.
  *
- * @package TYPO3
- * @subpackage DMK\Mkvarnish
  * @author Michael Wagner
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
 class FrontendTest extends UnitTestCase
 {
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see PHPUnit_Framework_TestCase::tearDown()
      */
     protected function tearDown()
@@ -54,7 +53,7 @@ class FrontendTest extends UnitTestCase
     }
 
     /**
-     * Test the handleHeaders method
+     * Test the handleHeaders method.
      *
      * @return void
      *
@@ -76,7 +75,7 @@ class FrontendTest extends UnitTestCase
     }
 
     /**
-     * Test the handleHeaders method
+     * Test the handleHeaders method.
      *
      * @return void
      *
@@ -96,7 +95,7 @@ class FrontendTest extends UnitTestCase
     }
 
     /**
-     * Test the getHeaders method
+     * Test the getHeaders method.
      *
      * @return void
      *
@@ -121,7 +120,7 @@ class FrontendTest extends UnitTestCase
     }
 
     /**
-     * Test the getHeaders method
+     * Test the getHeaders method.
      *
      * @return void
      *

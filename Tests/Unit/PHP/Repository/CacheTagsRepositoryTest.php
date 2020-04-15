@@ -1,4 +1,5 @@
 <?php
+
 namespace DMK\Mkvarnish\Tests\Unit\Repository;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
@@ -28,10 +29,8 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
  ***************************************************************/
 
 /**
- * DMK\Mkvarnish\Tests\Unit\Hooks$CacheTagsRepositoryTest
+ * DMK\Mkvarnish\Tests\Unit\Hooks$CacheTagsRepositoryTest.
  *
- * @package         TYPO3
- * @subpackage      mkvarnish
  * @author          Hannes Bochmann <hannes.bochmann@dmk-ebusiness.de>
  * @license         http://www.gnu.org/licenses/lgpl.html
  *                  GNU Lesser General Public License, version 3 or later
@@ -63,8 +62,8 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->with(
                 'tx_mkvarnish_cache_tags',
                 [
-                    'tag'     => 'test_tag',
-                    'cache_hash'    => 'test_hash'
+                    'tag' => 'test_tag',
+                    'cache_hash' => 'test_hash',
                 ]
             );
 
@@ -101,10 +100,10 @@ class CacheTagsRepositoryTest extends UnitTestCase
                 'tx_mkvarnish_cache_tags',
                 [
                     'where' => 'cache_hash = quoted',
-                    'enablefieldsoff' => true
+                    'enablefieldsoff' => true,
                 ]
             )
-            ->will(self::returnValue(['cacheTags']));;
+            ->will(self::returnValue(['cacheTags']));
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
             ->setMethods(['getDatabaseUtility'])
@@ -233,10 +232,10 @@ class CacheTagsRepositoryTest extends UnitTestCase
                 'tx_mkvarnish_cache_tags',
                 [
                     'where' => 'tag = quoted',
-                    'enablefieldsoff' => true
+                    'enablefieldsoff' => true,
                 ]
             )
-            ->will(self::returnValue(['cacheTags']));;
+            ->will(self::returnValue(['cacheTags']));
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
             ->setMethods(['getDatabaseUtility'])

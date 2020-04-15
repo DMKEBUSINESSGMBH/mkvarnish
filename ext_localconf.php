@@ -32,7 +32,7 @@ call_user_func(
                 $typoScriptSetup =
                     '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:mkvarnish/Configuration/TypoScript/setup.txt">';
                 if ($configurationUtility->isSendCacheHeadersEnabled()) {
-                    $typoScriptSetup .= LF . 'config.sendCacheHeaders = 1';
+                    $typoScriptSetup .= LF.'config.sendCacheHeaders = 1';
                 }
 
                 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
@@ -43,18 +43,17 @@ call_user_func(
                 );
 
                 // Hook to add the cache tags
-                $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']
-                    ['tslib/class.tslib_fe.php']['isOutputting']['mkvarnish']
+                $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['isOutputting']['mkvarnish']
                         = 'DMK\\Mkvarnish\\Hook\\Frontend->handleHeaders';
                 break;
         }
 
         if ($configurationUtility->isSendCacheHeadersEnabled()) {
-            $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['varnish'] = array(
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['varnish'] = [
                 'backend' => 'DMK\Mkvarnish\Cache\VarnishBackend',
                 'frontend' => 'TYPO3\CMS\Core\Cache\Frontend\VariableFrontend',
-                'groups' => array('pages', 'all')
-            );
+                'groups' => ['pages', 'all'],
+            ];
         }
     }
 );

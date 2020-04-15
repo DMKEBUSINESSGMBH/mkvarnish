@@ -39,7 +39,8 @@
         "namelesscoder/typo3-repository-client": "^1.2",
         "nimut/testing-framework": "^1.0 || ^4.0",
         "mikey179/vfsstream": "^1.4 || ^1.6",
-        "phpunit/phpunit": "^4.7 || ^5.0 || ^7.0"
+        "phpunit/phpunit": "^4.7 || ^5.0 || ^7.0",
+        "friendsofphp/php-cs-fixer": "~2@stable"
     },
     "autoload-dev": {
         "psr-4": {

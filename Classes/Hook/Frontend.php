@@ -28,10 +28,8 @@ use DMK\Mkvarnish\Repository\CacheTagsRepository;
  ***************************************************************/
 
 /**
- * TYPO3 Hook to extend the header with cache tags
+ * TYPO3 Hook to extend the header with cache tags.
  *
- * @package TYPO3
- * @subpackage DMK\Mkvarnish
  * @author Michael Wagner
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
@@ -53,7 +51,7 @@ class Frontend
     }
 
     /**
-     * Builds the Varnish headers
+     * Builds the Varnish headers.
      *
      * @return array
      */
@@ -68,9 +66,8 @@ class Frontend
         return $headers;
     }
 
-
     /**
-     * Check if we are behind a reverse proxy
+     * Check if we are behind a reverse proxy.
      *
      * @return bool
      * */
@@ -99,7 +96,7 @@ class Frontend
     }
 
     /**
-     * Reads the cache tags from the typoscript frontend conroller
+     * Reads the cache tags from the typoscript frontend conroller.
      *
      * @return array
      */
@@ -133,7 +130,7 @@ class Frontend
     }
 
     /**
-     * An short alias to get the typoscript frontend conroller
+     * An short alias to get the typoscript frontend conroller.
      *
      * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
      */
@@ -185,7 +182,7 @@ class Frontend
     }
 
     /**
-     * Returns HMAC of the sitename
+     * Returns HMAC of the sitename.
      *
      * @return mixed
      */
@@ -207,7 +204,7 @@ class Frontend
     }
 
     /**
-     * Send the Varnish headers
+     * Send the Varnish headers.
      *
      * @param array $headers
      *
@@ -217,7 +214,7 @@ class Frontend
         array $headers
     ) {
         foreach ($headers as $name => $value) {
-            header($name . ': ' . $value);
+            header($name.': '.$value);
         }
     }
 }

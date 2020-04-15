@@ -1,4 +1,5 @@
 <?php
+
 namespace DMK\Mkvarnish\Tests\Unit\Utility;
 
 /***************************************************************
@@ -24,28 +25,25 @@ namespace DMK\Mkvarnish\Tests\Unit\Utility;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use \DMK\Mkvarnish\Utility\Configuration;
+use DMK\Mkvarnish\Utility\Configuration;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /**
- * This class communicates with the varnish server
+ * This class communicates with the varnish server.
  *
- * @package TYPO3
- * @subpackage DMK\Mkvarnish
  * @author Michael Wagner
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
 class ConfigurationTest extends UnitTestCase
 {
-
     /**
      * @var array
      */
     protected $extConfBackup = [];
 
     /**
-     * Set up the Test
+     * Set up the Test.
      *
      * @return void
      */
@@ -54,8 +52,9 @@ class ConfigurationTest extends UnitTestCase
         $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'];
         parent::setUp();
     }
+
     /**
-     * Tear down the Test
+     * Tear down the Test.
      *
      * @return void
      */
@@ -66,7 +65,7 @@ class ConfigurationTest extends UnitTestCase
     }
 
     /**
-     * Test the getExtConfValue method
+     * Test the getExtConfValue method.
      *
      * @return void
      *
@@ -96,7 +95,7 @@ class ConfigurationTest extends UnitTestCase
     }
 
     /**
-     * Test the isSendCacheHeadersEnabled method
+     * Test the isSendCacheHeadersEnabled method.
      *
      * @return void
      *
@@ -123,7 +122,7 @@ class ConfigurationTest extends UnitTestCase
     }
 
     /**
-     * Test the isSendCacheHeadersEnabled method
+     * Test the isSendCacheHeadersEnabled method.
      *
      * @return void
      *
@@ -146,7 +145,7 @@ class ConfigurationTest extends UnitTestCase
     }
 
     /**
-     * Test the isSendCacheHeadersEnabled method
+     * Test the isSendCacheHeadersEnabled method.
      *
      * @return void
      *
@@ -169,7 +168,7 @@ class ConfigurationTest extends UnitTestCase
     }
 
     /**
-     * Test the getHostNamesForPurge method
+     * Test the getHostNamesForPurge method.
      *
      * @return void
      *

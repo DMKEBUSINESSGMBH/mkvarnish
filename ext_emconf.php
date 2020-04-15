@@ -26,15 +26,15 @@ $EM_CONF[$_EXTKEY] = [
     'lockType' => '',
     'constraints' => [
         'depends' => [
-            'typo3' => '7.6.0-8.7.99'
+            'typo3' => '7.6.0-8.7.99',
         ],
         'conflicts' => [],
-        'suggests' => []
+        'suggests' => [],
     ],
     'suggests' => [],
     'autoload' => [
         'classmap' => [
-            'Classes'
-        ]
-    ]
+            'Classes',
+        ],
+    ],
 ];

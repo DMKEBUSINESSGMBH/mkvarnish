@@ -26,17 +26,14 @@ namespace DMK\Mkvarnish\Repository;
  ***************************************************************/
 
 /**
- * DMK\Mkvarnish\Repository$CacheTags
+ * DMK\Mkvarnish\Repository$CacheTags.
  *
- * @package         TYPO3
- * @subpackage      mkvarnish
  * @author          Hannes Bochmann <hannes.bochmann@dmk-ebusiness.de>
  * @license         http://www.gnu.org/licenses/lgpl.html
  *                  GNU Lesser General Public License, version 3 or later
  */
 class CacheTagsRepository
 {
-
     /**
      * @var string
      */
@@ -53,8 +50,8 @@ class CacheTagsRepository
         $this->getDatabaseUtility()->doInsert(
             self::TABLE_NAME,
             [
-                'tag'           => $tag,
-                'cache_hash'    => $cacheHash
+                'tag' => $tag,
+                'cache_hash' => $cacheHash,
             ]
         );
     }
@@ -72,8 +69,8 @@ class CacheTagsRepository
             '*',
             self::TABLE_NAME,
             [
-                'where' => 'cache_hash = ' . $databaseUtility->fullQuoteStr($cacheHash),
-                'enablefieldsoff' => true
+                'where' => 'cache_hash = '.$databaseUtility->fullQuoteStr($cacheHash),
+                'enablefieldsoff' => true,
             ]
         );
     }
@@ -88,7 +85,7 @@ class CacheTagsRepository
         $databaseUtility = $this->getDatabaseUtility();
         $databaseUtility->doDelete(
             self::TABLE_NAME,
-            'cache_hash = ' . $databaseUtility->fullQuoteStr($cacheHash)
+            'cache_hash = '.$databaseUtility->fullQuoteStr($cacheHash)
         );
     }
 
@@ -97,7 +94,7 @@ class CacheTagsRepository
      */
     public function truncateTable()
     {
-        $this->getDatabaseUtility()->doQuery('TRUNCATE ' . self::TABLE_NAME);
+        $this->getDatabaseUtility()->doQuery('TRUNCATE '.self::TABLE_NAME);
     }
 
     /**
@@ -129,8 +126,8 @@ class CacheTagsRepository
             '*',
             self::TABLE_NAME,
             [
-                'where' => 'tag = ' . $databaseUtility->fullQuoteStr($tag),
-                'enablefieldsoff' => true
+                'where' => 'tag = '.$databaseUtility->fullQuoteStr($tag),
+                'enablefieldsoff' => true,
             ]
         );
     }

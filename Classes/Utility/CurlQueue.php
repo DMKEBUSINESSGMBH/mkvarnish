@@ -1,4 +1,5 @@
 <?php
+
 namespace DMK\Mkvarnish\Utility;
 
 use TYPO3\CMS\Core\Log\LogManager;
@@ -28,34 +29,30 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  ***************************************************************/
 
 /**
- * This class communicates with the varnish server
+ * This class communicates with the varnish server.
  *
- * @package TYPO3
- * @subpackage DMK\Mkvarnish
  * @author Michael Wagner
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
 class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
 {
-
     /**
-     * Queue ressource for curl multi-handle
+     * Queue ressource for curl multi-handle.
      *
-     * @var Resource
+     * @var resource
      */
-
     protected $curlQueue;
 
     /**
-     * Queue for curl child handle
+     * Queue for curl child handle.
      *
      * @var array
      */
     protected $curlHandles;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @throws \RuntimeException The Exception
      */
@@ -72,7 +69,7 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Add command to curl multi-handle queue
+     * Add command to curl multi-handle queue.
      *
      * @param string $method
      * @param string $url
@@ -97,9 +94,8 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
         $this->curlHandles[] = $curlHandle;
     }
 
-
     /**
-     * Class destructor
+     * Class destructor.
      *
      * @return void
      */
@@ -109,9 +105,8 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
         $this->runQueue();
     }
 
-
     /**
-     * Execute curl multi-handle queue
+     * Execute curl multi-handle queue.
      *
      * @return void
      */
@@ -120,7 +115,7 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
         $running = null;
         do {
             $status = curl_multi_exec($this->curlQueue, $running);
-            if($status > 0) {
+            if ($status > 0) {
                 GeneralUtility::makeInstance(LogManager::class)->getLogger('mkvarnish')->error(
                     'curl request failed. Check devlog for more information.',
                     [
@@ -135,7 +130,7 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
 
         // destroy all the handles
         foreach ($this->curlHandles as $handle) {
-            if (curl_getinfo($handle, CURLINFO_HTTP_CODE) != 200) {
+            if (200 != curl_getinfo($handle, CURLINFO_HTTP_CODE)) {
                 GeneralUtility::makeInstance(LogManager::class)->getLogger('mkvarnish')->error(
                     'curl request returned no 200 HTTP code. Check devlog for more information.',
                     ['handle' => curl_getinfo($handle)]

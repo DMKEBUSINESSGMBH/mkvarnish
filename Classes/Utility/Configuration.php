@@ -1,4 +1,5 @@
 <?php
+
 namespace DMK\Mkvarnish\Utility;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -27,10 +28,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  ***************************************************************/
 
 /**
- * TYPO3 Hook to extend the header with cache tags
+ * TYPO3 Hook to extend the header with cache tags.
  *
- * @package TYPO3
- * @subpackage DMK\Mkvarnish
  * @author Michael Wagner
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
@@ -38,14 +37,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class Configuration implements \TYPO3\CMS\Core\SingletonInterface
 {
     /**
-     * The extension configuration
+     * The extension configuration.
      *
      * @var array
      */
     private $extConf = null;
 
     /**
-     * Gets a config value from extension configuration
+     * Gets a config value from extension configuration.
      *
      * @param string $key
      *
@@ -55,7 +54,7 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
      */
     protected function getExtConfValue($key)
     {
-        if ($this->extConf === null) {
+        if (null === $this->extConf) {
             $this->extConf = unserialize(
                 $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish']
             );
@@ -65,7 +64,7 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Check if we should send some cache headers
+     * Check if we should send some cache headers.
      *
      * @return bool
      * */
@@ -84,7 +83,7 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Check if we are behind a reverse proxy
+     * Check if we are behind a reverse proxy.
      *
      * @return bool
      * */
@@ -94,7 +93,7 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Returns HMAC of the sitename
+     * Returns HMAC of the sitename.
      *
      * @return mixed
      */
@@ -104,7 +103,7 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Returns a list of hosts to purge
+     * Returns a list of hosts to purge.
      *
      * @return array
      */

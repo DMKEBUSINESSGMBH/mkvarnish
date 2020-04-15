@@ -1,10 +1,11 @@
 <?php
+
 namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 
 use DMK\Mkvarnish\Cache\VarnishBackend;
-use DMK\Mkvarnish\Utility\CurlQueue;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use DMK\Mkvarnish\Utility\Configuration;
+use DMK\Mkvarnish\Utility\CurlQueue;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /***************************************************************
@@ -31,17 +32,14 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
  ***************************************************************/
 
 /**
- * DMK\Mkvarnish\Tests\Unit\Hooks$VarnishBackendTest
+ * DMK\Mkvarnish\Tests\Unit\Hooks$VarnishBackendTest.
  *
- * @package         TYPO3
- * @subpackage
  * @author          Hannes Bochmann <hannes.bochmann@dmk-ebusiness.de>
  * @license         http://www.gnu.org/licenses/lgpl.html
  *                  GNU Lesser General Public License, version 3 or later
  */
 class VarnishBackendTest extends UnitTestCase
 {
-
     /**
      * @var string
      */
@@ -53,7 +51,8 @@ class VarnishBackendTest extends UnitTestCase
     private $extConfBackup = [];
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see PHPUnit_Framework_TestCase::setUp()
      */
     protected function setUp()
@@ -64,7 +63,8 @@ class VarnishBackendTest extends UnitTestCase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see PHPUnit_Framework_TestCase::setUp()
      */
     protected function tearDown()
@@ -106,11 +106,11 @@ class VarnishBackendTest extends UnitTestCase
     public function dataProviderUnimplementedMethods()
     {
         return [
-            'method set, line: ' . __LINE__ => ['set', ['test', []]],
-            'method get, line: ' . __LINE__ => ['get', ['test']],
-            'method remove, line: ' . __LINE__ => ['remove', ['test']],
-            'method has, line: ' . __LINE__ => ['has', ['test']],
-            'method findIdentifiersByTag, line: ' . __LINE__ => ['findIdentifiersByTag', ['test']],
+            'method set, line: '.__LINE__ => ['set', ['test', []]],
+            'method get, line: '.__LINE__ => ['get', ['test']],
+            'method remove, line: '.__LINE__ => ['remove', ['test']],
+            'method has, line: '.__LINE__ => ['has', ['test']],
+            'method findIdentifiersByTag, line: '.__LINE__ => ['findIdentifiersByTag', ['test']],
         ];
     }
 

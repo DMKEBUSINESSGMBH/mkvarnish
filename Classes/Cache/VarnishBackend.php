@@ -1,9 +1,10 @@
 <?php
+
 namespace DMK\Mkvarnish\Cache;
 
+use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use DMK\Mkvarnish\Utility\Configuration;
 use DMK\Mkvarnish\Utility\CurlQueue;
-use DMK\Mkvarnish\Repository\CacheTagsRepository;
 
 /***************************************************************
  * Copyright notice
@@ -35,39 +36,35 @@ use DMK\Mkvarnish\Repository\CacheTagsRepository;
  *
  * DMK\Mkvarnish\Cache$Backend
  *
- * @package         TYPO3
- * @subpackage
  * @author          Hannes Bochmann <hannes.bochmann@dmk-ebusiness.de>
  * @license         http://www.gnu.org/licenses/lgpl.html
  *                  GNU Lesser General Public License, version 3 or later
  */
-class VarnishBackend
-    extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend
-    implements \TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface
+class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend implements \TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface
 {
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::set()
      */
-    public function set($entryIdentifier, $data, array $tags = array(), $lifetime = null)
+    public function set($entryIdentifier, $data, array $tags = [], $lifetime = null)
     {
         $this->throwExceptionIfNotImplemented();
     }
 
     /**
      * @return void
+     *
      * @throws \Exception
      */
     protected function throwExceptionIfNotImplemented()
     {
-        throw new \Exception(
-            'the varnish cache backend can only remove cache entries by tags or the complete cache at the moment'
-        );
+        throw new \Exception('the varnish cache backend can only remove cache entries by tags or the complete cache at the moment');
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::get()
      */
     public function get($entryIdentifier)
@@ -76,7 +73,8 @@ class VarnishBackend
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::has()
      */
     public function has($entryIdentifier)
@@ -85,7 +83,8 @@ class VarnishBackend
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::remove()
      */
     public function remove($entryIdentifier)
@@ -94,7 +93,8 @@ class VarnishBackend
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface::findIdentifiersByTag()
      */
     public function findIdentifiersByTag($tag)
@@ -103,7 +103,8 @@ class VarnishBackend
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::flush()
      */
     public function flush()
@@ -115,7 +116,8 @@ class VarnishBackend
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface::flushByTag()
      */
     public function flushByTag($tag)
@@ -127,7 +129,7 @@ class VarnishBackend
     }
 
     /**
-     * Escapes the tag and creates the regex
+     * Escapes the tag and creates the regex.
      *
      * @param string $tag
      *
@@ -150,7 +152,7 @@ class VarnishBackend
         $headers['X-TYPO3-Sitename'] = $this->getHmacForSitename();
         $headersForCurl = [];
         foreach ($headers as $key => $value) {
-            $headersForCurl[] = $key . ': ' . $value;
+            $headersForCurl[] = $key.': '.$value;
         }
 
         $method = 'PURGE';
@@ -211,7 +213,6 @@ class VarnishBackend
         $this->getCacheTagsRepository()->deleteByTag($tag);
     }
 
-
     /**
      * @return \DMK\Mkvarnish\Repository\CacheTagsRepository
      */
@@ -221,7 +222,8 @@ class VarnishBackend
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::collectGarbage()
      */
     public function collectGarbage()
