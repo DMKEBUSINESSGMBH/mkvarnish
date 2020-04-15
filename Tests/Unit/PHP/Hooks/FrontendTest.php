@@ -26,6 +26,7 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 
 use DMK\Mkvarnish\Hook\Frontend;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -37,7 +38,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class FrontendTest extends \PHPUnit\Framework\TestCase
+class FrontendTest extends UnitTestCase
 {
 
     /**
@@ -49,6 +50,7 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
         if (isset($GLOBALS['TSFE'])) {
             unset($GLOBALS['TSFE']);
         }
+        parent::tearDown();
     }
 
     /**
@@ -63,10 +65,9 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
     {
         $headers['name'] = 'wert';
 
-        $mock = $this->getMock(
-            Frontend::class,
-            ['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders']
-        );
+        $mock = $this->getMockBuilder(Frontend::class)
+            ->setMethods(['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders'])
+            ->getMock();
 
         $mock->expects($this->once())->method('getHeaders')->will($this->returnValue($headers));
         $mock->expects($this->once())->method('sendHeaders')->with($headers);
@@ -84,10 +85,9 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
      */
     public function testHandleHeadersWithoutHeaders()
     {
-        $mock = $this->getMock(
-            Frontend::class,
-            ['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders']
-        );
+        $mock = $this->getMockBuilder(Frontend::class)
+            ->setMethods(['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders'])
+            ->getMock();
 
         $mock->expects($this->once())->method('getHeaders')->will($this->returnValue([]));
         $mock->expects($this->never())->method('sendHeaders');
@@ -105,10 +105,9 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetHeadersWithoutVarnish()
     {
-        $mock = $this->getMock(
-            Frontend::class,
-            ['isSendCacheHeadersEnabled']
-        );
+        $mock = $this->getMockBuilder(Frontend::class)
+            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->getMock();
 
         $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(false));
 
@@ -136,10 +135,9 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
         $tsfe->newHash = 'asd123hjk678';
         $tsfe->config['INTincScript'] = ['one', 'two'];
 
-        $mock = $this->getMock(
-            Frontend::class,
-            ['isSendCacheHeadersEnabled', 'getTsFe', 'getHeadersForCacheTags', 'getHmacForSitename']
-        );
+        $mock = $this->getMockBuilder(Frontend::class)
+            ->setMethods(['isSendCacheHeadersEnabled', 'getTsFe', 'getHeadersForCacheTags', 'getHmacForSitename'])
+            ->getMock();
 
         $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
         $mock->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
@@ -174,17 +172,16 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetHeadersForCacheTagsIfCacheTagsPresent()
     {
-        $tsfe = $this->getMock(
-            TypoScriptFrontendController::class,
-            ['determineId'],
-            [],
-            '',
-            false
-        );
+        $tsfe = $this->getMockBuilder(TypoScriptFrontendController::class)
+            ->setMethods(['determineId'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $tsfe->newHash = 123;
         $tsfe->addCacheTags(['tag1', 'tag2', 'tag2']);
 
-        $hook = $this->getMock(Frontend::class, ['getTsFe', 'saveCacheTagsByCacheHash']);
+        $hook = $this->getMockBuilder(Frontend::class)
+            ->setMethods(['getTsFe', 'saveCacheTagsByCacheHash'])
+            ->getMock();
         $hook->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
         $hook->expects($this->once())->method('saveCacheTagsByCacheHash')->with(['tag1', 'tag2'], 123);
         $headers = $this->callInaccessibleMethod($hook, 'getHeadersForCacheTags');
@@ -202,15 +199,14 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetHeadersForCacheTagsIfCacheTagsNotPresent()
     {
-        $tsfe = $this->getMock(
-            TypoScriptFrontendController::class,
-            ['determineId'],
-            [],
-            '',
-            false
-        );
+        $tsfe = $this->getMockBuilder(TypoScriptFrontendController::class)
+            ->setMethods(['determineId'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $tsfe->newHash = 123;
-        $hook = $this->getMock(Frontend::class, ['getTsFe', 'getCacheTagsByCacheHash']);
+        $hook = $this->getMockBuilder(Frontend::class)
+            ->setMethods(['getTsFe', 'getCacheTagsByCacheHash'])
+            ->getMock();
         $hook->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
         $hook
             ->expects(self::once())
@@ -244,10 +240,9 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
      */
     public function testSaveCacheTagsByCacheHash()
     {
-        $cacheTagsRepository = $this->getMock(
-            CacheTagsRepository::class,
-            ['insertByTagAndCacheHash', 'deleteByCacheHash']
-        );
+        $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['insertByTagAndCacheHash', 'deleteByCacheHash'])
+            ->getMock();
 
         $cacheTagsRepository
             ->expects(self::at(0))
@@ -262,7 +257,9 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
             ->method('insertByTagAndCacheHash')
             ->with('tag_2', 123);
 
-        $hook = $this->getMock(Frontend::class, ['getCacheTagsRepository']);
+        $hook = $this->getMockBuilder(Frontend::class)
+            ->setMethods(['getCacheTagsRepository'])
+            ->getMock();
         $hook
             ->expects(self::once())
             ->method('getCacheTagsRepository')
@@ -277,7 +274,9 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetCacheTagsByCacheHash()
     {
-        $cacheTagsRepository = $this->getMock(CacheTagsRepository::class, ['getByCacheHash']);
+        $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['getByCacheHash'])
+            ->getMock();
 
         $cacheTagsRepository
             ->expects(self::once())
@@ -288,7 +287,9 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
                 1 => ['cache_hash' => 123, 'tag' => 'tag_2'],
             ]));
 
-        $hook = $this->getMock(Frontend::class, ['getCacheTagsRepository']);
+        $hook = $this->getMockBuilder(Frontend::class)
+            ->setMethods(['getCacheTagsRepository'])
+            ->getMock();
         $hook
             ->expects(self::once())
             ->method('getCacheTagsRepository')
@@ -306,15 +307,14 @@ class FrontendTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetCurrentCacheHash()
     {
-        $tsfe = $this->getMock(
-            TypoScriptFrontendController::class,
-            ['determineId'],
-            [],
-            '',
-            false
-        );
+        $tsfe = $this->getMockBuilder(TypoScriptFrontendController::class)
+            ->setMethods(['determineId'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $tsfe->cHash = 123;
-        $hook = $this->getMock(Frontend::class, ['getTsFe', 'getCacheTagsByCacheHash']);
+        $hook = $this->getMockBuilder(Frontend::class)
+            ->setMethods(['getTsFe', 'getCacheTagsByCacheHash'])
+            ->getMock();
         $hook
             ->expects($this->any())
             ->method('getTsFe')

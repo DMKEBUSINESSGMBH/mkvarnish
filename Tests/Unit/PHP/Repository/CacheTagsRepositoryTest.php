@@ -2,6 +2,7 @@
 namespace DMK\Mkvarnish\Tests\Unit\Repository;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /***************************************************************
  * Copyright notice
@@ -35,9 +36,8 @@ use DMK\Mkvarnish\Repository\CacheTagsRepository;
  * @license         http://www.gnu.org/licenses/lgpl.html
  *                  GNU Lesser General Public License, version 3 or later
  */
-class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
+class CacheTagsRepositoryTest extends UnitTestCase
 {
-
     /**
      * @group unit
      */
@@ -54,7 +54,9 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testInsertByTagAndCacheHash()
     {
-        $databaseUtility = $this->getMock('Tx_Rnbase_Database_Connection', ['doInsert']);
+        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+            ->setMethods(['doInsert'])
+            ->getMock();
         $databaseUtility
             ->expects(self::once())
             ->method('doInsert')
@@ -66,7 +68,9 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
-        $repository = $this->getMock(CacheTagsRepository::class, ['getDatabaseUtility']);
+        $repository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['getDatabaseUtility'])
+            ->getMock();
         $repository
             ->expects(self::once())
             ->method('getDatabaseUtility')
@@ -80,7 +84,9 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetByCacheHash()
     {
-        $databaseUtility = $this->getMock('Tx_Rnbase_Database_Connection', ['doSelect', 'fullQuoteStr']);
+        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+            ->setMethods(['doSelect', 'fullQuoteStr'])
+            ->getMock();
         $databaseUtility
             ->expects(self::once())
             ->method('fullQuoteStr')
@@ -100,7 +106,9 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
             )
             ->will(self::returnValue(['cacheTags']));;
 
-        $repository = $this->getMock(CacheTagsRepository::class, ['getDatabaseUtility']);
+        $repository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['getDatabaseUtility'])
+            ->getMock();
         $repository
             ->expects(self::once())
             ->method('getDatabaseUtility')
@@ -117,7 +125,9 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testDeleteByCacheHash()
     {
-        $databaseUtility = $this->getMock('Tx_Rnbase_Database_Connection', ['doDelete', 'fullQuoteStr']);
+        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+            ->setMethods(['doDelete', 'fullQuoteStr'])
+            ->getMock();
         $databaseUtility
             ->expects(self::once())
             ->method('fullQuoteStr')
@@ -132,7 +142,9 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
                 'cache_hash = quoted'
             );
 
-        $repository = $this->getMock(CacheTagsRepository::class, ['getDatabaseUtility']);
+        $repository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['getDatabaseUtility'])
+            ->getMock();
         $repository
             ->expects(self::once())
             ->method('getDatabaseUtility')
@@ -146,14 +158,18 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testTruncateTable()
     {
-        $databaseUtility = $this->getMock('Tx_Rnbase_Database_Connection', ['doQuery']);
+        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+            ->setMethods(['doQuery'])
+            ->getMock();
 
         $databaseUtility
             ->expects(self::once())
             ->method('doQuery')
             ->with('TRUNCATE tx_mkvarnish_cache_tags');
 
-        $repository = $this->getMock(CacheTagsRepository::class, ['getDatabaseUtility']);
+        $repository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['getDatabaseUtility'])
+            ->getMock();
         $repository
             ->expects(self::once())
             ->method('getDatabaseUtility')
@@ -167,26 +183,30 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testDeleteCacheTagsByCacheTag()
     {
-        $databaseUtility = $this->getMock('Tx_Rnbase_Database_Connection', ['doDelete', 'fullQuoteStr']);
+        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+            ->setMethods(['doDelete', 'fullQuoteStr'])
+            ->getMock();
         $databaseUtility
-        ->expects(self::once())
-        ->method('fullQuoteStr')
-        ->with('test_hash')
-        ->will(self::returnValue('quoted'));
+            ->expects(self::once())
+            ->method('fullQuoteStr')
+            ->with('test_hash')
+            ->will(self::returnValue('quoted'));
 
         $databaseUtility
-        ->expects(self::once())
-        ->method('doDelete')
-        ->with(
-            'tx_mkvarnish_cache_tags',
-            'cache_hash = quoted'
+            ->expects(self::once())
+            ->method('doDelete')
+            ->with(
+                'tx_mkvarnish_cache_tags',
+                'cache_hash = quoted'
             );
 
-        $repository = $this->getMock(CacheTagsRepository::class, ['getDatabaseUtility']);
+        $repository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['getDatabaseUtility'])
+            ->getMock();
         $repository
-        ->expects(self::once())
-        ->method('getDatabaseUtility')
-        ->will(self::returnValue($databaseUtility));
+            ->expects(self::once())
+            ->method('getDatabaseUtility')
+            ->will(self::returnValue($databaseUtility));
 
         $repository->deleteByCacheHash('test_hash');
     }
@@ -196,7 +216,9 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetByTag()
     {
-        $databaseUtility = $this->getMock('Tx_Rnbase_Database_Connection', ['doSelect', 'fullQuoteStr']);
+        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+            ->setMethods(['doSelect', 'fullQuoteStr'])
+            ->getMock();
         $databaseUtility
             ->expects(self::once())
             ->method('fullQuoteStr')
@@ -216,7 +238,9 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
             )
             ->will(self::returnValue(['cacheTags']));;
 
-        $repository = $this->getMock(CacheTagsRepository::class, ['getDatabaseUtility']);
+        $repository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['getDatabaseUtility'])
+            ->getMock();
         $repository
             ->expects(self::once())
             ->method('getDatabaseUtility')
@@ -233,7 +257,9 @@ class CacheTagsRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function testDeleteByTag()
     {
-        $repository = $this->getMock(CacheTagsRepository::class, ['getByTag', 'deleteByCacheHash']);
+        $repository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['getByTag', 'deleteByCacheHash'])
+            ->getMock();
         $repository
             ->expects(self::at(0))
             ->method('getByTag')

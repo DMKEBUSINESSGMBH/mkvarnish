@@ -5,6 +5,7 @@ use DMK\Mkvarnish\Cache\VarnishBackend;
 use DMK\Mkvarnish\Utility\CurlQueue;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use DMK\Mkvarnish\Utility\Configuration;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /***************************************************************
  * Copyright notice
@@ -38,7 +39,7 @@ use DMK\Mkvarnish\Utility\Configuration;
  * @license         http://www.gnu.org/licenses/lgpl.html
  *                  GNU Lesser General Public License, version 3 or later
  */
-class VarnishBackendTest extends \PHPUnit\Framework\TestCase
+class VarnishBackendTest extends UnitTestCase
 {
 
     /**
@@ -59,6 +60,7 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
     {
         $this->siteNameBackup = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'];
         $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'];
+        parent::setUp();
     }
 
     /**
@@ -69,6 +71,7 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = $this->siteNameBackup;
         $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = $this->extConfBackup;
+        parent::tearDown();
     }
 
     /**
@@ -85,13 +88,10 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
      */
     public function testUnimplementedMethods($method, array $arguments)
     {
-        $varnishBackend = $this->getMock(
-            VarnishBackend::class,
-            ['throwExceptionIfNotImplemented'],
-            ['Testing'],
-            '',
-            false
-        );
+        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
+            ->setMethods(['throwExceptionIfNotImplemented'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $varnishBackend
             ->expects(self::once())
@@ -138,8 +138,9 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
     public function testConvertCacheTagForPurge()
     {
         $convertedCacheTagForPurge = $this->callInaccessibleMethod(
-            [$this->getVarnishBackendInstance(), 'convertCacheTagForPurge'],
-            ['tt_content_5']
+            $this->getVarnishBackendInstance(),
+            'convertCacheTagForPurge',
+            'tt_content_5'
         );
 
         self::assertEquals('(tt_content_5)(,.+)?$', $convertedCacheTagForPurge);
@@ -174,13 +175,10 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
      */
     public function testExecutePurge()
     {
-        $varnishBackend = $this->getMock(
-            VarnishBackend::class,
-            ['getHmacForSitename', 'getCurlQueueUtility', 'getHostNamesForPurge'],
-            ['Testing'],
-            '',
-            false
-        );
+        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
+            ->setMethods(['getHmacForSitename', 'getCurlQueueUtility', 'getHostNamesForPurge'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $varnishBackend
             ->expects(self::once())
@@ -192,7 +190,9 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
             ->method('getHostNamesForPurge')
             ->will($this->returnValue(['firstHost', 'secondHost']));
 
-        $curlQueueUtility = $this->getMock(CurlQueue::class, ['addCommand']);
+        $curlQueueUtility = $this->getMockBuilder(CurlQueue::class)
+            ->setMethods(['addCommand'])
+            ->getMock();
         $curlQueueUtility
             ->expects(self::at(0))
             ->method('addCommand')
@@ -225,19 +225,18 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
      */
     public function testFlush()
     {
-        $configurationUtility = $this->getMock(Configuration::class, ['isSendCacheHeadersEnabled']);
+        $configurationUtility = $this->getMockBuilder(Configuration::class)
+            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->getMock();
         $configurationUtility
             ->expects(self::once())
             ->method('isSendCacheHeadersEnabled')
             ->will(self::returnValue(true));
 
-        $varnishBackend = $this->getMock(
-            VarnishBackend::class,
-            ['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'],
-            ['Testing'],
-            '',
-            false
-        );
+        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
+            ->setMethods(['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $varnishBackend
             ->expects(self::once())
@@ -261,19 +260,18 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
      */
     public function testFlushWhenNotSendCacheHeaderEnabled()
     {
-        $configurationUtility = $this->getMock(Configuration::class, ['isSendCacheHeadersEnabled']);
+        $configurationUtility = $this->getMockBuilder(Configuration::class)
+            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->getMock();
         $configurationUtility
             ->expects(self::once())
             ->method('isSendCacheHeadersEnabled')
             ->will(self::returnValue(false));
 
-        $varnishBackend = $this->getMock(
-            VarnishBackend::class,
-            ['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'],
-            ['Testing'],
-            '',
-            false
-        );
+        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
+            ->setMethods(['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $varnishBackend
             ->expects(self::once())
@@ -296,19 +294,18 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
      */
     public function testFlushByTag()
     {
-        $configurationUtility = $this->getMock(Configuration::class, ['isSendCacheHeadersEnabled']);
+        $configurationUtility = $this->getMockBuilder(Configuration::class)
+            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->getMock();
         $configurationUtility
             ->expects(self::once())
             ->method('isSendCacheHeadersEnabled')
             ->will(self::returnValue(true));
 
-        $varnishBackend = $this->getMock(
-            VarnishBackend::class,
-            ['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'],
-            ['Testing'],
-            '',
-            false
-        );
+        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
+            ->setMethods(['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $varnishBackend
             ->expects(self::once())
@@ -339,19 +336,18 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
      */
     public function testFlushByTagWhenNotSendCacheHeaderEnabled()
     {
-        $configurationUtility = $this->getMock(Configuration::class, ['isSendCacheHeadersEnabled']);
+        $configurationUtility = $this->getMockBuilder(Configuration::class)
+            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->getMock();
         $configurationUtility
             ->expects(self::once())
             ->method('isSendCacheHeadersEnabled')
             ->will(self::returnValue(false));
 
-        $varnishBackend = $this->getMock(
-            VarnishBackend::class,
-            ['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'],
-            ['Testing'],
-            '',
-            false
-        );
+        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
+            ->setMethods(['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $varnishBackend
             ->expects(self::once())
@@ -390,19 +386,18 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
      */
     public function testTruncateCacheTagsTable()
     {
-        $cacheTagsRepository = $this->getMock(CacheTagsRepository::class, ['truncateTable']);
+        $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['truncateTable'])
+            ->getMock();
 
         $cacheTagsRepository
             ->expects(self::once())
             ->method('truncateTable');
 
-        $varnishBackend = $this->getMock(
-            VarnishBackend::class,
-            ['getCacheTagsRepository'],
-            ['Testing'],
-            '',
-            false
-        );
+        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
+            ->setMethods(['getCacheTagsRepository'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $varnishBackend
             ->expects(self::once())
             ->method('getCacheTagsRepository')
@@ -417,20 +412,19 @@ class VarnishBackendTest extends \PHPUnit\Framework\TestCase
      */
     public function testDeleteFromCacheTagsTableByTag()
     {
-        $cacheTagsRepository = $this->getMock(CacheTagsRepository::class, ['deleteByTag']);
+        $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->setMethods(['deleteByTag'])
+            ->getMock();
 
         $cacheTagsRepository
             ->expects(self::once())
             ->method('deleteByTag')
             ->with('test_tag');
 
-        $varnishBackend = $this->getMock(
-            VarnishBackend::class,
-            ['getCacheTagsRepository'],
-            ['Testing'],
-            '',
-            false
-        );
+        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
+            ->setMethods(['getCacheTagsRepository'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $varnishBackend
             ->expects(self::once())
             ->method('getCacheTagsRepository')

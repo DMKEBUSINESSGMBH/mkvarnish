@@ -25,6 +25,7 @@ namespace DMK\Mkvarnish\Tests\Unit\Utility;
  ***************************************************************/
 
 use \DMK\Mkvarnish\Utility\Configuration;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /**
  * This class communicates with the varnish server
@@ -35,7 +36,7 @@ use \DMK\Mkvarnish\Utility\Configuration;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class ConfigurationTest extends \PHPUnit\Framework\TestCase
+class ConfigurationTest extends UnitTestCase
 {
 
     /**
@@ -51,6 +52,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     protected function setUp()
     {
         $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'];
+        parent::setUp();
     }
     /**
      * Tear down the Test
@@ -60,6 +62,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     protected function tearDown()
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = $this->extConfBackup;
+        parent::tearDown();
     }
 
     /**
@@ -76,17 +79,19 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
             ['my_key' => 'my_value']
         );
 
-        $mock = $this->getMock(Configuration::class);
+        $mock = $this->getMockBuilder(Configuration::class)
+            ->setMethods(['dummy'])
+            ->getMock();
 
         // should return right value
         $this->assertEquals(
             'my_value',
-            $this->callInaccessibleMethod([$mock, 'getExtConfValue'], ['my_key'])
+            $this->callInaccessibleMethod($mock, 'getExtConfValue', 'my_key')
         );
         // should return null if there is no value
         $this->assertEquals(
             null,
-            $this->callInaccessibleMethod([$mock, 'getExtConfValue'], ['no_key'])
+            $this->callInaccessibleMethod($mock, 'getExtConfValue', 'no_key')
         );
     }
 
@@ -104,10 +109,9 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
             ['sendCacheHeaders' => '0']
         );
 
-        $mock = $this->getMock(
-            Configuration::class,
-            ['isRevProxy']
-        );
+        $mock = $this->getMockBuilder(Configuration::class)
+            ->setMethods(['isRevProxy'])
+            ->getMock();
 
         $mock->expects($this->once())->method('isRevProxy')->will($this->returnValue('rp'));
 
@@ -132,10 +136,9 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
             ['sendCacheHeaders' => '1']
         );
 
-        $mock = $this->getMock(
-            Configuration::class,
-            ['isRevProxy']
-        );
+        $mock = $this->getMockBuilder(Configuration::class)
+            ->setMethods(['isRevProxy'])
+            ->getMock();
         $mock->expects($this->never())->method('isRevProxy');
 
         // should return rp
@@ -156,10 +159,9 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
             ['sendCacheHeaders' => '2']
             );
 
-        $mock = $this->getMock(
-            Configuration::class,
-            ['isRevProxy']
-            );
+        $mock = $this->getMockBuilder(Configuration::class)
+            ->setMethods(['isRevProxy'])
+            ->getMock();
         $mock->expects($this->never())->method('isRevProxy');
 
         // should return rp
