@@ -381,7 +381,6 @@ sub vcl_deliver {
         unset resp.http.X-Purge-URL;
         unset resp.http.X-Purge-Host;
         unset resp.http.X-BE-Name;
-        unset resp.http.Link;
         unset resp.http.X-Powered-By;
         unset resp.http.Server;
 
