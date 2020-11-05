@@ -1,9 +1,10 @@
 # MK VARNISH
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/dmk/mkvarnish.svg?maxAge=3600&style=flat-square)](https://packagist.org/packages/dmk/mkvarnish)
+![TYPO3 compatibility](https://img.shields.io/badge/TYPO3-7.6%20%7C%208.7-orange?maxAge=3600&style=flat-square&logo=typo3)
+[![Latest Stable Version](https://img.shields.io/packagist/v/dmk/mkvarnish.svg?maxAge=3600&style=flat-square&logo=composer)](https://packagist.org/packages/dmk/mkvarnish)
 [![Total Downloads](https://img.shields.io/packagist/dt/dmk/mkvarnish.svg?maxAge=3600&style=flat-square)](https://packagist.org/packages/dmk/mkvarnish)
-[![Build Status](https://img.shields.io/travis/DMKEBUSINESSGMBH/mkvarnish.svg?maxAge=3600&style=flat-square)](https://travis-ci.org/DMKEBUSINESSGMBH/mkvarnish)
-[![License](https://img.shields.io/packagist/l/dmk/mkvarnish.svg?maxAge=3600&style=flat-square)](https://packagist.org/packages/dmk/mkvarnish)
+[![Build Status](https://img.shields.io/travis/DMKEBUSINESSGMBH/mkvarnish.svg?maxAge=3600&style=flat-square&logo=travis)](https://travis-ci.com/DMKEBUSINESSGMBH/mkvarnish)
+[![License](https://img.shields.io/packagist/l/dmk/mkvarnish.svg?maxAge=3600&style=flat-square&logo=gnu)](https://packagist.org/packages/dmk/mkvarnish)
 
 
 > Varnish Cache is a web application accelerator also known as a caching HTTP reverse proxy.
