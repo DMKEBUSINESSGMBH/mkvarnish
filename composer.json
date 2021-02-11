@@ -20,15 +20,14 @@
     "support": {
         "email": "dev@dmk-ebusiness.de",
         "source": "https://github.com/DMKEBUSINESSGMBH/mkvarnish",
-        "issues": "https://github.com/DMKEBUSINESSGMBH/mkvarnish"
+        "issues": "https://github.com/DMKEBUSINESSGMBH/mkvarnish/issues"
     },
     "replace": {
         "typo3-ter/mkvarnish": "self.version"
     },
     "require": {
-        "php": ">=5.6",
-        "typo3/cms-core": "~7.6 || ~8.7",
-        "digedag/rn-base": ">=1.4.5"
+        "typo3/cms-core": "^7.6 || ^8.7",
+        "digedag/rn-base": "^1.4.5"
     },
     "autoload": {
         "psr-4": {
@@ -36,11 +35,12 @@
         }
     },
     "require-dev": {
+        "php-parallel-lint/php-parallel-lint": "^1.2",
         "namelesscoder/typo3-repository-client": "^1.2",
         "nimut/testing-framework": "^1.0 || ^4.0",
         "mikey179/vfsstream": "^1.4 || ^1.6",
         "phpunit/phpunit": "^4.7 || ^5.0 || ^7.0",
-        "friendsofphp/php-cs-fixer": "~2@stable"
+        "friendsofphp/php-cs-fixer": "^2"
     },
     "autoload-dev": {
         "psr-4": {
@@ -60,6 +60,32 @@
         "post-autoload-dump": [
             "mkdir -p .Build/Web/typo3conf/ext/",
             "[ -L .Build/Web/typo3conf/ext/mkvarnish ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/mkvarnish"
+        ],
+        "lint:php": [
+            "[ -e .Build/bin/parallel-lint ] || composer update",
+            ".Build/bin/parallel-lint ./Classes"
+        ],
+        "lint": [
+            "@lint:php"
+        ],
+        "test:phpcs": [
+            "[ -e .Build/bin/php-cs-fixer ] || composer update --ansi",
+            ".Build/bin/php-cs-fixer fix -v --dry-run --diff --diff-format udiff --ansi"
+        ],
+        "test:phpunit": [
+            "[ -e .Build/bin/phpunit ] || composer update --ansi",
+            "export TYPO3_PATH_WEB=$PWD/.Build/Web && .Build/bin/phpunit -c .Build/vendor/nimut/testing-framework/res/Configuration/UnitTests.xml Tests/Unit/PHP/"
+        ],
+        "test": [
+            "@test:phpcs",
+            "@test:phpunit"
+        ],
+        "fix:phpcs": [
+            "[ -e .Build/bin/php-cs-fixer ] || composer update --ansi",
+            ".Build/bin/php-cs-fixer fix -v"
+        ],
+        "fix": [
+            "@fix:phpcs"
         ]
     },
     "extra": {
