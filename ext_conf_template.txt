@@ -1,4 +1,4 @@
-# cat=basic; type=options[reverse Proxy Check=0,Force Enabled=1,Force Disabled=2]; label=Should de advanced cache headers be send?: By default the configured reverseProxyIP will be checked agains the REMOTE_ADDR. If there is a match we will send the cache headers. You can force orde disable the header direktly too.
+# cat=basic; type=options[reverse Proxy Check=0,Force Enabled=1,Force Disabled=2]; label=Should the advanced cache headers be send?: By default the configured reverseProxyIP is checked using the REMOTE_ADDR. If there is a match, we send the cache headers. You can also force or disable the header directly. 
 sendCacheHeaders = 0
 
 # cat=basic; type=string; label=Varnish Hostnames: comma-separated list with hosts to send purge commands to. If left empty the current HTTP Host is used.
