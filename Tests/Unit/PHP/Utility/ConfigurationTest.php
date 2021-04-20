@@ -49,7 +49,7 @@ class ConfigurationTest extends UnitTestCase
      */
     protected function setUp()
     {
-        $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'];
+        $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'];
         parent::setUp();
     }
 
@@ -60,7 +60,7 @@ class ConfigurationTest extends UnitTestCase
      */
     protected function tearDown()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = $this->extConfBackup;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = $this->extConfBackup;
         parent::tearDown();
     }
 
@@ -74,9 +74,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testGetExtConfValue()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['my_key' => 'my_value']
-        );
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['my_key' => 'my_value'];
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['dummy'])
@@ -104,9 +102,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testIsSendCacheHeadersEnabledChecksReverseProxy()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['sendCacheHeaders' => '0']
-        );
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['sendCacheHeaders' => '0'];
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['isRevProxy'])
@@ -131,9 +127,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testIsSendCacheHeadersEnabledShouldReturnTrue()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['sendCacheHeaders' => '1']
-        );
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['sendCacheHeaders' => '1'];
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['isRevProxy'])
@@ -154,9 +148,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testIsSendCacheHeadersEnabledShouldReturnFalse()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['sendCacheHeaders' => '2']
-            );
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['sendCacheHeaders' => '2'];
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['isRevProxy'])
@@ -177,9 +169,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testGetHostNamesForPurgeIfConfigured()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['hostnames' => '127.0.0.1, 192.168.0.1']
-        );
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['hostnames' => '127.0.0.1, 192.168.0.1'];
 
         $mock = new Configuration();
 
@@ -196,9 +186,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testGetHostNamesForPurgeIfNoneConfigured()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['hostnames' => '']
-        );
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['hostnames' => ''];
         $mock = new Configuration();
 
         $hostnames = $mock->getHostNamesForPurge();

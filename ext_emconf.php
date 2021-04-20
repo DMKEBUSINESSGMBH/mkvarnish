@@ -4,7 +4,7 @@
  * Extension Manager/Repository config file for ext "mkvarnish".
  ***************************************************************/
 
-$EM_CONF[$_EXTKEY] = [
+$EM_CONF['mkvarnish'] = [
     'title' => 'MK Varnish',
     'description' => 'This extension takes care of connecting TYPO3 to Varnish servers for proper caching.',
     'category' => 'plugin',
@@ -13,7 +13,7 @@ $EM_CONF[$_EXTKEY] = [
     'author_company' => 'DMK E-Business GmbH',
     'shy' => '',
     'dependencies' => '',
-    'version' => '1.0.9',
+    'version' => '10.0.0',
     'conflicts' => '',
     'priority' => '',
     'module' => '',
@@ -26,7 +26,7 @@ $EM_CONF[$_EXTKEY] = [
     'lockType' => '',
     'constraints' => [
         'depends' => [
-            'typo3' => '7.6.0-8.7.99',
+            'typo3' => '9.6.0-10.4.99',
         ],
         'conflicts' => [],
         'suggests' => [],

@@ -50,8 +50,8 @@ call_user_func(
 
         if ($configurationUtility->isSendCacheHeadersEnabled()) {
             $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['varnish'] = [
-                'backend' => 'DMK\Mkvarnish\Cache\VarnishBackend',
-                'frontend' => 'TYPO3\CMS\Core\Cache\Frontend\VariableFrontend',
+                'backend' => \DMK\Mkvarnish\Cache\VarnishBackend::class,
+                'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
                 'groups' => ['pages', 'all'],
             ];
         }

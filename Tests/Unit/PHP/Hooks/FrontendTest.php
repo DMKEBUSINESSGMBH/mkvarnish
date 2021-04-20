@@ -28,6 +28,8 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 use DMK\Mkvarnish\Hook\Frontend;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use Sys25\RnBase\Utility\TYPO3;
+use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -307,10 +309,20 @@ class FrontendTest extends UnitTestCase
     public function testGetCurrentCacheHash()
     {
         $tsfe = $this->getMockBuilder(TypoScriptFrontendController::class)
-            ->setMethods(['determineId'])
+            ->setMethods(['determineId', 'getPageArguments'])
             ->disableOriginalConstructor()
             ->getMock();
-        $tsfe->cHash = 123;
+
+        if (TYPO3::isTYPO104OrHigher()) {
+            $pageArguments = new PageArguments(1, '', ['cHash' => 123]);
+            $tsfe
+                ->expects($this->any())
+                ->method('getPageArguments')
+                ->will($this->returnValue($pageArguments));
+        } else {
+            $tsfe->cHash = 123;
+        }
+
         $hook = $this->getMockBuilder(Frontend::class)
             ->setMethods(['getTsFe', 'getCacheTagsByCacheHash'])
             ->getMock();

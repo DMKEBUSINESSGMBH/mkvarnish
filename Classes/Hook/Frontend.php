@@ -3,6 +3,7 @@
 namespace DMK\Mkvarnish\Hook;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use Sys25\RnBase\Utility\TYPO3;
 
 /***************************************************************
  * Copyright notice
@@ -198,9 +199,16 @@ class Frontend
      */
     protected function getCurrentCacheHash()
     {
+        return $this->getTsFe()->newHash ?: $this->getCacheHashFromQueryParameters();
+    }
+
+    protected function getCacheHashFromQueryParameters(): string
+    {
         $typoscriptFrontendController = $this->getTsFe();
 
-        return $typoscriptFrontendController->newHash ?: $typoscriptFrontendController->cHash;
+        return TYPO3::isTYPO104OrHigher() ?
+            $typoscriptFrontendController->getPageArguments()['cHash'] :
+            $typoscriptFrontendController->cHash;
     }
 
     /**
