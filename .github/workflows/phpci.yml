@@ -65,8 +65,6 @@ jobs:
             matrix:
                 command:
                     - "test:phpcs"
-                    - "test:phpmd"
-                    - "test:phpstan"
                 php-version:
                     - "7.4"
 
