@@ -207,7 +207,7 @@ class Frontend
         $typoscriptFrontendController = $this->getTsFe();
 
         return TYPO3::isTYPO104OrHigher() ?
-            $typoscriptFrontendController->getPageArguments()['cHash'] :
+            (string) $typoscriptFrontendController->getPageArguments()['cHash'] :
             $typoscriptFrontendController->cHash;
     }
 
