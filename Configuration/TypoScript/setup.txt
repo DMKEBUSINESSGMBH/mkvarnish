@@ -1,4 +1,4 @@
 # enable cache headers if [SYS][reverseProxyIP] was set and the call comes from the varnish
-[globalString = IENV:TYPO3_REV_PROXY = 1 ]
+[request.getNormalizedParams().isBehindReverseProxy()]
     config.sendCacheHeaders = 1
-[global]
+[END]
