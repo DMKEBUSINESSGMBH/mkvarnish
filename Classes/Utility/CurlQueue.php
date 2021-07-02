@@ -87,6 +87,7 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
             CURLOPT_HTTPHEADER => $header,
             CURLOPT_TIMEOUT => 1,
             CURLOPT_RETURNTRANSFER => 1,
+            CURLINFO_HEADER_OUT => true,
         ];
 
         curl_setopt_array($curlHandle, $curlOptions);
