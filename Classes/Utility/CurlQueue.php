@@ -87,6 +87,7 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
             CURLOPT_HTTPHEADER => $header,
             CURLOPT_TIMEOUT => 1,
             CURLOPT_RETURNTRANSFER => 1,
+            CURLINFO_HEADER_OUT => true,
         ];
 
         curl_setopt_array($curlHandle, $curlOptions);
@@ -133,7 +134,7 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
             if (200 != curl_getinfo($handle, CURLINFO_HTTP_CODE)) {
                 GeneralUtility::makeInstance(LogManager::class)->getLogger('mkvarnish')->error(
                     'curl request returned no 200 HTTP code. Check devlog for more information.',
-                    ['handle' => curl_getinfo($handle)]
+                    ['handle' => curl_getinfo($handle)],
                 );
             }
             curl_multi_remove_handle($this->curlQueue, $handle);
