@@ -39,7 +39,7 @@ class CacheTagsRepository
     /**
      * @var string
      */
-    const TABLE_NAME = 'tx_mkvarnish_cache_tags';
+    public const TABLE_NAME = 'tx_mkvarnish_cache_tags';
 
     /**
      * @param string $tag
