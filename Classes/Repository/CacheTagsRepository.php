@@ -2,6 +2,8 @@
 
 namespace DMK\Mkvarnish\Repository;
 
+use Sys25\RnBase\Database\Connection;
+
 /***************************************************************
  * Copyright notice
  *
@@ -133,10 +135,10 @@ class CacheTagsRepository
     }
 
     /**
-     * @return \Tx_Rnbase_Database_Connection
+     * @return Connection
      */
     protected function getDatabaseUtility()
     {
-        return new \Tx_Rnbase_Database_Connection();
+        return Connection::getInstance();
     }
 }

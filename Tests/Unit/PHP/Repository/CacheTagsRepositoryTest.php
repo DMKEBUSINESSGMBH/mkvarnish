@@ -4,6 +4,7 @@ namespace DMK\Mkvarnish\Tests\Unit\Repository;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use Sys25\RnBase\Database\Connection;
 
 /***************************************************************
  * Copyright notice
@@ -43,7 +44,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     public function testGetDatabaseUtility()
     {
         self::assertInstanceOf(
-            'Tx_Rnbase_Database_Connection',
+            Connection::class,
             $this->callInaccessibleMethod(new CacheTagsRepository(), 'getDatabaseUtility')
         );
     }
@@ -53,7 +54,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testInsertByTagAndCacheHash()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+        $databaseUtility = $this->getMockBuilder(Connection::class)
             ->setMethods(['doInsert'])
             ->getMock();
         $databaseUtility
@@ -83,7 +84,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testGetByCacheHash()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+        $databaseUtility = $this->getMockBuilder(Connection::class)
             ->setMethods(['doSelect', 'fullQuoteStr'])
             ->getMock();
         $databaseUtility
@@ -124,7 +125,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testDeleteByCacheHash()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+        $databaseUtility = $this->getMockBuilder(Connection::class)
             ->setMethods(['doDelete', 'fullQuoteStr'])
             ->getMock();
         $databaseUtility
@@ -157,7 +158,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testTruncateTable()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+        $databaseUtility = $this->getMockBuilder(Connection::class)
             ->setMethods(['doQuery'])
             ->getMock();
 
@@ -182,7 +183,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testDeleteCacheTagsByCacheTag()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+        $databaseUtility = $this->getMockBuilder(Connection::class)
             ->setMethods(['doDelete', 'fullQuoteStr'])
             ->getMock();
         $databaseUtility
@@ -215,7 +216,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testGetByTag()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
+        $databaseUtility = $this->getMockBuilder(Connection::class)
             ->setMethods(['doSelect', 'fullQuoteStr'])
             ->getMock();
         $databaseUtility
