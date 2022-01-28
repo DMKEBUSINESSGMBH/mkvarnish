@@ -253,7 +253,11 @@ sub vcl_hash {
     hash_data(req.url);
 
     # deliver different objects for http/https per default
-    hash_data(std.port(server.ip));
+    if (req.http.X-Forwarded-Proto) {
+        hash_data(req.http.X-Forwarded-Proto);
+    } else {
+        hash_data(std.port(server.ip));
+    }
 
     # If the Host-header is set, append it to the hash
     if (req.http.host) {
