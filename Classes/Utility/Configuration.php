@@ -55,9 +55,9 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
     protected function getExtConfValue($key)
     {
         if (null === $this->extConf) {
-            $this->extConf = unserialize(
-                $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish']
-            );
+            $this->extConf = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+                \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+            )->get('mkvarnish');
         }
 
         return isset($this->extConf[$key]) ? $this->extConf[$key] : null;

@@ -27,6 +27,7 @@ defined('TYPO3_MODE') || exit('Access denied.');
 call_user_func(
     function () {
         $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
+
         switch (TYPO3_MODE) {
             case 'FE':
                 $typoScriptSetup =
@@ -34,14 +35,12 @@ call_user_func(
                 if ($configurationUtility->isSendCacheHeadersEnabled()) {
                     $typoScriptSetup .= LF.'config.sendCacheHeaders = 1';
                 }
-
                 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
                     'varnish',
                     'setup',
                     $typoScriptSetup,
                     43
                 );
-
                 // Hook to add the cache tags
                 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['isOutputting']['mkvarnish']
                         = 'DMK\\Mkvarnish\\Hook\\Frontend->handleHeaders';

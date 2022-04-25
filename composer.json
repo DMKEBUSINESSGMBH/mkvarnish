@@ -26,7 +26,7 @@
         "typo3-ter/mkvarnish": "self.version"
     },
     "require": {
-        "typo3/cms-core": "^11.5"
+        "typo3/cms-core": "~11.5@stable"
     },
     "autoload": {
         "psr-4": {

@@ -26,7 +26,7 @@ $EM_CONF[$_EXTKEY] = [
     'lockType' => '',
     'constraints' => [
         'depends' => [
-            'typo3' => '7.6.0-8.7.99',
+            'typo3' => '11.5.0-11.5.99',
         ],
         'conflicts' => [],
         'suggests' => [],

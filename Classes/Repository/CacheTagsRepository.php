@@ -2,6 +2,11 @@
 
 namespace DMK\Mkvarnish\Repository;
 
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Resource\AbstractRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /***************************************************************
  * Copyright notice
  *
@@ -47,13 +52,13 @@ class CacheTagsRepository
      */
     public function insertByTagAndCacheHash($tag, $cacheHash)
     {
-        $this->getDatabaseUtility()->doInsert(
-            self::TABLE_NAME,
-            [
+        $this->getQueryBuilder()
+            ->insert(self::TABLE_NAME)
+            ->values([
                 'tag' => $tag,
                 'cache_hash' => $cacheHash,
-            ]
-        );
+            ])
+            ->execute();
     }
 
     /**
@@ -63,16 +68,13 @@ class CacheTagsRepository
      */
     public function getByCacheHash($cacheHash)
     {
-        $databaseUtility = $this->getDatabaseUtility();
-
-        return $databaseUtility->doSelect(
-            '*',
-            self::TABLE_NAME,
-            [
-                'where' => 'cache_hash = '.$databaseUtility->fullQuoteStr($cacheHash),
-                'enablefieldsoff' => true,
-            ]
-        );
+        return $this->getQueryBuilder()
+            ->select("*")
+            ->from(self::TABLE_NAME)
+            ->where(
+                $this->getQueryBuilder()->expr()->eq('cache_hash', $cacheHash)
+            )
+            ->execute();
     }
 
     /**
@@ -82,11 +84,12 @@ class CacheTagsRepository
      */
     public function deleteByCacheHash($cacheHash)
     {
-        $databaseUtility = $this->getDatabaseUtility();
-        $databaseUtility->doDelete(
-            self::TABLE_NAME,
-            'cache_hash = '.$databaseUtility->fullQuoteStr($cacheHash)
-        );
+        $this->getQueryBuilder()
+            ->delete(self::TABLE_NAME)
+            ->where(
+                $this->getQueryBuilder()->expr()->eq('cache_hash', $cacheHash)
+            )
+            ->execute();
     }
 
     /**
@@ -94,7 +97,7 @@ class CacheTagsRepository
      */
     public function truncateTable()
     {
-        $this->getDatabaseUtility()->doQuery('TRUNCATE '.self::TABLE_NAME);
+        $this->getQueryBuilder()->getConnection()->truncate(self::TABLE_NAME);
     }
 
     /**
@@ -120,23 +123,17 @@ class CacheTagsRepository
      */
     public function getByTag($tag)
     {
-        $databaseUtility = $this->getDatabaseUtility();
-
-        return $databaseUtility->doSelect(
-            '*',
-            self::TABLE_NAME,
-            [
-                'where' => 'tag = '.$databaseUtility->fullQuoteStr($tag),
-                'enablefieldsoff' => true,
-            ]
-        );
+        return $this->getQueryBuilder()
+            ->select('*')
+            ->from(self::TABLE_NAME)
+            ->where(
+                $this->getQueryBuilder()->expr()->eq('tag', $tag)
+            )
+            ->execute();
     }
 
-    /**
-     * @return \Tx_Rnbase_Database_Connection
-     */
-    protected function getDatabaseUtility()
+    private function getQueryBuilder() : QueryBuilder
     {
-        return new \Tx_Rnbase_Database_Connection();
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(TABLE_NAME);
     }
 }
