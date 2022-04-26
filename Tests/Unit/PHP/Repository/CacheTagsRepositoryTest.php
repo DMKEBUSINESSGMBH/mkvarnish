@@ -3,7 +3,11 @@
 namespace DMK\Mkvarnish\Tests\Unit\Repository;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Expression\ExpressionBuilder;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Database\Connection;
 
 /***************************************************************
  * Copyright notice
@@ -40,11 +44,25 @@ class CacheTagsRepositoryTest extends UnitTestCase
     /**
      * @group unit
      */
-    public function testGetDatabaseUtility()
+    public function testGetQueryBuilder()
     {
+        $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getQueryBuilder'])
+            ->getMock();
+
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $cacheTagsRepository
+            ->expects(self::once())
+            ->method('getQueryBuilder')
+            ->willReturn($queryBuilder);
+
         self::assertInstanceOf(
-            'Tx_Rnbase_Database_Connection',
-            $this->callInaccessibleMethod(new CacheTagsRepository(), 'getDatabaseUtility')
+            QueryBuilder::class,
+            $this->callInaccessibleMethod($cacheTagsRepository, 'getQueryBuilder')
         );
     }
 
@@ -53,27 +71,41 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testInsertByTagAndCacheHash()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
-            ->setMethods(['doInsert'])
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['insert', 'values', 'execute'])
             ->getMock();
-        $databaseUtility
+
+        $queryBuilder
             ->expects(self::once())
-            ->method('doInsert')
+            ->method('insert')
             ->with(
-                'tx_mkvarnish_cache_tags',
+                'tx_mkvarnish_cache_tags'
+            )
+            ->willReturn($queryBuilder);
+        $queryBuilder
+            ->expects(self::once())
+            ->method('values')
+            ->with(
                 [
                     'tag' => 'test_tag',
                     'cache_hash' => 'test_hash',
                 ]
-            );
+            )
+            ->willReturn($queryBuilder);
+        $queryBuilder
+            ->expects(self::once())
+            ->method('execute')
+            ->willReturn($queryBuilder);
+
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getDatabaseUtility'])
+            ->setMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
-            ->method('getDatabaseUtility')
-            ->will(self::returnValue($databaseUtility));
+            ->method('getQueryBuilder')
+            ->will(self::returnValue($queryBuilder));
 
         $repository->insertByTagAndCacheHash('test_tag', 'test_hash');
     }
@@ -83,35 +115,57 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testGetByCacheHash()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
-            ->setMethods(['doSelect', 'fullQuoteStr'])
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['select', 'from', 'where', 'execute', 'expr'])
             ->getMock();
-        $databaseUtility
-            ->expects(self::once())
-            ->method('fullQuoteStr')
-            ->with('test_hash')
-            ->will(self::returnValue('quoted'));
 
-        $databaseUtility
+        $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['eq'])
+            ->getMock();
+
+        $queryBuilder
             ->expects(self::once())
-            ->method('doSelect')
-            ->with(
-                '*',
-                'tx_mkvarnish_cache_tags',
-                [
-                    'where' => 'cache_hash = quoted',
-                    'enablefieldsoff' => true,
-                ]
-            )
-            ->will(self::returnValue(['cacheTags']));
+            ->method('select')
+            ->with('*')
+            ->willReturn($queryBuilder);
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('from')
+            ->with('tx_mkvarnish_cache_tags')
+            ->willReturn($queryBuilder);
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('expr')
+            ->willReturn($expressionBuilder);
+
+        $expressionBuilder
+            ->expects(self::once())
+            ->method('eq')
+            ->with('cache_hash', 'test_hash')
+            ->willReturn('expression');
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('where')
+            ->with('expression')
+            ->willReturn($queryBuilder);
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('execute')
+            ->willReturn(['cacheTags']);
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getDatabaseUtility'])
+            ->setMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
-            ->method('getDatabaseUtility')
-            ->will(self::returnValue($databaseUtility));
+            ->method('getQueryBuilder')
+            ->will(self::returnValue($queryBuilder));
 
         self::assertEquals(
             ['cacheTags'],
@@ -124,30 +178,51 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testDeleteByCacheHash()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
-            ->setMethods(['doDelete', 'fullQuoteStr'])
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['delete', 'where', 'execute', 'expr'])
             ->getMock();
-        $databaseUtility
-            ->expects(self::once())
-            ->method('fullQuoteStr')
-            ->with('test_hash')
-            ->will(self::returnValue('quoted'));
 
-        $databaseUtility
+        $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['eq'])
+            ->getMock();
+
+        $queryBuilder
             ->expects(self::once())
-            ->method('doDelete')
-            ->with(
-                'tx_mkvarnish_cache_tags',
-                'cache_hash = quoted'
-            );
+            ->method('delete')
+            ->with('tx_mkvarnish_cache_tags')
+            ->willReturn($queryBuilder);
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('expr')
+            ->willReturn($expressionBuilder);
+
+        $expressionBuilder
+            ->expects(self::once())
+            ->method('eq')
+            ->with('cache_hash', 'test_hash')
+            ->willReturn('expression');
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('where')
+            ->with('expression')
+            ->willReturn($queryBuilder);
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('execute')
+            ->willReturn(1);
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getDatabaseUtility'])
+            ->setMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
-            ->method('getDatabaseUtility')
-            ->will(self::returnValue($databaseUtility));
+            ->method('getQueryBuilder')
+            ->will(self::returnValue($queryBuilder));
 
         $repository->deleteByCacheHash('test_hash');
     }
@@ -157,22 +232,34 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testTruncateTable()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
-            ->setMethods(['doQuery'])
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getConnection'])
             ->getMock();
 
-        $databaseUtility
+        $connection = $this->getMockBuilder(Connection::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['truncate'])
+            ->getMock();
+
+        $queryBuilder
             ->expects(self::once())
-            ->method('doQuery')
-            ->with('TRUNCATE tx_mkvarnish_cache_tags');
+            ->method('getConnection')
+            ->willReturn($connection);
+
+        $connection
+            ->expects(self::once())
+            ->method('truncate')
+            ->with('tx_mkvarnish_cache_tags')
+            ->willReturn(1);
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getDatabaseUtility'])
+            ->setMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
-            ->method('getDatabaseUtility')
-            ->will(self::returnValue($databaseUtility));
+            ->method('getQueryBuilder')
+            ->will(self::returnValue($queryBuilder));
 
         $repository->truncateTable();
     }
@@ -180,70 +267,59 @@ class CacheTagsRepositoryTest extends UnitTestCase
     /**
      * @group unit
      */
-    public function testDeleteCacheTagsByCacheTag()
-    {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
-            ->setMethods(['doDelete', 'fullQuoteStr'])
-            ->getMock();
-        $databaseUtility
-            ->expects(self::once())
-            ->method('fullQuoteStr')
-            ->with('test_hash')
-            ->will(self::returnValue('quoted'));
-
-        $databaseUtility
-            ->expects(self::once())
-            ->method('doDelete')
-            ->with(
-                'tx_mkvarnish_cache_tags',
-                'cache_hash = quoted'
-            );
-
-        $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getDatabaseUtility'])
-            ->getMock();
-        $repository
-            ->expects(self::once())
-            ->method('getDatabaseUtility')
-            ->will(self::returnValue($databaseUtility));
-
-        $repository->deleteByCacheHash('test_hash');
-    }
-
-    /**
-     * @group unit
-     */
     public function testGetByTag()
     {
-        $databaseUtility = $this->getMockBuilder('Tx_Rnbase_Database_Connection')
-            ->setMethods(['doSelect', 'fullQuoteStr'])
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['select', 'from', 'where', 'execute', 'expr'])
             ->getMock();
-        $databaseUtility
-            ->expects(self::once())
-            ->method('fullQuoteStr')
-            ->with('test_tag')
-            ->will(self::returnValue('quoted'));
 
-        $databaseUtility
+        $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['eq'])
+            ->getMock();
+
+        $queryBuilder
             ->expects(self::once())
-            ->method('doSelect')
-            ->with(
-                '*',
-                'tx_mkvarnish_cache_tags',
-                [
-                    'where' => 'tag = quoted',
-                    'enablefieldsoff' => true,
-                ]
-            )
-            ->will(self::returnValue(['cacheTags']));
+            ->method('select')
+            ->with('*')
+            ->willReturn($queryBuilder);
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('from')
+            ->with('tx_mkvarnish_cache_tags')
+            ->willReturn($queryBuilder);
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('expr')
+            ->willReturn($expressionBuilder);
+
+        $expressionBuilder
+            ->expects(self::once())
+            ->method('eq')
+            ->with('tag', 'test_tag')
+            ->willReturn('expression');
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('where')
+            ->with('expression')
+            ->willReturn($queryBuilder);
+
+        $queryBuilder
+            ->expects(self::once())
+            ->method('execute')
+            ->willReturn(['cacheTags']);
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getDatabaseUtility'])
+            ->setMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
-            ->method('getDatabaseUtility')
-            ->will(self::returnValue($databaseUtility));
+            ->method('getQueryBuilder')
+            ->will(self::returnValue($queryBuilder));
 
         self::assertEquals(
             ['cacheTags'],

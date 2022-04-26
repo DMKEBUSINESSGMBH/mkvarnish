@@ -55,10 +55,12 @@ class VarnishBackendTest extends UnitTestCase
      *
      * @see PHPUnit_Framework_TestCase::setUp()
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->siteNameBackup = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'];
-        $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'];
+        $this->extConfBackup = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->get('mkvarnish');
         parent::setUp();
     }
 
@@ -67,19 +69,22 @@ class VarnishBackendTest extends UnitTestCase
      *
      * @see PHPUnit_Framework_TestCase::setUp()
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = $this->siteNameBackup;
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = $this->extConfBackup;
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->set('mkvarnish', $this->extConfBackup);
         parent::tearDown();
     }
 
     /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage the varnish cache backend can only remove cache entries by tags or the complete cache at the moment
+     * @return void
      */
     public function testThrowExceptionIfNotImplemented()
     {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('the varnish cache backend can only remove cache entries by tags or the complete cache at the moment');
         $this->callInaccessibleMethod($this->getVarnishBackendInstance(), 'throwExceptionIfNotImplemented');
     }
 
@@ -124,7 +129,7 @@ class VarnishBackendTest extends UnitTestCase
         $secondHmac = $this->callInaccessibleMethod($varnishBackend, 'getHmacForSitename');
 
         self::assertSame($firstHmac, $secondHmac, 'hmac for sitename is not same in 2 calls');
-        self::assertInternalType('string', $firstHmac, 'hmac is no string');
+        self::assertIsString($firstHmac, 'hmac is no string');
         self::assertGreaterThan(30, strlen($firstHmac), 'hmac is not at least 30 chars long');
 
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = 'test site mkvarnish';
@@ -151,7 +156,9 @@ class VarnishBackendTest extends UnitTestCase
      */
     public function testGetHostNamesForPurge()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize([]);
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->set('mkvarnish', []);
         $varnishBackend = $this->getVarnishBackendInstance();
         self::assertContains(
             $_SERVER['HTTP_HOST'],

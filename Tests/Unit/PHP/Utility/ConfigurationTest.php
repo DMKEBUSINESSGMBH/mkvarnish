@@ -47,9 +47,11 @@ class ConfigurationTest extends UnitTestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'];
+        $this->extConfBackup = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->get('mkvarnish');
         parent::setUp();
     }
 
@@ -58,9 +60,11 @@ class ConfigurationTest extends UnitTestCase
      *
      * @return void
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = $this->extConfBackup;
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->set('mkvarnish', $this->extConfBackup);
         parent::tearDown();
     }
 
@@ -74,9 +78,9 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testGetExtConfValue()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['my_key' => 'my_value']
-        );
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->set('mkvarnish', ['my_key' => 'my_value']);
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['dummy'])
@@ -104,9 +108,9 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testIsSendCacheHeadersEnabledChecksReverseProxy()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['sendCacheHeaders' => '0']
-        );
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->set('mkvarnish', ['sendCacheHeaders' => '0']);
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['isRevProxy'])
@@ -131,9 +135,9 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testIsSendCacheHeadersEnabledShouldReturnTrue()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['sendCacheHeaders' => '1']
-        );
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->set('mkvarnish', ['sendCacheHeaders' => '1']);
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['isRevProxy'])
@@ -154,9 +158,9 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testIsSendCacheHeadersEnabledShouldReturnFalse()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['sendCacheHeaders' => '2']
-            );
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->set('mkvarnish', ['sendCacheHeaders' => '2']);
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['isRevProxy'])
@@ -177,9 +181,9 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testGetHostNamesForPurgeIfConfigured()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['hostnames' => '127.0.0.1, 192.168.0.1']
-        );
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->set('mkvarnish', ['hostnames' => '127.0.0.1, 192.168.0.1']);
 
         $mock = new Configuration();
 
@@ -196,9 +200,10 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testGetHostNamesForPurgeIfNoneConfigured()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize(
-            ['hostnames' => '']
-        );
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
+        )->set('mkvarnish', ['hostnames' => '']);
+
         $mock = new Configuration();
 
         $hostnames = $mock->getHostNamesForPurge();

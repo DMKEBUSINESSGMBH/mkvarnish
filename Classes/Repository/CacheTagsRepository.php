@@ -39,10 +39,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class CacheTagsRepository
 {
-    /**
-     * @var string
-     */
-    const TABLE_NAME = 'tx_mkvarnish_cache_tags';
+    private string $tableName = 'tx_mkvarnish_cache_tags';
 
     /**
      * @param string $tag
@@ -53,7 +50,7 @@ class CacheTagsRepository
     public function insertByTagAndCacheHash($tag, $cacheHash)
     {
         $this->getQueryBuilder()
-            ->insert(self::TABLE_NAME)
+            ->insert($this->tableName)
             ->values([
                 'tag' => $tag,
                 'cache_hash' => $cacheHash,
@@ -68,11 +65,12 @@ class CacheTagsRepository
      */
     public function getByCacheHash($cacheHash)
     {
-        return $this->getQueryBuilder()
+        $queryBuilder = $this->getQueryBuilder();
+        return $queryBuilder
             ->select("*")
-            ->from(self::TABLE_NAME)
+            ->from($this->tableName)
             ->where(
-                $this->getQueryBuilder()->expr()->eq('cache_hash', $cacheHash)
+                $queryBuilder->expr()->eq('cache_hash', $cacheHash)
             )
             ->execute();
     }
@@ -84,10 +82,11 @@ class CacheTagsRepository
      */
     public function deleteByCacheHash($cacheHash)
     {
-        $this->getQueryBuilder()
-            ->delete(self::TABLE_NAME)
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->delete($this->tableName)
             ->where(
-                $this->getQueryBuilder()->expr()->eq('cache_hash', $cacheHash)
+                $queryBuilder->expr()->eq('cache_hash', $cacheHash)
             )
             ->execute();
     }
@@ -97,7 +96,7 @@ class CacheTagsRepository
      */
     public function truncateTable()
     {
-        $this->getQueryBuilder()->getConnection()->truncate(self::TABLE_NAME);
+        $this->getQueryBuilder()->getConnection()->truncate($this->tableName);
     }
 
     /**
@@ -123,17 +122,18 @@ class CacheTagsRepository
      */
     public function getByTag($tag)
     {
-        return $this->getQueryBuilder()
+        $queryBuilder = $this->getQueryBuilder();
+        return $queryBuilder
             ->select('*')
-            ->from(self::TABLE_NAME)
+            ->from($this->tableName)
             ->where(
-                $this->getQueryBuilder()->expr()->eq('tag', $tag)
+                $queryBuilder->expr()->eq('tag', $tag)
             )
             ->execute();
     }
 
-    private function getQueryBuilder() : QueryBuilder
+    protected function getQueryBuilder() : QueryBuilder
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(TABLE_NAME);
+        return GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($this->tableName);
     }
 }

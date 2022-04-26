@@ -44,7 +44,7 @@ class FrontendTest extends UnitTestCase
      *
      * @see PHPUnit_Framework_TestCase::tearDown()
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (isset($GLOBALS['TSFE'])) {
             unset($GLOBALS['TSFE']);
