@@ -60,7 +60,8 @@
     "scripts": {
         "post-autoload-dump": [
             "mkdir -p .Build/Web/typo3conf/ext/",
-            "[ -L .Build/Web/typo3conf/ext/mkvarnish ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/mkvarnish"
+            "[ -L .Build/Web/typo3conf/ext/mkvarnish ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/mkvarnish",
+            "[ -f .Build/Web/typo3conf/LocalConfiguration.php ] || cp Tests/Fixtures/LocalConfiguration.php .Build/Web/typo3conf/LocalConfiguration.php"
         ],
         "lint:php": [
             "[ -e .Build/bin/parallel-lint ] || composer update",
