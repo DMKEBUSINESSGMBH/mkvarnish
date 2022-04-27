@@ -180,7 +180,7 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * @return array
+     * @return array|null
      */
     protected function getHostNamesForPurge()
     {

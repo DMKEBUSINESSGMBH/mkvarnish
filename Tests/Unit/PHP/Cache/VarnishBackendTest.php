@@ -161,7 +161,7 @@ class VarnishBackendTest extends UnitTestCase
         )->set('mkvarnish', []);
         $varnishBackend = $this->getVarnishBackendInstance();
         self::assertContains(
-            $_SERVER['HTTP_HOST'],
+            (string) $_SERVER['HTTP_HOST'],
             $this->callInaccessibleMethod($varnishBackend, 'getHostNamesForPurge')
         );
     }
@@ -201,23 +201,24 @@ class VarnishBackendTest extends UnitTestCase
             ->setMethods(['addCommand'])
             ->getMock();
         $curlQueueUtility
-            ->expects(self::at(0))
+            ->expects(self::exactly(2))
             ->method('addCommand')
-            ->with(
-                'PURGE',
-                'firstHost',
-                ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123']
+            ->withConsecutive(
+                [
+                    'PURGE',
+                    'firstHost',
+                    ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123'],
+                ],
+                [
+                    'PURGE',
+                    'secondHost',
+                    ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123'],
+                ]
             )
-            ->will($this->returnValue($curlQueueUtility));
-        $curlQueueUtility
-            ->expects(self::at(1))
-            ->method('addCommand')
-            ->with(
-                'PURGE',
-                'secondHost',
-                ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123']
-            )
-            ->will($this->returnValue($curlQueueUtility));
+            ->willReturnOnConsecutiveCalls(
+                $this->returnValue($curlQueueUtility),
+                $this->returnValue($curlQueueUtility)
+            );
 
         $varnishBackend
             ->expects(self::once())

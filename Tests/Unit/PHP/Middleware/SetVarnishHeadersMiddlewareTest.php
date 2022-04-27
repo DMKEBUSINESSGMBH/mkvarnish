@@ -258,17 +258,14 @@ class SetVarnishHeadersMiddlewareTest extends UnitTestCase
             ->getMock();
 
         $cacheTagsRepository
-            ->expects(self::at(0))
+            ->expects(self::once())
             ->method('deleteByCacheHash')
             ->with(123);
+
         $cacheTagsRepository
-            ->expects(self::at(1))
+            ->expects(self::exactly(2))
             ->method('insertByTagAndCacheHash')
-            ->with('tag_1', 123);
-        $cacheTagsRepository
-            ->expects(self::at(2))
-            ->method('insertByTagAndCacheHash')
-            ->with('tag_2', 123);
+            ->withConsecutive(['tag_1', 123], ['tag_2', 123]);
 
         $hook = $this->getMockBuilder(SetVarnishHeadersMiddleware::class)
             ->setMethods(['getCacheTagsRepository'])

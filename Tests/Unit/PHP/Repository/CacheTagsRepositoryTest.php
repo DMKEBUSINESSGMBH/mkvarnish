@@ -352,18 +352,14 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->setMethods(['getByTag', 'deleteByCacheHash', 'createNamedParameter'])
             ->getMock();
         $repository
-            ->expects(self::at(0))
+            ->expects(self::once())
             ->method('getByTag')
-            ->with('test_tag')
-            ->will(self::returnValue([0 => ['cache_hash' => 123], 1 => ['cache_hash' => 456]]));
+            ->withConsecutive(['test_tag'], ['test_tag'])
+            ->willReturnOnConsecutiveCalls([['cache_hash' => 123], ['cache_hash' => 456]]);
         $repository
-            ->expects(self::at(1))
+            ->expects(self::exactly(2))
             ->method('deleteByCacheHash')
-            ->with(123);
-        $repository
-            ->expects(self::at(2))
-            ->method('deleteByCacheHash')
-            ->with(456);
+            ->withConsecutive([123], [456]);
 
         $repository->deleteByTag('test_tag');
     }
