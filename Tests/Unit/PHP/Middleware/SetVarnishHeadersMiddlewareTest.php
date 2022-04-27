@@ -1,6 +1,6 @@
 <?php
 
-namespace DMK\Mkvarnish\Tests\Unit\Hooks;
+namespace DMK\Mkvarnish\Tests\Unit\Middleware;
 
 /***************************************************************
  * Copyright notice
@@ -28,6 +28,7 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 use DMK\Mkvarnish\Middleware\SetVarnishHeadersMiddleware;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Http\RequestHandler;
@@ -39,7 +40,7 @@ use TYPO3\CMS\Frontend\Http\RequestHandler;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class FrontendTest extends UnitTestCase
+class SetVarnishHeadersMiddlewareTest extends UnitTestCase
 {
     /**
      * {@inheritdoc}
@@ -71,10 +72,15 @@ class FrontendTest extends UnitTestCase
             ->getMock();
 
         $request = $this->getMockBuilder(ServerRequest::class)->disableOriginalConstructor()->getMock();
-        $handler = $this->getMockBuilder(RequestHandler::class)->disableOriginalConstructor()->getMock();
+        $handler = $this->getMockBuilder(RequestHandler::class)
+            ->setMethods(['handle'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $response = $this->getMockBuilder(Response::class)->disableOriginalConstructor()->getMock();
 
         $middleware->expects($this->once())->method('getHeaders')->will($this->returnValue($headers));
-        $middleware->expects($this->once())->method('sendHeaders')->with($headers);
+        $handler->expects($this->once())->method('handle')->willReturn($response);
+        $middleware->expects($this->once())->method('addHeadersToResponse')->with($response, $headers);
 
         $middleware->process($request, $handler);
     }
