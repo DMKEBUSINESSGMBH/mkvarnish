@@ -49,8 +49,8 @@ class CacheTagsRepository
      */
     public function insertByTagAndCacheHash($tag, $cacheHash)
     {
-        $this->getQueryBuilder()
-            ->insert($this->tableName)
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder->insert($this->tableName)
             ->values([
                 'tag' => $tag,
                 'cache_hash' => $cacheHash,
@@ -66,11 +66,10 @@ class CacheTagsRepository
     public function getByCacheHash($cacheHash)
     {
         $queryBuilder = $this->getQueryBuilder();
-        return $queryBuilder
-            ->select("*")
+        return $queryBuilder->select("*")
             ->from($this->tableName)
             ->where(
-                $queryBuilder->expr()->eq('cache_hash', $cacheHash)
+                $queryBuilder->expr()->eq('cache_hash', $queryBuilder->createNamedParameter($cacheHash))
             )
             ->execute();
     }
@@ -83,10 +82,9 @@ class CacheTagsRepository
     public function deleteByCacheHash($cacheHash)
     {
         $queryBuilder = $this->getQueryBuilder();
-        $queryBuilder
-            ->delete($this->tableName)
+        $queryBuilder->delete($this->tableName)
             ->where(
-                $queryBuilder->expr()->eq('cache_hash', $cacheHash)
+                $queryBuilder->expr()->eq('cache_hash', $queryBuilder->createNamedParameter($cacheHash))
             )
             ->execute();
     }
@@ -123,11 +121,10 @@ class CacheTagsRepository
     public function getByTag($tag)
     {
         $queryBuilder = $this->getQueryBuilder();
-        return $queryBuilder
-            ->select('*')
+        return $queryBuilder->select('*')
             ->from($this->tableName)
             ->where(
-                $queryBuilder->expr()->eq('tag', $tag)
+                $queryBuilder->expr()->eq('tag', $queryBuilder->createNamedParameter($tag))
             )
             ->execute();
     }

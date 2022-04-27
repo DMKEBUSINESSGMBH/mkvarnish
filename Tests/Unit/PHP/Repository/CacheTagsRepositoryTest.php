@@ -117,7 +117,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['select', 'from', 'where', 'execute', 'expr'])
+            ->setMethods(['select', 'from', 'where', 'execute', 'expr', 'createNamedParameter'])
             ->getMock();
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
@@ -159,6 +159,12 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->method('execute')
             ->willReturn(['cacheTags']);
 
+        $queryBuilder
+            ->expects(self::once())
+            ->method('createNamedParameter')
+            ->with('test_hash')
+            ->willReturn('test_hash');
+
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
             ->setMethods(['getQueryBuilder'])
             ->getMock();
@@ -180,7 +186,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['delete', 'where', 'execute', 'expr'])
+            ->setMethods(['delete', 'where', 'execute', 'expr', 'createNamedParameter'])
             ->getMock();
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
@@ -216,6 +222,12 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->method('execute')
             ->willReturn(1);
 
+        $queryBuilder
+            ->expects(self::once())
+            ->method('createNamedParameter')
+            ->with('test_hash')
+            ->willReturn('test_hash');
+
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
             ->setMethods(['getQueryBuilder'])
             ->getMock();
@@ -234,7 +246,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getConnection'])
+            ->setMethods(['getConnection', 'createNamedParameter'])
             ->getMock();
 
         $connection = $this->getMockBuilder(Connection::class)
@@ -271,7 +283,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['select', 'from', 'where', 'execute', 'expr'])
+            ->setMethods(['select', 'from', 'where', 'execute', 'expr', 'createNamedParameter'])
             ->getMock();
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
@@ -313,6 +325,12 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->method('execute')
             ->willReturn(['cacheTags']);
 
+        $queryBuilder
+            ->expects(self::once())
+            ->method('createNamedParameter')
+            ->with('test_tag')
+            ->willReturn('test_tag');
+
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
             ->setMethods(['getQueryBuilder'])
             ->getMock();
@@ -333,7 +351,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     public function testDeleteByTag()
     {
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getByTag', 'deleteByCacheHash'])
+            ->setMethods(['getByTag', 'deleteByCacheHash', 'createNamedParameter'])
             ->getMock();
         $repository
             ->expects(self::at(0))

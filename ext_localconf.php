@@ -41,9 +41,6 @@ call_user_func(
                     $typoScriptSetup,
                     43
                 );
-                // Hook to add the cache tags
-                $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['isOutputting']['mkvarnish']
-                        = 'DMK\\Mkvarnish\\Hook\\Frontend->handleHeaders';
                 break;
         }
 
