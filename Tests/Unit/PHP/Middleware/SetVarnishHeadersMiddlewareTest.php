@@ -25,11 +25,9 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use DMK\Mkvarnish\Hook\Frontend;
 use DMK\Mkvarnish\Middleware\SetVarnishHeadersMiddleware;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
-use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Http\RequestHandler;
@@ -140,7 +138,7 @@ class FrontendTest extends UnitTestCase
     public function testGetHeadersBehindVarnish()
     {
         // prepare tsfe
-        $tsfe = new \stdclass();
+        $tsfe = new \stdClass();
         $tsfe->newHash = 'asd123hjk678';
         $tsfe->config['INTincScript'] = ['one', 'two'];
 

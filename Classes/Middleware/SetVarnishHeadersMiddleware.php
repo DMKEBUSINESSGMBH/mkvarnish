@@ -7,12 +7,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Utility\DebugUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- *  Copyright notice
+ *  Copyright notice.
  *
  *  (c) DMK E-BUSINESS GmbH <dev@dmk-ebusiness.de>
  *  All rights reserved
@@ -43,13 +40,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class SetVarnishHeadersMiddleware implements MiddlewareInterface
 {
-
     /**
-    * @param ServerRequestInterface  $request
-    * @param RequestHandlerInterface $handler
-    *
-    * @return ResponseInterface
-    */
+     * @param ServerRequestInterface  $request
+     * @param RequestHandlerInterface $handler
+     *
+     * @return ResponseInterface
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
@@ -101,10 +97,10 @@ class SetVarnishHeadersMiddleware implements MiddlewareInterface
         $headers = $this->getHeadersForCacheTags();
         // this header is essential and used in varnish configuration
         $headers['X-TYPO3-Sitename'] = $this->getHmacForSitename();
-        /// developer infos only. this headers should be removed in varnich vcl
+        // / developer infos only. this headers should be removed in varnich vcl
         $headers['X-TYPO3-cHash'] = $this->getCurrentCacheHash();
 
-        if(array_key_exists('INTincScript', $tsfe->config)) {
+        if (array_key_exists('INTincScript', $tsfe->config)) {
             $headers['X-TYPO3-INTincScripts'] = count((array) $tsfe->config['INTincScript']);
         }
 
@@ -224,11 +220,11 @@ class SetVarnishHeadersMiddleware implements MiddlewareInterface
     protected function addHeadersToResponse(
         ResponseInterface $response,
         array $headers
-    ) : ResponseInterface
-    {
+    ): ResponseInterface {
         foreach ($headers as $name => $value) {
             $response = $response->withHeader($name, $value);
         }
+
         return $response;
     }
 }

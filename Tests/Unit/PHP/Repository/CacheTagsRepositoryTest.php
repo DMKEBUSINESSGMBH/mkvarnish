@@ -3,11 +3,10 @@
 namespace DMK\Mkvarnish\Tests\Unit\Repository;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Expression\ExpressionBuilder;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\Query\Expression\ExpressionBuilder;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 /***************************************************************
  * Copyright notice
@@ -97,7 +96,6 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->expects(self::once())
             ->method('execute')
             ->willReturn($queryBuilder);
-
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
             ->setMethods(['getQueryBuilder'])

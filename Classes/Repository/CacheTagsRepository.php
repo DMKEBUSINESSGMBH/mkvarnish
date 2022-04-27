@@ -4,7 +4,6 @@ namespace DMK\Mkvarnish\Repository;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
-use TYPO3\CMS\Core\Resource\AbstractRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -66,7 +65,8 @@ class CacheTagsRepository
     public function getByCacheHash($cacheHash)
     {
         $queryBuilder = $this->getQueryBuilder();
-        return $queryBuilder->select("*")
+
+        return $queryBuilder->select('*')
             ->from($this->tableName)
             ->where(
                 $queryBuilder->expr()->eq('cache_hash', $queryBuilder->createNamedParameter($cacheHash))
@@ -121,6 +121,7 @@ class CacheTagsRepository
     public function getByTag($tag)
     {
         $queryBuilder = $this->getQueryBuilder();
+
         return $queryBuilder->select('*')
             ->from($this->tableName)
             ->where(
@@ -129,7 +130,7 @@ class CacheTagsRepository
             ->execute();
     }
 
-    protected function getQueryBuilder() : QueryBuilder
+    protected function getQueryBuilder(): QueryBuilder
     {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($this->tableName);
     }

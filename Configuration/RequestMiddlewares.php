@@ -1,6 +1,6 @@
 <?php
 /**
- *  Copyright notice
+ *  Copyright notice.
  *
  *  (c) DMK E-BUSINESS GmbH <dev@dmk-ebusiness.de>
  *  All rights reserved
@@ -21,7 +21,6 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
-
 
 return [
     'frontend' => [
