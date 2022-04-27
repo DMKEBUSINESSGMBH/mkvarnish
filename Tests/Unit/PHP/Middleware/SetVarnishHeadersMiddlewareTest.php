@@ -36,7 +36,7 @@ use TYPO3\CMS\Frontend\Http\RequestHandler;
 /**
  * This class communicates with the varnish server.
  *
- * @author Michael Wagner
+ * @author Philipp Wagner
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */

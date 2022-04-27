@@ -26,7 +26,8 @@
         "typo3-ter/mkvarnish": "self.version"
     },
     "require": {
-        "typo3/cms-core": "~11.5@stable"
+        "php": "^7.4 || ^8.0",
+        "typo3/cms-core": "~10.4@stable || ~11.5@stable"
     },
     "autoload": {
         "psr-4": {
@@ -45,7 +46,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "DMK\\Mkvarnish\\Tests\\" : "Tests/Classes",
+            "DMK\\Mkvarnish\\Tests\\Unit\\" : "Tests/Unit/PHP/",
             "TYPO3\\CMS\\Core\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/core/Tests/",
             "TYPO3\\CMS\\Fluid\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/fluid/Tests/"
         }

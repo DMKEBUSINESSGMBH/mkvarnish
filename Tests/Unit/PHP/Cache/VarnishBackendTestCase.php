@@ -4,9 +4,9 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
 
 use DMK\Mkvarnish\Cache\VarnishBackend;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use DMK\Mkvarnish\Tests\Unit\MkVarnishBaseTest;
 use DMK\Mkvarnish\Utility\Configuration;
 use DMK\Mkvarnish\Utility\CurlQueue;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /***************************************************************
  * Copyright notice
@@ -38,7 +38,7 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
  * @license         http://www.gnu.org/licenses/lgpl.html
  *                  GNU Lesser General Public License, version 3 or later
  */
-class VarnishBackendTest extends UnitTestCase
+class VarnishBackendTestCase extends MkVarnishBaseTest
 {
     /**
      * @var string
@@ -72,9 +72,7 @@ class VarnishBackendTest extends UnitTestCase
     protected function tearDown(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = $this->siteNameBackup;
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
-        )->set('mkvarnish', $this->extConfBackup);
+        $this->setExtensionConfiguration($this->extConfBackup);
         parent::tearDown();
     }
 
@@ -156,9 +154,7 @@ class VarnishBackendTest extends UnitTestCase
      */
     public function testGetHostNamesForPurge()
     {
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
-        )->set('mkvarnish', []);
+        $this->setExtensionConfiguration([]);
         $varnishBackend = $this->getVarnishBackendInstance();
 
         $httpHost = '';

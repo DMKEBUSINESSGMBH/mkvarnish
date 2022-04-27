@@ -25,8 +25,8 @@ namespace DMK\Mkvarnish\Tests\Unit\Utility;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use DMK\Mkvarnish\Tests\Unit\MkVarnishBaseTest;
 use DMK\Mkvarnish\Utility\Configuration;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /**
  * This class communicates with the varnish server.
@@ -35,7 +35,7 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class ConfigurationTest extends UnitTestCase
+class ConfigurationTestCase extends MkVarnishBaseTest
 {
     /**
      * @var array
@@ -62,9 +62,7 @@ class ConfigurationTest extends UnitTestCase
      */
     protected function tearDown(): void
     {
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
-        )->set('mkvarnish', $this->extConfBackup);
+        $this->setExtensionConfiguration($this->extConfBackup);
         parent::tearDown();
     }
 
@@ -78,9 +76,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testGetExtConfValue()
     {
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
-        )->set('mkvarnish', ['my_key' => 'my_value']);
+        $this->setExtensionConfiguration(['my_key' => 'my_value']);
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['dummy'])
@@ -108,9 +104,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testIsSendCacheHeadersEnabledChecksReverseProxy()
     {
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
-        )->set('mkvarnish', ['sendCacheHeaders' => '0']);
+        $this->setExtensionConfiguration(['sendCacheHeaders' => '0']);
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['isRevProxy'])
@@ -135,9 +129,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testIsSendCacheHeadersEnabledShouldReturnTrue()
     {
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
-        )->set('mkvarnish', ['sendCacheHeaders' => '1']);
+        $this->setExtensionConfiguration(['sendCacheHeaders' => '1']);
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['isRevProxy'])
@@ -158,9 +150,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testIsSendCacheHeadersEnabledShouldReturnFalse()
     {
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
-        )->set('mkvarnish', ['sendCacheHeaders' => '2']);
+        $this->setExtensionConfiguration(['sendCacheHeaders' => '2']);
 
         $mock = $this->getMockBuilder(Configuration::class)
             ->setMethods(['isRevProxy'])
@@ -181,9 +171,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testGetHostNamesForPurgeIfConfigured()
     {
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
-        )->set('mkvarnish', ['hostnames' => '127.0.0.1, 192.168.0.1']);
+        $this->setExtensionConfiguration(['hostnames' => '127.0.0.1, 192.168.0.1']);
 
         $mock = new Configuration();
 
@@ -200,9 +188,7 @@ class ConfigurationTest extends UnitTestCase
      */
     public function testGetHostNamesForPurgeIfNoneConfigured()
     {
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
-        )->set('mkvarnish', ['hostnames' => '']);
+        $this->setExtensionConfiguration(['hostnames' => '']);
 
         $mock = new Configuration();
 
