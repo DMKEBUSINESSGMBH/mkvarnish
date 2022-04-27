@@ -160,8 +160,14 @@ class VarnishBackendTest extends UnitTestCase
             \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
         )->set('mkvarnish', []);
         $varnishBackend = $this->getVarnishBackendInstance();
+
+        $httpHost = '';
+        if (array_key_exists('HTTP_HOST', $_SERVER)) {
+            $httpHost = (string) $_SERVER['HTTP_HOST'];
+        }
+
         self::assertContains(
-            (string) $_SERVER['HTTP_HOST'],
+            $httpHost,
             $this->callInaccessibleMethod($varnishBackend, 'getHostNamesForPurge')
         );
     }

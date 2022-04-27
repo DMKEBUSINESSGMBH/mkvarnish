@@ -207,8 +207,12 @@ class ConfigurationTest extends UnitTestCase
         $mock = new Configuration();
 
         $hostnames = $mock->getHostNamesForPurge();
+        $httpHost = '';
+        if (array_key_exists('HTTP_HOST', $_SERVER)) {
+            $httpHost = (string) $_SERVER['HTTP_HOST'];
+        }
 
         $this->assertCount(1, $hostnames);
-        $this->assertEquals($_SERVER['HTTP_HOST'], $hostnames[0]);
+        $this->assertEquals($httpHost, $hostnames[0]);
     }
 }
