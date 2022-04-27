@@ -40,7 +40,8 @@
         "mikey179/vfsstream": "^1.4 || ^1.6",
         "phpunit/phpunit": "^4.7 || ^5.0 || ^7.0 || ^8.0",
         "sebastian/phpcpd": "^4.0 || ^5.0",
-        "friendsofphp/php-cs-fixer": "^3.0"
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpcompatibility/php-compatibility": "^9.3.5"
     },
     "autoload-dev": {
         "psr-4": {
@@ -70,15 +71,28 @@
         ],
         "test:phpcs": [
             "[ -e .Build/bin/php-cs-fixer ] || composer update --ansi",
-            ".Build/bin/php-cs-fixer fix -v --dry-run --diff --diff-format udiff --ansi"
+            ".Build/bin/php-cs-fixer fix -v --dry-run --diff --ansi"
         ],
         "test:phpunit": [
             "[ -e .Build/bin/phpunit ] || composer update --ansi",
             "export TYPO3_PATH_WEB=$PWD/.Build/Web && .Build/bin/phpunit -c .Build/vendor/nimut/testing-framework/res/Configuration/UnitTests.xml Tests/Unit/PHP/"
         ],
+        "test:phpcompatibility": [
+            "@test:phpcompatibility:7.4",
+            "@test:phpcompatibility:8.0"
+        ],
+        "test:phpcompatibility:7.4": [
+            "[ -e .Build/bin/phpcs ] || composer update",
+            ".Build/bin/phpcs --ignore=.Build/*,Resources/Private/PHP/* -p . --standard=.Build/vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 7.4"
+        ],
+        "test:phpcompatibility:8.0": [
+            "[ -e .Build/bin/phpcs ] || composer update",
+            ".Build/bin/phpcs --ignore=.Build/*,Resources/Private/PHP/* -p . --standard=.Build/vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 8.0"
+        ],
         "test": [
             "@test:phpcs",
-            "@test:phpunit"
+            "@test:phpunit",
+            "@test:phpcompatibility"
         ],
         "fix:phpcs": [
             "[ -e .Build/bin/php-cs-fixer ] || composer update --ansi",
