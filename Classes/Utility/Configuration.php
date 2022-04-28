@@ -68,6 +68,10 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
      * */
     public function isSendCacheHeadersEnabled()
     {
+        if ($this->isNotLiveWorkspace()) {
+            return false;
+        }
+
         $forced = (int) self::getExtConfValue('sendCacheHeaders');
         switch ($forced) {
             case 1:
@@ -78,6 +82,11 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
             default:
                 return $this->isRevProxy();
         }
+    }
+
+    protected function isNotLiveWorkspace(): bool
+    {
+        return isset($GLOBALS['BE_USER']->workspace) && 0 !== $GLOBALS['BE_USER']->workspace;
     }
 
     /**
