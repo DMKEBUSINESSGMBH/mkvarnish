@@ -3,6 +3,8 @@
 namespace DMK\Mkvarnish\Tests\Unit\Repository;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use Doctrine\DBAL\Cache\ArrayStatement;
+use Doctrine\DBAL\ForwardCompatibility\Result;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Expression\ExpressionBuilder;
@@ -152,10 +154,11 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->with('expression')
             ->willReturn($queryBuilder);
 
+        $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
         $queryBuilder
             ->expects(self::once())
             ->method('execute')
-            ->willReturn(['cacheTags']);
+            ->willReturn($result);
 
         $queryBuilder
             ->expects(self::once())
@@ -171,8 +174,8 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->method('getQueryBuilder')
             ->will(self::returnValue($queryBuilder));
 
-        self::assertEquals(
-            ['cacheTags'],
+        self::assertSame(
+            $result,
             $repository->getByCacheHash('test_hash')
         );
     }
@@ -318,10 +321,11 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->with('expression')
             ->willReturn($queryBuilder);
 
+        $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
         $queryBuilder
             ->expects(self::once())
             ->method('execute')
-            ->willReturn(['cacheTags']);
+            ->willReturn($result);
 
         $queryBuilder
             ->expects(self::once())
@@ -337,8 +341,8 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->method('getQueryBuilder')
             ->will(self::returnValue($queryBuilder));
 
-        self::assertEquals(
-            ['cacheTags'],
+        self::assertSame(
+            $result,
             $repository->getByTag('test_tag')
         );
     }
@@ -354,8 +358,12 @@ class CacheTagsRepositoryTest extends UnitTestCase
         $repository
             ->expects(self::once())
             ->method('getByTag')
-            ->withConsecutive(['test_tag'], ['test_tag'])
-            ->willReturnOnConsecutiveCalls([['cache_hash' => 123], ['cache_hash' => 456]]);
+            ->with('test_tag')
+            ->willReturn(new Result(new ArrayStatement([
+                0 => ['cache_hash' => 123],
+                1 => ['cache_hash' => 456],
+            ])));
+
         $repository
             ->expects(self::exactly(2))
             ->method('deleteByCacheHash')

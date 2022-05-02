@@ -27,6 +27,8 @@ namespace DMK\Mkvarnish\Tests\Unit\Middleware;
 
 use DMK\Mkvarnish\Middleware\VarnishHeadersMiddleware;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use Doctrine\DBAL\Cache\ArrayStatement;
+use Doctrine\DBAL\ForwardCompatibility\Result;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\ServerRequest;
@@ -293,10 +295,10 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
             ->expects(self::once())
             ->method('getByCacheHash')
             ->with(123)
-            ->will(self::returnValue([
+            ->will(self::returnValue(new Result(new ArrayStatement([
                 0 => ['cache_hash' => 123, 'tag' => 'tag_1'],
                 1 => ['cache_hash' => 123, 'tag' => 'tag_2'],
-            ]));
+            ]))));
 
         $hook = $this->getMockBuilder(VarnishHeadersMiddleware::class)
             ->setMethods(['getCacheTagsRepository'])
