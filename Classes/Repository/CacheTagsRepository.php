@@ -2,7 +2,9 @@
 
 namespace DMK\Mkvarnish\Repository;
 
-use Sys25\RnBase\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  * Copyright notice
@@ -41,54 +43,37 @@ class CacheTagsRepository
      */
     public const TABLE_NAME = 'tx_mkvarnish_cache_tags';
 
-    /**
-     * @param string $tag
-     * @param string $cacheHash
-     *
-     * @return void
-     */
-    public function insertByTagAndCacheHash($tag, $cacheHash)
+    public function insertByTagAndCacheHash(string $tag, string $cacheHash): void
     {
-        $this->getDatabaseUtility()->doInsert(
-            self::TABLE_NAME,
-            [
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder->insert(self::TABLE_NAME)
+            ->values([
                 'tag' => $tag,
                 'cache_hash' => $cacheHash,
-            ]
-        );
+            ])
+            ->execute();
     }
 
-    /**
-     * @param string $cacheHash
-     *
-     * @return array
-     */
-    public function getByCacheHash($cacheHash)
+    public function getByCacheHash(string $cacheHash): array
     {
-        $databaseUtility = $this->getDatabaseUtility();
+        $queryBuilder = $this->getQueryBuilder();
 
-        return $databaseUtility->doSelect(
-            '*',
-            self::TABLE_NAME,
-            [
-                'where' => 'cache_hash = '.$databaseUtility->fullQuoteStr($cacheHash),
-                'enablefieldsoff' => true,
-            ]
-        );
+        return $queryBuilder->select('*')
+            ->from(self::TABLE_NAME)
+            ->where(
+                $queryBuilder->expr()->eq('cache_hash', $queryBuilder->createNamedParameter($cacheHash))
+            )
+            ->execute();
     }
 
-    /**
-     * @param string $cacheHash
-     *
-     * @return void
-     */
-    public function deleteByCacheHash($cacheHash)
+    public function deleteByCacheHash(string $cacheHash): void
     {
-        $databaseUtility = $this->getDatabaseUtility();
-        $databaseUtility->doDelete(
-            self::TABLE_NAME,
-            'cache_hash = '.$databaseUtility->fullQuoteStr($cacheHash)
-        );
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder->delete(self::TABLE_NAME)
+            ->where(
+                $queryBuilder->expr()->eq('cache_hash', $queryBuilder->createNamedParameter($cacheHash))
+            )
+            ->execute();
     }
 
     /**
@@ -96,49 +81,38 @@ class CacheTagsRepository
      */
     public function truncateTable()
     {
-        $this->getDatabaseUtility()->doQuery('TRUNCATE '.self::TABLE_NAME);
+        $this->getQueryBuilder()->getConnection()->truncate(self::TABLE_NAME);
     }
 
     /**
      * there can be cache hashes with more than one cache tag associated. When deleting
      * by a cache tag it makes no sense to keep other tags associated with the cache hashes
      * associated to the given tag.
-     *
-     * @param string $tag
-     *
-     * @return void
      */
-    public function deleteByTag($tag)
+    public function deleteByTag(string $tag): void
     {
         foreach ($this->getByTag($tag) as $row) {
             $this->deleteByCacheHash($row['cache_hash']);
         }
     }
 
-    /**
-     * @param string $tag
-     *
-     * @return array
-     */
-    public function getByTag($tag)
+    public function getByTag(string $tag): array
     {
-        $databaseUtility = $this->getDatabaseUtility();
+        $queryBuilder = $this->getQueryBuilder();
 
-        return $databaseUtility->doSelect(
-            '*',
-            self::TABLE_NAME,
-            [
-                'where' => 'tag = '.$databaseUtility->fullQuoteStr($tag),
-                'enablefieldsoff' => true,
-            ]
-        );
+        return $queryBuilder->select('*')
+            ->from(self::TABLE_NAME)
+            ->where(
+                $queryBuilder->expr()->eq('tag', $queryBuilder->createNamedParameter($tag))
+            )
+            ->execute();
     }
 
-    /**
-     * @return Connection
-     */
-    protected function getDatabaseUtility()
+    protected function getQueryBuilder(): QueryBuilder
     {
-        return Connection::getInstance();
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE_NAME);
+        $queryBuilder->getRestrictions()->removeAll();
+
+        return $queryBuilder;
     }
 }

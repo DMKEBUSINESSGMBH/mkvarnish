@@ -50,36 +50,24 @@ class VarnishBackendTest extends UnitTestCase
      */
     private $extConfBackup = [];
 
-    /**
-     * {@inheritdoc}
-     *
-     * @see PHPUnit_Framework_TestCase::setUp()
-     */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->siteNameBackup = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'];
-        $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'];
+        $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] ?? [];
         parent::setUp();
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @see PHPUnit_Framework_TestCase::setUp()
-     */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = $this->siteNameBackup;
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = $this->extConfBackup;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = $this->extConfBackup;
         parent::tearDown();
     }
 
-    /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage the varnish cache backend can only remove cache entries by tags or the complete cache at the moment
-     */
     public function testThrowExceptionIfNotImplemented()
     {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('the varnish cache backend can only remove cache entries by tags or the complete cache at the moment');
         $this->callInaccessibleMethod($this->getVarnishBackendInstance(), 'throwExceptionIfNotImplemented');
     }
 
@@ -124,7 +112,7 @@ class VarnishBackendTest extends UnitTestCase
         $secondHmac = $this->callInaccessibleMethod($varnishBackend, 'getHmacForSitename');
 
         self::assertSame($firstHmac, $secondHmac, 'hmac for sitename is not same in 2 calls');
-        self::assertInternalType('string', $firstHmac, 'hmac is no string');
+        self::assertIsString($firstHmac, 'hmac is no string');
         self::assertGreaterThan(30, strlen($firstHmac), 'hmac is not at least 30 chars long');
 
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = 'test site mkvarnish';
@@ -151,10 +139,11 @@ class VarnishBackendTest extends UnitTestCase
      */
     public function testGetHostNamesForPurge()
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mkvarnish'] = serialize([]);
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish']['hostnames'] = '127.0.0.1';
         $varnishBackend = $this->getVarnishBackendInstance();
+
         self::assertContains(
-            $_SERVER['HTTP_HOST'],
+            '127.0.0.1',
             $this->callInaccessibleMethod($varnishBackend, 'getHostNamesForPurge')
         );
     }
@@ -194,23 +183,24 @@ class VarnishBackendTest extends UnitTestCase
             ->setMethods(['addCommand'])
             ->getMock();
         $curlQueueUtility
-            ->expects(self::at(0))
+            ->expects(self::exactly(2))
             ->method('addCommand')
-            ->with(
-                'PURGE',
-                'firstHost',
-                ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123']
+            ->withConsecutive(
+                [
+                    'PURGE',
+                    'firstHost',
+                    ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123'],
+                ],
+                [
+                    'PURGE',
+                    'secondHost',
+                    ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123'],
+                ]
             )
-            ->will($this->returnValue($curlQueueUtility));
-        $curlQueueUtility
-            ->expects(self::at(1))
-            ->method('addCommand')
-            ->with(
-                'PURGE',
-                'secondHost',
-                ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123']
-            )
-            ->will($this->returnValue($curlQueueUtility));
+            ->willReturnOnConsecutiveCalls(
+                $this->returnValue($curlQueueUtility),
+                $this->returnValue($curlQueueUtility)
+            );
 
         $varnishBackend
             ->expects(self::once())

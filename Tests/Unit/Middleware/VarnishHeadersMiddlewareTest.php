@@ -1,6 +1,6 @@
 <?php
 
-namespace DMK\Mkvarnish\Tests\Unit\Hooks;
+namespace DMK\Mkvarnish\Tests\Unit\Middleware;
 
 /***************************************************************
  * Copyright notice
@@ -25,12 +25,13 @@ namespace DMK\Mkvarnish\Tests\Unit\Hooks;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use DMK\Mkvarnish\Hook\Frontend;
+use DMK\Mkvarnish\Middleware\VarnishHeadersMiddleware;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
-use Sys25\RnBase\Utility\TYPO3;
-use TYPO3\CMS\Core\Routing\PageArguments;
+use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Http\RequestHandler;
 
 /**
  * This class communicates with the varnish server.
@@ -39,14 +40,14 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class FrontendTest extends UnitTestCase
+class VarnishHeadersMiddlewareTest extends UnitTestCase
 {
     /**
      * {@inheritdoc}
      *
      * @see PHPUnit_Framework_TestCase::tearDown()
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (isset($GLOBALS['TSFE'])) {
             unset($GLOBALS['TSFE']);
@@ -62,18 +63,26 @@ class FrontendTest extends UnitTestCase
      * @group unit
      * @test
      */
-    public function testHandleHeadersWithHeaders()
+    public function testProcessWithHeaders()
     {
         $headers['name'] = 'wert';
 
-        $mock = $this->getMockBuilder(Frontend::class)
-            ->setMethods(['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders'])
+        $middleware = $this->getMockBuilder(VarnishHeadersMiddleware::class)
+            ->setMethods(['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'addHeadersToResponse'])
             ->getMock();
 
-        $mock->expects($this->once())->method('getHeaders')->will($this->returnValue($headers));
-        $mock->expects($this->once())->method('sendHeaders')->with($headers);
+        $request = $this->getMockBuilder(ServerRequest::class)->disableOriginalConstructor()->getMock();
+        $handler = $this->getMockBuilder(RequestHandler::class)
+            ->setMethods(['handle'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $response = $this->getMockBuilder(Response::class)->disableOriginalConstructor()->getMock();
 
-        $mock->handleHeaders();
+        $middleware->expects($this->once())->method('getHeaders')->will($this->returnValue($headers));
+        $handler->expects($this->once())->method('handle')->willReturn($response);
+        $middleware->expects($this->once())->method('addHeadersToResponse')->with($response, $headers);
+
+        $middleware->process($request, $handler);
     }
 
     /**
@@ -84,16 +93,19 @@ class FrontendTest extends UnitTestCase
      * @group unit
      * @test
      */
-    public function testHandleHeadersWithoutHeaders()
+    public function testProcessWithoutHeaders()
     {
-        $mock = $this->getMockBuilder(Frontend::class)
-            ->setMethods(['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'sendHeaders'])
+        $middleware = $this->getMockBuilder(VarnishHeadersMiddleware::class)
+            ->setMethods(['isSendCacheHeadersEnabled', 'getTsFe', 'getHeaders', 'addHeadersToResponse'])
             ->getMock();
 
-        $mock->expects($this->once())->method('getHeaders')->will($this->returnValue([]));
-        $mock->expects($this->never())->method('sendHeaders');
+        $request = $this->getMockBuilder(ServerRequest::class)->disableOriginalConstructor()->getMock();
+        $handler = $this->getMockBuilder(RequestHandler::class)->disableOriginalConstructor()->getMock();
 
-        $mock->handleHeaders();
+        $middleware->expects($this->once())->method('getHeaders')->will($this->returnValue([]));
+        $middleware->expects($this->never())->method('addHeadersToResponse');
+
+        $middleware->process($request, $handler);
     }
 
     /**
@@ -106,7 +118,7 @@ class FrontendTest extends UnitTestCase
      */
     public function testGetHeadersWithoutVarnish()
     {
-        $mock = $this->getMockBuilder(Frontend::class)
+        $mock = $this->getMockBuilder(VarnishHeadersMiddleware::class)
             ->setMethods(['isSendCacheHeadersEnabled'])
             ->getMock();
 
@@ -132,11 +144,11 @@ class FrontendTest extends UnitTestCase
     public function testGetHeadersBehindVarnish()
     {
         // prepare tsfe
-        $tsfe = new \stdclass();
+        $tsfe = new \stdClass();
         $tsfe->newHash = 'asd123hjk678';
         $tsfe->config['INTincScript'] = ['one', 'two'];
 
-        $mock = $this->getMockBuilder(Frontend::class)
+        $mock = $this->getMockBuilder(VarnishHeadersMiddleware::class)
             ->setMethods(['isSendCacheHeadersEnabled', 'getTsFe', 'getHeadersForCacheTags', 'getHmacForSitename'])
             ->getMock();
 
@@ -180,7 +192,7 @@ class FrontendTest extends UnitTestCase
         $tsfe->newHash = 123;
         $tsfe->addCacheTags(['tag1', 'tag2', 'tag2']);
 
-        $hook = $this->getMockBuilder(Frontend::class)
+        $hook = $this->getMockBuilder(VarnishHeadersMiddleware::class)
             ->setMethods(['getTsFe', 'saveCacheTagsByCacheHash'])
             ->getMock();
         $hook->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
@@ -205,7 +217,7 @@ class FrontendTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->getMock();
         $tsfe->newHash = 123;
-        $hook = $this->getMockBuilder(Frontend::class)
+        $hook = $this->getMockBuilder(VarnishHeadersMiddleware::class)
             ->setMethods(['getTsFe', 'getCacheTagsByCacheHash'])
             ->getMock();
         $hook->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
@@ -231,7 +243,7 @@ class FrontendTest extends UnitTestCase
     {
         self::assertInstanceOf(
             CacheTagsRepository::class,
-            $this->callInaccessibleMethod(new Frontend(), 'getCacheTagsRepository')
+            $this->callInaccessibleMethod(new VarnishHeadersMiddleware(), 'getCacheTagsRepository')
         );
     }
 
@@ -246,19 +258,16 @@ class FrontendTest extends UnitTestCase
             ->getMock();
 
         $cacheTagsRepository
-            ->expects(self::at(0))
+            ->expects(self::once())
             ->method('deleteByCacheHash')
             ->with(123);
-        $cacheTagsRepository
-            ->expects(self::at(1))
-            ->method('insertByTagAndCacheHash')
-            ->with('tag_1', 123);
-        $cacheTagsRepository
-            ->expects(self::at(2))
-            ->method('insertByTagAndCacheHash')
-            ->with('tag_2', 123);
 
-        $hook = $this->getMockBuilder(Frontend::class)
+        $cacheTagsRepository
+            ->expects(self::exactly(2))
+            ->method('insertByTagAndCacheHash')
+            ->withConsecutive(['tag_1', 123], ['tag_2', 123]);
+
+        $hook = $this->getMockBuilder(VarnishHeadersMiddleware::class)
             ->setMethods(['getCacheTagsRepository'])
             ->getMock();
         $hook
@@ -288,7 +297,7 @@ class FrontendTest extends UnitTestCase
                 1 => ['cache_hash' => 123, 'tag' => 'tag_2'],
             ]));
 
-        $hook = $this->getMockBuilder(Frontend::class)
+        $hook = $this->getMockBuilder(VarnishHeadersMiddleware::class)
             ->setMethods(['getCacheTagsRepository'])
             ->getMock();
         $hook
@@ -309,21 +318,11 @@ class FrontendTest extends UnitTestCase
     public function testGetCurrentCacheHash()
     {
         $tsfe = $this->getMockBuilder(TypoScriptFrontendController::class)
-            ->setMethods(['determineId', 'getPageArguments'])
+            ->setMethods(['determineId'])
             ->disableOriginalConstructor()
             ->getMock();
-
-        if (TYPO3::isTYPO104OrHigher()) {
-            $pageArguments = new PageArguments(1, '', ['cHash' => 123]);
-            $tsfe
-                ->expects($this->any())
-                ->method('getPageArguments')
-                ->will($this->returnValue($pageArguments));
-        } else {
-            $tsfe->cHash = 123;
-        }
-
-        $hook = $this->getMockBuilder(Frontend::class)
+        $tsfe->cHash = 123;
+        $hook = $this->getMockBuilder(VarnishHeadersMiddleware::class)
             ->setMethods(['getTsFe', 'getCacheTagsByCacheHash'])
             ->getMock();
         $hook

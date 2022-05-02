@@ -42,23 +42,13 @@ class ConfigurationTest extends UnitTestCase
      */
     protected $extConfBackup = [];
 
-    /**
-     * Set up the Test.
-     *
-     * @return void
-     */
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'];
+        $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] ?? [];
         parent::setUp();
     }
 
-    /**
-     * Tear down the Test.
-     *
-     * @return void
-     */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = $this->extConfBackup;
         parent::tearDown();
@@ -187,6 +177,7 @@ class ConfigurationTest extends UnitTestCase
     public function testGetHostNamesForPurgeIfNoneConfigured()
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['hostnames' => ''];
+        $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_HOST'] ?? '127.0.0.1';
         $mock = new Configuration();
 
         $hostnames = $mock->getHostNamesForPurge();

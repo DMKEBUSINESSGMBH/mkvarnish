@@ -2,6 +2,7 @@
 
 namespace DMK\Mkvarnish\Utility;
 
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -55,7 +56,7 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
     protected function getExtConfValue($key)
     {
         if (null === $this->extConf) {
-            $this->extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'];
+            $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mkvarnish');
         }
 
         return isset($this->extConf[$key]) ? $this->extConf[$key] : null;

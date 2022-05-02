@@ -26,8 +26,8 @@
         "typo3-ter/mkvarnish": "self.version"
     },
     "require": {
-        "typo3/cms-core": "^9.5.24 || ^10.4.11",
-        "digedag/rn-base": "^1.4.5"
+        "php": "^7.4 || ^8.0",
+        "typo3/cms-core": "^10.4.25 || ^11.5.7"
     },
     "autoload": {
         "psr-4": {
@@ -36,16 +36,14 @@
     },
     "require-dev": {
         "php-parallel-lint/php-parallel-lint": "^1.2",
+        "phpcompatibility/php-compatibility": "^9.3.5",
         "namelesscoder/typo3-repository-client": "^1.2",
-        "nimut/testing-framework": "^1.1 || ^2.0 || ^3.0 || ^4.0 || ^5.0",
-        "mikey179/vfsstream": "^1.4 || ^1.6",
-        "phpunit/phpunit": "^4.7 || ^5.0 || ^7.0",
-        "sebastian/phpcpd": "^4.0 || ^5.0",
-        "friendsofphp/php-cs-fixer": "^3.0"
+        "nimut/testing-framework": "^6.0",
+        "friendsofphp/php-cs-fixer": "^3.3"
     },
     "autoload-dev": {
         "psr-4": {
-            "DMK\\Mkvarnish\\Tests\\" : "Tests/Classes",
+            "DMK\\Mkvarnish\\Tests\\Unit\\" : "Tests/Unit/",
             "TYPO3\\CMS\\Core\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/core/Tests/",
             "TYPO3\\CMS\\Fluid\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/fluid/Tests/"
         }
@@ -55,6 +53,11 @@
         "bin-dir": ".Build/bin",
         "preferred-install": {
             "typo3/cms": "source"
+        },
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true,
+            "phpstan/extension-installer": true
         }
     },
     "scripts": {
@@ -71,14 +74,27 @@
         ],
         "test:phpcs": [
             "[ -e .Build/bin/php-cs-fixer ] || composer update --ansi",
-            ".Build/bin/php-cs-fixer fix -v --dry-run --diff --diff-format udiff --ansi"
+            ".Build/bin/php-cs-fixer fix -v --dry-run --diff --ansi"
+        ],
+        "test:phpcompatibility": [
+            "@test:phpcompatibility:7.4",
+            "@test:phpcompatibility:8.0"
+        ],
+        "test:phpcompatibility:7.4": [
+            "[ -e .Build/bin/phpcs ] || composer update",
+            ".Build/bin/phpcs --ignore=.Build/* -p . --standard=.Build/vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 7.4"
+        ],
+        "test:phpcompatibility:8.0": [
+            "[ -e .Build/bin/phpcs ] || composer update",
+            ".Build/bin/phpcs --ignore=.Build/* -p . --standard=.Build/vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 8.0"
         ],
         "test:phpunit": [
             "[ -e .Build/bin/phpunit ] || composer update --ansi",
-            "export TYPO3_PATH_WEB=$PWD/.Build/Web && .Build/bin/phpunit -c .Build/vendor/nimut/testing-framework/res/Configuration/UnitTests.xml Tests/Unit/PHP/"
+            "export TYPO3_PATH_WEB=$PWD/.Build/Web && .Build/bin/phpunit -c .Build/vendor/nimut/testing-framework/res/Configuration/UnitTests.xml Tests/Unit/"
         ],
         "test": [
             "@test:phpcs",
+            "@test:phpcompatibility",
             "@test:phpunit"
         ],
         "fix:phpcs": [
@@ -90,6 +106,9 @@
         ]
     },
     "extra": {
+        "branch-alias" : {
+            "dev-11.5": "11.0.x-dev"
+        },
         "typo3/cms": {
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
             "extension-key": "mkvarnish",
