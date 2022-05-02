@@ -205,7 +205,8 @@ class VarnishHeadersMiddleware implements MiddlewareInterface
     {
         $typoscriptFrontendController = $this->getTsFe();
 
-        return $typoscriptFrontendController->newHash ?: $typoscriptFrontendController->cHash;
+        return $typoscriptFrontendController->newHash ?:
+            $typoscriptFrontendController->getPageArguments()->get('cHash');
     }
 
     protected function addHeadersToResponse(ResponseInterface $response, array $headers): ResponseInterface

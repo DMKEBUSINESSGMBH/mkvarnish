@@ -30,6 +30,7 @@ use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Http\RequestHandler;
 
@@ -317,11 +318,18 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
      */
     public function testGetCurrentCacheHash()
     {
+        $pageArguments = $this->getMockBuilder(PageArguments::class)
+            ->setMethods(['dummy'])
+            ->setConstructorArgs([123, '', ['cHash' => 123]])
+            ->getMock();
         $tsfe = $this->getMockBuilder(TypoScriptFrontendController::class)
-            ->setMethods(['determineId'])
+            ->setMethods(['determineId', 'getPageArguments'])
             ->disableOriginalConstructor()
             ->getMock();
-        $tsfe->cHash = 123;
+        $tsfe
+            ->expects($this->any())
+            ->method('getPageArguments')
+            ->will($this->returnValue($pageArguments));
         $hook = $this->getMockBuilder(VarnishHeadersMiddleware::class)
             ->setMethods(['getTsFe', 'getCacheTagsByCacheHash'])
             ->getMock();
