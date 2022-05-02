@@ -212,7 +212,7 @@ class VarnishHeadersMiddleware implements MiddlewareInterface
     protected function addHeadersToResponse(ResponseInterface $response, array $headers): ResponseInterface
     {
         foreach ($headers as $name => $value) {
-            $response = $response->withHeader($name, $value);
+            $response = $response->withHeader($name, (string) $value);
         }
 
         return $response;

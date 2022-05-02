@@ -2,6 +2,7 @@
 
 namespace DMK\Mkvarnish\Repository;
 
+use Doctrine\DBAL\ForwardCompatibility\Result;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -54,7 +55,7 @@ class CacheTagsRepository
             ->execute();
     }
 
-    public function getByCacheHash(string $cacheHash): array
+    public function getByCacheHash(string $cacheHash): Result
     {
         $queryBuilder = $this->getQueryBuilder();
 
@@ -96,7 +97,7 @@ class CacheTagsRepository
         }
     }
 
-    public function getByTag(string $tag): array
+    public function getByTag(string $tag): Result
     {
         $queryBuilder = $this->getQueryBuilder();
 
