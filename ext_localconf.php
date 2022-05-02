@@ -27,22 +27,18 @@ defined('TYPO3_MODE') || exit('Access denied.');
 call_user_func(
     function () {
         $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
-        switch (TYPO3_MODE) {
-            case 'FE':
-                $typoScriptSetup =
-                    '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:mkvarnish/Configuration/TypoScript/setup.txt">';
-                if ($configurationUtility->isSendCacheHeadersEnabled()) {
-                    $typoScriptSetup .= LF.'config.sendCacheHeaders = 1';
-                }
-
-                \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
-                    'varnish',
-                    'setup',
-                    $typoScriptSetup,
-                    43
-                );
-                break;
+        $typoScriptSetup =
+            '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:mkvarnish/Configuration/TypoScript/setup.txt">';
+        if ($configurationUtility->isSendCacheHeadersEnabled()) {
+            $typoScriptSetup .= LF.'config.sendCacheHeaders = 1';
         }
+
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
+            'varnish',
+            'setup',
+            $typoScriptSetup,
+            43
+        );
 
         if ($configurationUtility->isSendCacheHeadersEnabled()) {
             $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['varnish'] = [
