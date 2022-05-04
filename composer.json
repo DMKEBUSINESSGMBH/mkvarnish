@@ -71,7 +71,7 @@
         ],
         "test:phpcs": [
             "[ -e .Build/bin/php-cs-fixer ] || composer update --ansi",
-            ".Build/bin/php-cs-fixer fix -v --dry-run --diff --diff-format udiff --ansi"
+            ".Build/bin/php-cs-fixer fix -v --dry-run --diff --ansi"
         ],
         "test:phpunit": [
             "[ -e .Build/bin/phpunit ] || composer update --ansi",
