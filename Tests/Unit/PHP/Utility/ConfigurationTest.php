@@ -160,6 +160,31 @@ class ConfigurationTest extends UnitTestCase
     }
 
     /**
+     * Test the isSendCacheHeadersEnabled method.
+     *
+     * @return void
+     *
+     * @group unit
+     * @test
+     */
+    public function testIsSendCacheHeadersEnabledShouldReturnFalseIfNotLiveWorkspace()
+    {
+        if (!is_object($GLOBALS['BE_USER'])) {
+            $GLOBALS['BE_USER'] = new \stdClass();
+            $GLOBALS['BE_USER']->workspace = 123;
+        }
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['sendCacheHeaders' => '1'];
+
+        $mock = $this->getMockBuilder(Configuration::class)
+            ->setMethods(['isRevProxy'])
+            ->getMock();
+        $mock->expects($this->never())->method('isRevProxy');
+
+        // should return rp
+        $this->assertFalse($mock->isSendCacheHeadersEnabled());
+    }
+
+    /**
      * Test the getHostNamesForPurge method.
      *
      * @return void

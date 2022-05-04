@@ -132,7 +132,7 @@ class FrontendTest extends UnitTestCase
     public function testGetHeadersBehindVarnish()
     {
         // prepare tsfe
-        $tsfe = new \stdclass();
+        $tsfe = new \stdClass();
         $tsfe->newHash = 'asd123hjk678';
         $tsfe->config['INTincScript'] = ['one', 'two'];
 

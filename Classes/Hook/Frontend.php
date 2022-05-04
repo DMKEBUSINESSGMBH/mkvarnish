@@ -94,7 +94,7 @@ class Frontend
         $headers = $this->getHeadersForCacheTags();
         // this header is essential and used in varnish configuration
         $headers['X-TYPO3-Sitename'] = $this->getHmacForSitename();
-        /// developer infos only. this headers should be removed in varnich vcl
+        // developer infos only. this headers should be removed in varnich vcl
         $headers['X-TYPO3-cHash'] = $this->getCurrentCacheHash();
         $headers['X-TYPO3-INTincScripts'] = count((array) $tsfe->config['INTincScript']);
 
