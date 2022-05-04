@@ -183,6 +183,38 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
     }
 
     /**
+     * Test the getHeaders method.
+     *
+     * @return void
+     *
+     * @group unit
+     * @test
+     */
+    public function testGetHeadersBehindVarnishButNotLive()
+    {
+        if (!is_object($GLOBALS['BE_USER'] ?? null)) {
+            $GLOBALS['BE_USER'] = new \stdClass();
+            $GLOBALS['BE_USER']->workspace = 123;
+        }
+
+        // prepare tsfe
+        $tsfe = new \stdClass();
+        $tsfe->newHash = 'asd123hjk678';
+        $tsfe->config['INTincScript'] = ['one', 'two'];
+
+        $mock = $this->getMockBuilder(VarnishHeadersMiddleware::class)
+            ->setMethods(['isSendCacheHeadersEnabled', 'getTsFe', 'getHeadersForCacheTags', 'getHmacForSitename'])
+            ->getMock();
+
+        $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
+
+        $headers = $this->callInaccessibleMethod($mock, 'getHeaders');
+
+        $this->assertTrue(is_array($headers));
+        $this->assertEmpty($headers);
+    }
+
+    /**
      * @return void
      * @test
      */

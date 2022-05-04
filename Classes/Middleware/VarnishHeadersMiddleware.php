@@ -69,7 +69,7 @@ class VarnishHeadersMiddleware implements MiddlewareInterface
     {
         $headers = [];
 
-        if ($this->isSendCacheHeadersEnabled()) {
+        if ($this->isSendCacheHeadersEnabled() && $this->isLiveWorkspace()) {
             $headers = $this->getHeadersForVarnish();
         }
 
@@ -86,6 +86,11 @@ class VarnishHeadersMiddleware implements MiddlewareInterface
         $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
 
         return $configurationUtility->isSendCacheHeadersEnabled();
+    }
+
+    protected function isLiveWorkspace(): bool
+    {
+        return ($GLOBALS['BE_USER']->workspace ?? 0) == 0;
     }
 
     /**
