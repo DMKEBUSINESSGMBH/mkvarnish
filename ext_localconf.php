@@ -22,7 +22,7 @@
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-defined('TYPO3_MODE') || exit('Access denied.');
+defined('TYPO3') || exit('Access denied.');
 
 call_user_func(
     function () {
