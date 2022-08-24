@@ -158,11 +158,11 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
         $mock->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
         $mock->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
         $mock->expects($this->once())->method('getHmacForSitename')->will($this->returnValue('345dfg'));
-        ($mock
+        $mock
             ->expects($this->once())
             ->method('getHeadersForCacheTags')
             ->will($this->returnValue(['X-Cache-Tags' => 'pages,pages_419']))
-        );
+        ;
 
         $headers = $this->callInaccessibleMethod(
             $mock,
