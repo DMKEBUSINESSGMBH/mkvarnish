@@ -372,6 +372,7 @@ class VarnishBackendTest extends UnitTestCase
 
     /**
      * @return void
+     *
      * @test
      */
     public function testTruncateCacheTagsTable()
@@ -398,6 +399,7 @@ class VarnishBackendTest extends UnitTestCase
 
     /**
      * @return void
+     *
      * @test
      */
     public function testDeleteFromCacheTagsTableByTag()

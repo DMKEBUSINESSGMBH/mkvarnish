@@ -64,6 +64,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testProcessWithHeaders()
@@ -94,6 +95,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testProcessWithoutHeaders()
@@ -117,6 +119,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testGetHeadersWithoutVarnish()
@@ -142,6 +145,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testGetHeadersBehindVarnish()
@@ -188,6 +192,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testGetHeadersBehindVarnishButNotLive()
@@ -216,6 +221,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
 
     /**
      * @return void
+     *
      * @test
      */
     public function testGetHeadersForCacheTagsIfCacheTagsPresent()
@@ -243,6 +249,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
 
     /**
      * @return void
+     *
      * @test
      */
     public function testGetHeadersForCacheTagsIfCacheTagsNotPresent()
@@ -284,6 +291,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
 
     /**
      * @return void
+     *
      * @test
      */
     public function testSaveCacheTagsByCacheHash()
@@ -315,6 +323,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
 
     /**
      * @return void
+     *
      * @test
      */
     public function testGetCacheTagsByCacheHash()
@@ -348,6 +357,7 @@ class VarnishHeadersMiddlewareTest extends UnitTestCase
 
     /**
      * @return void
+     *
      * @test
      */
     public function testGetCurrentCacheHash()

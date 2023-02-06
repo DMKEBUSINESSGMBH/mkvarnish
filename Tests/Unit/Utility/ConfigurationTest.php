@@ -60,6 +60,7 @@ class ConfigurationTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testGetExtConfValue()
@@ -88,6 +89,7 @@ class ConfigurationTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testIsSendCacheHeadersEnabledChecksReverseProxy()
@@ -113,6 +115,7 @@ class ConfigurationTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testIsSendCacheHeadersEnabledShouldReturnTrue()
@@ -134,6 +137,7 @@ class ConfigurationTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testIsSendCacheHeadersEnabledShouldReturnFalse()
@@ -155,6 +159,7 @@ class ConfigurationTest extends UnitTestCase
      * @return void
      *
      * @group unit
+     *
      * @test
      */
     public function testGetHostNamesForPurgeIfConfigured()
@@ -172,6 +177,7 @@ class ConfigurationTest extends UnitTestCase
 
     /**
      * @return void
+     *
      * @test
      */
     public function testGetHostNamesForPurgeIfNoneConfigured()
