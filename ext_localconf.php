@@ -27,10 +27,9 @@ defined('TYPO3') || exit('Access denied.');
 call_user_func(
     function () {
         $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
-        $typoScriptSetup =
-            '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:mkvarnish/Configuration/TypoScript/setup.txt">';
+        $typoScriptSetup = '';
         if ($configurationUtility->isSendCacheHeadersEnabled()) {
-            $typoScriptSetup .= LF.'config.sendCacheHeaders = 1';
+            $typoScriptSetup .= 'config.sendCacheHeaders = 1';
         }
 
         \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(

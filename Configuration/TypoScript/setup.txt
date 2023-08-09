@@ -1,4 +1,0 @@
-# enable cache headers if [SYS][reverseProxyIP] was set and the call comes from the varnish
-[request.getNormalizedParams().isBehindReverseProxy()]
-    config.sendCacheHeaders = 1
-[END]
