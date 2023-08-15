@@ -3,6 +3,8 @@
 namespace DMK\Mkvarnish\Repository;
 
 use Sys25\RnBase\Database\Connection;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  * Copyright notice
@@ -42,6 +44,11 @@ class CacheTagsRepository
     public const TABLE_NAME = 'tx_mkvarnish_cache_tags';
 
     /**
+     * @var mixed
+     */
+    protected $mksearchEnableRnBaseUtilDbHookBackup;
+
+    /**
      * @param string $tag
      * @param string $cacheHash
      *
@@ -49,6 +56,7 @@ class CacheTagsRepository
      */
     public function insertByTagAndCacheHash($tag, $cacheHash)
     {
+        $this->deactivateMksearchDatabaseHook();
         $this->getDatabaseUtility()->doInsert(
             self::TABLE_NAME,
             [
@@ -56,6 +64,7 @@ class CacheTagsRepository
                 'cache_hash' => $cacheHash,
             ]
         );
+        $this->reactivateMksearchDatabaseHook();
     }
 
     /**
@@ -85,9 +94,45 @@ class CacheTagsRepository
     public function deleteByCacheHash($cacheHash)
     {
         $databaseUtility = $this->getDatabaseUtility();
+
+        $this->deactivateMksearchDatabaseHook();
         $databaseUtility->doDelete(
             self::TABLE_NAME,
             'cache_hash = '.$databaseUtility->fullQuoteStr($cacheHash)
+        );
+        $this->reactivateMksearchDatabaseHook();
+    }
+
+    /**
+     * The database queries mksearch issues because of the hook may cause some load as there might be a lot of delete
+     * and insert queries. For those queries mksearch will never need to do anything wo we deactivate those hooks.
+     *
+     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
+     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException
+     */
+    protected function deactivateMksearchDatabaseHook(): void
+    {
+        if (!ExtensionManagementUtility::isLoaded('mksearch')) {
+            return;
+        }
+        $extensionConfiguration = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class);
+        $this->mksearchEnableRnBaseUtilDbHookBackup = $extensionConfiguration->get('mksearch', 'enableRnBaseUtilDbHook');
+        $extensionConfiguration->set(
+            'mksearch',
+            'enableRnBaseUtilDbHook',
+            0
+        );
+    }
+
+    protected function reactivateMksearchDatabaseHook(): void
+    {
+        if (!ExtensionManagementUtility::isLoaded('mksearch')) {
+            return;
+        }
+        GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class)->set(
+            'mksearch',
+            'enableRnBaseUtilDbHook',
+            $this->mksearchExtensionConfigurationBackup
         );
     }
 
