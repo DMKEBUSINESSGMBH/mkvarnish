@@ -64,6 +64,15 @@ class CacheTagsRepository
                 'cache_hash' => $cacheHash,
             ]
         );
+        if(ini_get('display_errors') || \TYPO3\CMS\Core\Core\Environment::isCli()) {
+            \TYPO3\CMS\Core\Utility\DebugUtility::debug(
+                [
+                    'da'
+                ],
+                __METHOD__ . ' Zeile:' .  __LINE__
+            );
+            exit;
+        }
         $this->reactivateMksearchDatabaseHook();
     }
 
@@ -105,7 +114,7 @@ class CacheTagsRepository
 
     /**
      * The database queries mksearch issues because of the hook may cause some load as there might be a lot of delete
-     * and insert queries. For those queries mksearch will never need to do anything wo we deactivate those hooks.
+     * and insert queries. For those queries mksearch will never need to do anything so we deactivate those hooks.
      *
      * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
      * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException
@@ -115,13 +124,8 @@ class CacheTagsRepository
         if (!ExtensionManagementUtility::isLoaded('mksearch')) {
             return;
         }
-        $extensionConfiguration = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class);
-        $this->mksearchEnableRnBaseUtilDbHookBackup = $extensionConfiguration->get('mksearch', 'enableRnBaseUtilDbHook');
-        $extensionConfiguration->set(
-            'mksearch',
-            'enableRnBaseUtilDbHook',
-            0
-        );
+        $this->mksearchEnableRnBaseUtilDbHookBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mksearch']['enableRnBaseUtilDbHook'];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mksearch']['enableRnBaseUtilDbHook'] = 0;
     }
 
     protected function reactivateMksearchDatabaseHook(): void
@@ -129,11 +133,8 @@ class CacheTagsRepository
         if (!ExtensionManagementUtility::isLoaded('mksearch')) {
             return;
         }
-        GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class)->set(
-            'mksearch',
-            'enableRnBaseUtilDbHook',
-            $this->mksearchExtensionConfigurationBackup
-        );
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mksearch']['enableRnBaseUtilDbHook']
+            = $this->mksearchEnableRnBaseUtilDbHookBackup;
     }
 
     /**
