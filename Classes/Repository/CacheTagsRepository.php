@@ -64,15 +64,6 @@ class CacheTagsRepository
                 'cache_hash' => $cacheHash,
             ]
         );
-        if(ini_get('display_errors') || \TYPO3\CMS\Core\Core\Environment::isCli()) {
-            \TYPO3\CMS\Core\Utility\DebugUtility::debug(
-                [
-                    'da'
-                ],
-                __METHOD__ . ' Zeile:' .  __LINE__
-            );
-            exit;
-        }
         $this->reactivateMksearchDatabaseHook();
     }
 
