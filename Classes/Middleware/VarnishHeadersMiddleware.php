@@ -2,7 +2,7 @@
 
 namespace DMK\Mkvarnish\Middleware;
 
-use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use DMK\Mkvarnish\Utility\Headers;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -42,6 +42,16 @@ use Psr\Http\Server\RequestHandlerInterface;
 class VarnishHeadersMiddleware implements MiddlewareInterface
 {
     /**
+     * @var Headers
+     */
+    protected $headers;
+
+    public function __construct(Headers $headers)
+    {
+        $this->headers = $headers;
+    }
+
+    /**
      * @param ServerRequestInterface  $request
      * @param RequestHandlerInterface $handler
      *
@@ -51,167 +61,13 @@ class VarnishHeadersMiddleware implements MiddlewareInterface
     {
         $response = $handler->handle($request);
 
-        $headers = $this->getHeaders();
+        $headers = $this->headers->get();
 
         if (!empty($headers)) {
             $response = $this->addHeadersToResponse($response, $headers);
         }
 
         return $response;
-    }
-
-    /**
-     * Builds the Varnish headers.
-     *
-     * @return array
-     */
-    protected function getHeaders()
-    {
-        $headers = [];
-
-        if ($this->isSendCacheHeadersEnabled() && $this->isLiveWorkspace()) {
-            $headers = $this->getHeadersForVarnish();
-        }
-
-        return $headers;
-    }
-
-    /**
-     * Check if we are behind a reverse proxy.
-     *
-     * @return bool
-     * */
-    protected function isSendCacheHeadersEnabled()
-    {
-        $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
-
-        return $configurationUtility->isSendCacheHeadersEnabled();
-    }
-
-    protected function isLiveWorkspace(): bool
-    {
-        return ($GLOBALS['BE_USER']->workspace ?? 0) == 0;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getHeadersForVarnish()
-    {
-        $tsfe = $this->getTsFe();
-
-        $headers = $this->getHeadersForCacheTags();
-        // this header is essential and used in varnish configuration
-        $headers['X-TYPO3-Sitename'] = $this->getHmacForSitename();
-        // developer infos only. this headers should be removed in varnich vcl
-        $headers['X-TYPO3-cHash'] = $this->getCurrentCacheHash();
-        $headers['X-TYPO3-INTincScripts'] = count((array) ($tsfe->config['INTincScript'] ?? []));
-
-        return $headers;
-    }
-
-    /**
-     * Reads the cache tags from the typoscript frontend conroller.
-     *
-     * @return array
-     */
-    protected function getHeadersForCacheTags()
-    {
-        $tsfe = $this->getTsFe();
-
-        $cacheTags = array_unique($tsfe->getPageCacheTags());
-
-        // When the page content is delivered from the TYPO3 cache the
-        // cache tags won't be present anymore. That's why we save them
-        // so we can restore them even when TYPO3 delivers content from cache.
-        // Otherwise Varnish would only be able to cache properly
-        // if the first request to the page is cacheable. If for example
-        // a logged in FE user makes the first request, the page is not
-        // cacheable by Varnish. On subsequent requests the page would
-        // still not be cacheable because of missing cache tags.
-        if (empty($cacheTags)) {
-            $cacheTags = $this->getCacheTagsByCacheHash($this->getCurrentCacheHash());
-        } else {
-            $this->saveCacheTagsByCacheHash($cacheTags, $this->getCurrentCacheHash());
-        }
-        $headers['X-Cache-Tags'] = implode(',', $cacheTags);
-
-        return $headers;
-    }
-
-    /**
-     * An short alias to get the typoscript frontend conroller.
-     *
-     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
-     */
-    protected function getTsFe()
-    {
-        return $GLOBALS['TSFE'];
-    }
-
-    /**
-     * @param array $cacheTags
-     * @param string $cacheHash
-     *
-     * @return void
-     */
-    protected function saveCacheTagsByCacheHash(array $cacheTags, $cacheHash)
-    {
-        $cacheTagsRepository = $this->getCacheTagsRepository();
-
-        $cacheTagsRepository->deleteByCacheHash($cacheHash);
-
-        foreach ($cacheTags as $cacheTag) {
-            $cacheTagsRepository->insertByTagAndCacheHash($cacheTag, $cacheHash);
-        }
-    }
-
-    /**
-     * @param string $cacheHash
-     *
-     * @return array
-     */
-    protected function getCacheTagsByCacheHash($cacheHash)
-    {
-        $cacheTags = [];
-        $cacheTagsDatabaseEntries = $this->getCacheTagsRepository()->getByCacheHash($cacheHash);
-
-        foreach ($cacheTagsDatabaseEntries as $cacheTagsDatabaseEntry) {
-            $cacheTags[] = $cacheTagsDatabaseEntry['tag'];
-        }
-
-        return $cacheTags;
-    }
-
-    /**
-     * @return \DMK\Mkvarnish\Repository\CacheTagsRepository
-     */
-    protected function getCacheTagsRepository()
-    {
-        return new CacheTagsRepository();
-    }
-
-    /**
-     * Returns HMAC of the sitename.
-     *
-     * @return mixed
-     */
-    protected function getHmacForSitename()
-    {
-        $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
-
-        return $configurationUtility->getHmacForSitename();
-    }
-
-    /**
-     * @return string
-     */
-    protected function getCurrentCacheHash()
-    {
-        $typoscriptFrontendController = $this->getTsFe();
-
-        return $typoscriptFrontendController->newHash ?:
-            $typoscriptFrontendController->getPageArguments()->get('cHash');
     }
 
     protected function addHeadersToResponse(ResponseInterface $response, array $headers): ResponseInterface

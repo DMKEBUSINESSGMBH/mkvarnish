@@ -42,7 +42,7 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
      *
      * @var array
      */
-    private $extConf = null;
+    private $extConf;
 
     /**
      * Gets a config value from extension configuration.
