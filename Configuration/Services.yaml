@@ -6,3 +6,6 @@ services:
 
     DMK\Mkvarnish\:
         resource: '../Classes/*'
+
+    DMK\Mkvarnish\Utility\Headers:
+        public: true
