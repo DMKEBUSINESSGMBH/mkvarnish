@@ -40,7 +40,7 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
     /**
      * Queue ressource for curl multi-handle.
      *
-     * @var resource
+     * @var \CurlMultiHandle|false|resource
      */
     protected $curlQueue;
 

@@ -95,6 +95,8 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
      * Returns HMAC of the sitename.
      *
      * @return mixed
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function getHmacForSitename()
     {

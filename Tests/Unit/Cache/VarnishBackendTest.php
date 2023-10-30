@@ -6,7 +6,7 @@ use DMK\Mkvarnish\Cache\VarnishBackend;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use DMK\Mkvarnish\Utility\Configuration;
 use DMK\Mkvarnish\Utility\CurlQueue;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /***************************************************************
  * Copyright notice
@@ -50,6 +50,8 @@ class VarnishBackendTest extends UnitTestCase
      */
     private $extConfBackup = [];
 
+    protected bool $resetSingletonInstances = true;
+
     protected function setUp(): void
     {
         $this->siteNameBackup = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'];
@@ -68,7 +70,7 @@ class VarnishBackendTest extends UnitTestCase
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('the varnish cache backend can only remove cache entries by tags or the complete cache at the moment');
-        $this->callInaccessibleMethod($this->getVarnishBackendInstance(), 'throwExceptionIfNotImplemented');
+        $this->getAccessibleMock(VarnishBackend::class, ['has'], ['testing'])->_call('throwExceptionIfNotImplemented');
     }
 
     /**
@@ -91,7 +93,7 @@ class VarnishBackendTest extends UnitTestCase
     /**
      * @return string[][]|string[][][]
      */
-    public function dataProviderUnimplementedMethods()
+    public static function dataProviderUnimplementedMethods()
     {
         return [
             'method set, line: '.__LINE__ => ['set', ['test', []]],
@@ -108,15 +110,15 @@ class VarnishBackendTest extends UnitTestCase
     public function testGetHmacForSitename()
     {
         $varnishBackend = $this->getVarnishBackendInstance();
-        $firstHmac = $this->callInaccessibleMethod($varnishBackend, 'getHmacForSitename');
-        $secondHmac = $this->callInaccessibleMethod($varnishBackend, 'getHmacForSitename');
+        $firstHmac = $varnishBackend->_call('getHmacForSitename');
+        $secondHmac = $varnishBackend->_call('getHmacForSitename');
 
         self::assertSame($firstHmac, $secondHmac, 'hmac for sitename is not same in 2 calls');
         self::assertIsString($firstHmac, 'hmac is no string');
         self::assertGreaterThan(30, strlen($firstHmac), 'hmac is not at least 30 chars long');
 
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = 'test site mkvarnish';
-        $hmacAfterSiteNameChanged = $this->callInaccessibleMethod($varnishBackend, 'getHmacForSitename');
+        $hmacAfterSiteNameChanged = $varnishBackend->_call('getHmacForSitename');
         self::assertNotSame($firstHmac, $hmacAfterSiteNameChanged, 'hmac for different site names is not different');
     }
 
@@ -125,8 +127,7 @@ class VarnishBackendTest extends UnitTestCase
      */
     public function testConvertCacheTagForPurge()
     {
-        $convertedCacheTagForPurge = $this->callInaccessibleMethod(
-            $this->getVarnishBackendInstance(),
+        $convertedCacheTagForPurge = $this->getVarnishBackendInstance()->_call(
             'convertCacheTagForPurge',
             'tt_content_5'
         );
@@ -144,7 +145,7 @@ class VarnishBackendTest extends UnitTestCase
 
         self::assertContains(
             '127.0.0.1',
-            $this->callInaccessibleMethod($varnishBackend, 'getHostNamesForPurge')
+            $varnishBackend->_call('getHostNamesForPurge')
         );
     }
 
@@ -155,7 +156,7 @@ class VarnishBackendTest extends UnitTestCase
     {
         self::assertInstanceOf(
             CurlQueue::class,
-            $this->callInaccessibleMethod($this->getVarnishBackendInstance(), 'getCurlQueueUtility')
+            $this->getVarnishBackendInstance()->_call('getCurlQueueUtility')
         );
     }
 
@@ -164,10 +165,11 @@ class VarnishBackendTest extends UnitTestCase
      */
     public function testExecutePurge()
     {
-        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
-            ->setMethods(['getHmacForSitename', 'getCurlQueueUtility', 'getHostNamesForPurge'])
-            ->disableOriginalConstructor()
-            ->getMock();
+        $varnishBackend = $this->getAccessibleMock(
+            VarnishBackend::class,
+            ['getHmacForSitename', 'getCurlQueueUtility', 'getHostNamesForPurge'],
+            ['testing']
+        );
 
         $varnishBackend
             ->expects(self::once())
@@ -207,7 +209,7 @@ class VarnishBackendTest extends UnitTestCase
             ->method('getCurlQueueUtility')
             ->will($this->returnValue($curlQueueUtility));
 
-        $this->callInaccessibleMethod($varnishBackend, 'executePurge', ['X-Varnish-Purge-All' => 1]);
+        $varnishBackend->_call('executePurge', ['X-Varnish-Purge-All' => 1]);
     }
 
     /**
@@ -366,7 +368,7 @@ class VarnishBackendTest extends UnitTestCase
     {
         self::assertInstanceOf(
             CacheTagsRepository::class,
-            $this->callInaccessibleMethod($this->getVarnishBackendInstance(), 'getCacheTagsRepository')
+            $this->getVarnishBackendInstance()->_call('getCacheTagsRepository')
         );
     }
 
@@ -385,16 +387,17 @@ class VarnishBackendTest extends UnitTestCase
             ->expects(self::once())
             ->method('truncateTable');
 
-        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
-            ->setMethods(['getCacheTagsRepository'])
-            ->disableOriginalConstructor()
-            ->getMock();
+        $varnishBackend = $this->getAccessibleMock(
+            VarnishBackend::class,
+            ['getCacheTagsRepository'],
+            ['testing']
+        );
         $varnishBackend
             ->expects(self::once())
             ->method('getCacheTagsRepository')
             ->will($this->returnValue($cacheTagsRepository));
 
-        $this->callInaccessibleMethod($varnishBackend, 'truncateCacheTagsTable');
+        $varnishBackend->_call('truncateCacheTagsTable');
     }
 
     /**
@@ -413,16 +416,17 @@ class VarnishBackendTest extends UnitTestCase
             ->method('deleteByTag')
             ->with('test_tag');
 
-        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
-            ->setMethods(['getCacheTagsRepository'])
-            ->disableOriginalConstructor()
-            ->getMock();
+        $varnishBackend = $this->getAccessibleMock(
+            VarnishBackend::class,
+            ['getCacheTagsRepository'],
+            ['testing']
+        );
         $varnishBackend
             ->expects(self::once())
             ->method('getCacheTagsRepository')
             ->will($this->returnValue($cacheTagsRepository));
 
-        $this->callInaccessibleMethod($varnishBackend, 'deleteFromCacheTagsTableByTag', 'test_tag');
+        $varnishBackend->_call('deleteFromCacheTagsTableByTag', 'test_tag');
     }
 
     /**
@@ -432,7 +436,7 @@ class VarnishBackendTest extends UnitTestCase
     {
         self::assertInstanceOf(
             Configuration::class,
-            $this->callInaccessibleMethod($this->getVarnishBackendInstance(), 'getConfigurationUtility')
+            $this->getVarnishBackendInstance()->_call('getConfigurationUtility')
         );
     }
 
@@ -441,6 +445,6 @@ class VarnishBackendTest extends UnitTestCase
      */
     private function getVarnishBackendInstance()
     {
-        return new VarnishBackend('Testing');
+        return $this->getAccessibleMock(VarnishBackend::class, ['has'], ['testing']);
     }
 }

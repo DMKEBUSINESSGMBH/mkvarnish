@@ -3,12 +3,11 @@
 namespace DMK\Mkvarnish\Tests\Unit\Repository;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
-use Doctrine\DBAL\Cache\ArrayStatement;
-use Doctrine\DBAL\ForwardCompatibility\Result;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use Doctrine\DBAL\Result;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Expression\ExpressionBuilder;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /***************************************************************
  * Copyright notice
@@ -47,10 +46,13 @@ class CacheTagsRepositoryTest extends UnitTestCase
      */
     public function testGetQueryBuilder()
     {
-        $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getQueryBuilder'])
-            ->getMock();
+        $cacheTagsRepository = $this->getAccessibleMock(
+            CacheTagsRepository::class,
+            ['getQueryBuilder'],
+            [],
+            '',
+            false
+        );
 
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
@@ -63,7 +65,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
 
         self::assertInstanceOf(
             QueryBuilder::class,
-            $this->callInaccessibleMethod($cacheTagsRepository, 'getQueryBuilder')
+            $cacheTagsRepository->_call('getQueryBuilder')
         );
     }
 
@@ -74,7 +76,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['insert', 'values', 'execute'])
+            ->setMethods(['insert', 'values', 'executeQuery'])
             ->getMock();
 
         $queryBuilder
@@ -96,8 +98,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->willReturn($queryBuilder);
         $queryBuilder
             ->expects(self::once())
-            ->method('execute')
-            ->willReturn($queryBuilder);
+            ->method('executeQuery');
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
             ->setMethods(['getQueryBuilder'])
@@ -117,7 +118,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['select', 'from', 'where', 'execute', 'expr', 'createNamedParameter'])
+            ->setMethods(['select', 'from', 'where', 'executeQuery', 'expr', 'createNamedParameter'])
             ->getMock();
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
@@ -155,9 +156,14 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->willReturn($queryBuilder);
 
         $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
+        $resultArray = new \ArrayObject(['test']);
+        $result
+            ->expects(self::once())
+            ->method('iterateAssociative')
+            ->willReturn($resultArray);
         $queryBuilder
             ->expects(self::once())
-            ->method('execute')
+            ->method('executeQuery')
             ->willReturn($result);
 
         $queryBuilder
@@ -174,10 +180,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->method('getQueryBuilder')
             ->will(self::returnValue($queryBuilder));
 
-        self::assertSame(
-            $result,
-            $repository->getByCacheHash('test_hash')
-        );
+        self::assertSame($resultArray, $repository->getByCacheHash('test_hash'));
     }
 
     /**
@@ -187,7 +190,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['delete', 'where', 'execute', 'expr', 'createNamedParameter'])
+            ->setMethods(['delete', 'where', 'executeQuery', 'expr', 'createNamedParameter'])
             ->getMock();
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
@@ -220,8 +223,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
 
         $queryBuilder
             ->expects(self::once())
-            ->method('execute')
-            ->willReturn(1);
+            ->method('executeQuery');
 
         $queryBuilder
             ->expects(self::once())
@@ -284,7 +286,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['select', 'from', 'where', 'execute', 'expr', 'createNamedParameter'])
+            ->onlyMethods(['select', 'from', 'where', 'executeQuery', 'expr', 'createNamedParameter'])
             ->getMock();
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
@@ -322,9 +324,14 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->willReturn($queryBuilder);
 
         $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
+        $resultArray = new \ArrayObject(['test']);
+        $result
+            ->expects(self::once())
+            ->method('iterateAssociative')
+            ->willReturn($resultArray);
         $queryBuilder
             ->expects(self::once())
-            ->method('execute')
+            ->method('executeQuery')
             ->willReturn($result);
 
         $queryBuilder
@@ -341,10 +348,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->method('getQueryBuilder')
             ->will(self::returnValue($queryBuilder));
 
-        self::assertSame(
-            $result,
-            $repository->getByTag('test_tag')
-        );
+        self::assertSame($resultArray, $repository->getByTag('test_tag'));
     }
 
     /**
@@ -359,10 +363,10 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->expects(self::once())
             ->method('getByTag')
             ->with('test_tag')
-            ->willReturn(new Result(new ArrayStatement([
+            ->willReturn(new \ArrayObject([
                 0 => ['cache_hash' => 123],
                 1 => ['cache_hash' => 456],
-            ])));
+            ]));
 
         $repository
             ->expects(self::exactly(2))

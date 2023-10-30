@@ -80,6 +80,8 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     public function has($entryIdentifier)
     {
         $this->throwExceptionIfNotImplemented();
+
+        return true;
     }
 
     /**
@@ -90,6 +92,8 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     public function remove($entryIdentifier)
     {
         $this->throwExceptionIfNotImplemented();
+
+        return true;
     }
 
     /**
@@ -100,6 +104,8 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     public function findIdentifiersByTag($tag)
     {
         $this->throwExceptionIfNotImplemented();
+
+        return [];
     }
 
     /**

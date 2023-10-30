@@ -5,11 +5,9 @@ namespace DMK\Mkvarnish\Tests\Unit\Utility;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use DMK\Mkvarnish\Utility\Configuration;
 use DMK\Mkvarnish\Utility\Headers;
-use Doctrine\DBAL\Cache\ArrayStatement;
-use Doctrine\DBAL\ForwardCompatibility\Result;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /***************************************************************
  * Copyright notice
@@ -68,7 +66,7 @@ class HeadersTest extends UnitTestCase
     public function testGetWithoutVarnish()
     {
         $configuration = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->onlyMethods(['isSendCacheHeadersEnabled'])
             ->getMock();
         $configuration->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(false));
         $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
@@ -94,7 +92,7 @@ class HeadersTest extends UnitTestCase
     public function testGetBehindVarnish()
     {
         $configuration = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->onlyMethods(['isSendCacheHeadersEnabled'])
             ->getMock();
         $configuration->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
         $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
@@ -109,7 +107,7 @@ class HeadersTest extends UnitTestCase
         $tsfe->config['INTincScript'] = ['one', 'two'];
 
         $headersUtility = $this->getMockBuilder(Headers::class)
-            ->setMethods(['getTsFe', 'getHeadersForCacheTags', 'getHmacForSitename'])
+            ->onlyMethods(['getTsFe', 'getHeadersForCacheTags', 'getHmacForSitename'])
             ->setConstructorArgs([$cacheTagsRepository, $configuration])
             ->getMock();
 
@@ -153,7 +151,7 @@ class HeadersTest extends UnitTestCase
         }
 
         $configuration = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->onlyMethods(['isSendCacheHeadersEnabled'])
             ->getMock();
         $configuration->expects($this->once())->method('isSendCacheHeadersEnabled')->will($this->returnValue(true));
         $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
@@ -182,19 +180,22 @@ class HeadersTest extends UnitTestCase
     public function testGetHeadersForCacheTagsIfCacheTagsPresent()
     {
         $tsfe = $this->getMockBuilder(TypoScriptFrontendController::class)
-            ->setMethods(['determineId'])
+            ->onlyMethods(['determineId'])
             ->disableOriginalConstructor()
             ->getMock();
         $tsfe->newHash = 123;
         $tsfe->addCacheTags(['tag1', 'tag2', 'tag2']);
 
-        $headersUtility = $this->getMockBuilder(Headers::class)
-            ->setMethods(['getTsFe', 'saveCacheTagsByCacheHash'])
-            ->disableOriginalConstructor()
-            ->getMock();
+        $headersUtility = $this->getAccessibleMock(
+            Headers::class,
+            ['getTsFe', 'saveCacheTagsByCacheHash'],
+            [],
+            '',
+            false
+        );
         $headersUtility->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
         $headersUtility->expects($this->once())->method('saveCacheTagsByCacheHash')->with(['tag1', 'tag2'], 123);
-        $headers = $this->callInaccessibleMethod($headersUtility, 'getHeadersForCacheTags');
+        $headers = $headersUtility->_call('getHeadersForCacheTags');
 
         $this->assertTrue(is_array($headers));
         $this->assertCount(1, $headers);
@@ -211,14 +212,17 @@ class HeadersTest extends UnitTestCase
     public function testGetHeadersForCacheTagsIfCacheTagsNotPresent()
     {
         $tsfe = $this->getMockBuilder(TypoScriptFrontendController::class)
-            ->setMethods(['determineId'])
+            ->onlyMethods(['determineId'])
             ->disableOriginalConstructor()
             ->getMock();
         $tsfe->newHash = 123;
-        $headersUtility = $this->getMockBuilder(Headers::class)
-            ->setMethods(['getTsFe', 'getCacheTagsByCacheHash'])
-            ->disableOriginalConstructor()
-            ->getMock();
+        $headersUtility = $this->getAccessibleMock(
+            Headers::class,
+            ['getTsFe', 'getCacheTagsByCacheHash'],
+            [],
+            '',
+            false
+        );
         $headersUtility->expects($this->any())->method('getTsFe')->will($this->returnValue($tsfe));
         $headersUtility
             ->expects(self::once())
@@ -226,7 +230,7 @@ class HeadersTest extends UnitTestCase
             ->with(123)
             ->will(self::returnValue(['tag1', 'tag2']));
 
-        $headers = $this->callInaccessibleMethod($headersUtility, 'getHeadersForCacheTags');
+        $headers = $headersUtility->_call('getHeadersForCacheTags');
 
         $this->assertTrue(is_array($headers));
         $this->assertCount(1, $headers);
@@ -244,7 +248,7 @@ class HeadersTest extends UnitTestCase
     {
         $configuration = $this->getMockBuilder(Configuration::class)->getMock();
         $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['insertByTagAndCacheHash', 'deleteByCacheHash'])
+            ->onlyMethods(['insertByTagAndCacheHash', 'deleteByCacheHash'])
             ->getMock();
 
         $cacheTagsRepository
@@ -257,8 +261,12 @@ class HeadersTest extends UnitTestCase
             ->method('insertByTagAndCacheHash')
             ->withConsecutive(['tag_1', 123], ['tag_2', 123]);
 
-        $headersUtility = new Headers($cacheTagsRepository, $configuration);
-        $this->callInaccessibleMethod($headersUtility, 'saveCacheTagsByCacheHash', ['tag_1', 'tag_2'], 123);
+        $headersUtility = $this->getAccessibleMock(
+            Headers::class,
+            ['getHmacForSitename'],
+            [$cacheTagsRepository, $configuration]
+        );
+        $headersUtility->_call('saveCacheTagsByCacheHash', ['tag_1', 'tag_2'], '123');
     }
 
     /**
@@ -270,23 +278,27 @@ class HeadersTest extends UnitTestCase
     {
         $configuration = $this->getMockBuilder(Configuration::class)->getMock();
         $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getByCacheHash'])
+            ->onlyMethods(['getByCacheHash'])
             ->getMock();
 
         $cacheTagsRepository
             ->expects(self::once())
             ->method('getByCacheHash')
             ->with(123)
-            ->will(self::returnValue(new Result(new ArrayStatement([
+            ->willReturn(new \ArrayObject([
                 0 => ['cache_hash' => 123, 'tag' => 'tag_1'],
                 1 => ['cache_hash' => 123, 'tag' => 'tag_2'],
-            ]))));
+            ]));
 
-        $headersUtility = new Headers($cacheTagsRepository, $configuration);
+        $headersUtility = $this->getAccessibleMock(
+            Headers::class,
+            ['getHmacForSitename'],
+            [$cacheTagsRepository, $configuration]
+        );
 
         self::assertEquals(
             ['tag_1', 'tag_2'],
-            $this->callInaccessibleMethod($headersUtility, 'getCacheTagsByCacheHash', 123)
+            $headersUtility->_call('getCacheTagsByCacheHash', '123')
         );
     }
 
@@ -298,29 +310,32 @@ class HeadersTest extends UnitTestCase
     public function testGetCurrentCacheHash()
     {
         $pageArguments = $this->getMockBuilder(PageArguments::class)
-            ->setMethods(['dummy'])
+            ->addMethods(['dummy'])
             ->setConstructorArgs([123, '', ['cHash' => 123]])
             ->getMock();
         $tsfe = $this->getMockBuilder(TypoScriptFrontendController::class)
-            ->setMethods(['determineId', 'getPageArguments'])
+            ->onlyMethods(['determineId', 'getPageArguments'])
             ->disableOriginalConstructor()
             ->getMock();
         $tsfe
             ->expects($this->any())
             ->method('getPageArguments')
             ->will($this->returnValue($pageArguments));
-        $headersUtility = $this->getMockBuilder(Headers::class)
-            ->setMethods(['getTsFe', 'getCacheTagsByCacheHash'])
-            ->disableOriginalConstructor()
-            ->getMock();
+        $headersUtility = $this->getAccessibleMock(
+            Headers::class,
+            ['getTsFe', 'getCacheTagsByCacheHash'],
+            [],
+            '',
+            false
+        );
         $headersUtility
             ->expects($this->any())
             ->method('getTsFe')
             ->will($this->returnValue($tsfe));
 
-        self::assertEquals(123, $this->callInaccessibleMethod($headersUtility, 'getCurrentCacheHash'));
+        self::assertEquals(123, $headersUtility->_call('getCurrentCacheHash'));
 
         $tsfe->newHash = 456;
-        self::assertEquals(456, $this->callInaccessibleMethod($headersUtility, 'getCurrentCacheHash'));
+        self::assertEquals(456, $headersUtility->_call('getCurrentCacheHash'));
     }
 }

@@ -4,10 +4,10 @@ namespace DMK\Mkvarnish\Tests\Unit\Middleware;
 
 use DMK\Mkvarnish\Middleware\VarnishHeadersMiddleware;
 use DMK\Mkvarnish\Utility\Headers;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Frontend\Http\RequestHandler;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /***************************************************************
  * Copyright notice

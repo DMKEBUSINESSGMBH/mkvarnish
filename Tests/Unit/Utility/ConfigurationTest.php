@@ -26,7 +26,7 @@ namespace DMK\Mkvarnish\Tests\Unit\Utility;
  ***************************************************************/
 
 use DMK\Mkvarnish\Utility\Configuration;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
  * This class communicates with the varnish server.
@@ -67,19 +67,17 @@ class ConfigurationTest extends UnitTestCase
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['my_key' => 'my_value'];
 
-        $mock = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['dummy'])
-            ->getMock();
+        $mock = $this->getAccessibleMock(Configuration::class, ['isRevProxy']);
 
         // should return right value
         $this->assertEquals(
             'my_value',
-            $this->callInaccessibleMethod($mock, 'getExtConfValue', 'my_key')
+            $mock->_call('getExtConfValue', 'my_key')
         );
         // should return null if there is no value
         $this->assertEquals(
             null,
-            $this->callInaccessibleMethod($mock, 'getExtConfValue', 'no_key')
+            $mock->_call('getExtConfValue', 'no_key')
         );
     }
 

@@ -68,6 +68,9 @@ class Headers
         return $headers;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
     protected function isLiveWorkspace(): bool
     {
         return ($GLOBALS['BE_USER']->workspace ?? 0) == 0;
@@ -87,6 +90,9 @@ class Headers
         return $headers;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ElseExpression)
+     */
     protected function getHeadersForCacheTags(): array
     {
         $tsfe = $this->getTsFe();
@@ -111,6 +117,9 @@ class Headers
         return $headers;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
     protected function getTsFe(): TypoScriptFrontendController
     {
         return $GLOBALS['TSFE'];
@@ -142,7 +151,7 @@ class Headers
      */
     protected function getHmacForSitename()
     {
-        $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
+        $configurationUtility = new Configuration();
 
         return $configurationUtility->getHmacForSitename();
     }

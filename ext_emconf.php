@@ -26,7 +26,7 @@ $EM_CONF['mkvarnish'] = [
     'lockType' => '',
     'constraints' => [
         'depends' => [
-            'typo3' => '10.4.25-11.5.99',
+            'typo3' => '11.5.7-12.4.99',
         ],
         'conflicts' => [],
         'suggests' => [],

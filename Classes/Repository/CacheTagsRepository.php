@@ -2,7 +2,6 @@
 
 namespace DMK\Mkvarnish\Repository;
 
-use Doctrine\DBAL\ForwardCompatibility\Result;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -52,10 +51,10 @@ class CacheTagsRepository
                 'tag' => $tag,
                 'cache_hash' => $cacheHash,
             ])
-            ->execute();
+            ->executeQuery();
     }
 
-    public function getByCacheHash(string $cacheHash): Result
+    public function getByCacheHash(string $cacheHash): \Traversable
     {
         $queryBuilder = $this->getQueryBuilder();
 
@@ -64,7 +63,8 @@ class CacheTagsRepository
             ->where(
                 $queryBuilder->expr()->eq('cache_hash', $queryBuilder->createNamedParameter($cacheHash))
             )
-            ->execute();
+            ->executeQuery()
+            ->iterateAssociative();
     }
 
     public function deleteByCacheHash(string $cacheHash): void
@@ -74,7 +74,7 @@ class CacheTagsRepository
             ->where(
                 $queryBuilder->expr()->eq('cache_hash', $queryBuilder->createNamedParameter($cacheHash))
             )
-            ->execute();
+            ->executeQuery();
     }
 
     /**
@@ -97,7 +97,7 @@ class CacheTagsRepository
         }
     }
 
-    public function getByTag(string $tag): Result
+    public function getByTag(string $tag): \Traversable
     {
         $queryBuilder = $this->getQueryBuilder();
 
@@ -106,7 +106,8 @@ class CacheTagsRepository
             ->where(
                 $queryBuilder->expr()->eq('tag', $queryBuilder->createNamedParameter($tag))
             )
-            ->execute();
+            ->executeQuery()
+            ->iterateAssociative();
     }
 
     protected function getQueryBuilder(): QueryBuilder
