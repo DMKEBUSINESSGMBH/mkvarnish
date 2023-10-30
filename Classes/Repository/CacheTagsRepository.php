@@ -51,7 +51,7 @@ class CacheTagsRepository
                 'tag' => $tag,
                 'cache_hash' => $cacheHash,
             ])
-            ->executeQuery();
+            ->executeStatement  ();
     }
 
     public function getByCacheHash(string $cacheHash): \Traversable
@@ -74,7 +74,7 @@ class CacheTagsRepository
             ->where(
                 $queryBuilder->expr()->eq('cache_hash', $queryBuilder->createNamedParameter($cacheHash))
             )
-            ->executeQuery();
+            ->executeStatement();
     }
 
     /**

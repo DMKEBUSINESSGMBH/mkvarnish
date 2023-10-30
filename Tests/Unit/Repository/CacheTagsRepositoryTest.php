@@ -76,7 +76,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['insert', 'values', 'executeQuery'])
+            ->setMethods(['insert', 'values', 'executeStatement'])
             ->getMock();
 
         $queryBuilder
@@ -98,7 +98,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->willReturn($queryBuilder);
         $queryBuilder
             ->expects(self::once())
-            ->method('executeQuery');
+            ->method('executeStatement');
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
             ->setMethods(['getQueryBuilder'])
@@ -190,7 +190,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['delete', 'where', 'executeQuery', 'expr', 'createNamedParameter'])
+            ->setMethods(['delete', 'where', 'executeStatement', 'expr', 'createNamedParameter'])
             ->getMock();
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
@@ -223,7 +223,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
 
         $queryBuilder
             ->expects(self::once())
-            ->method('executeQuery');
+            ->method('executeStatement');
 
         $queryBuilder
             ->expects(self::once())
