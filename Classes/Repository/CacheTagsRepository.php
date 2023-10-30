@@ -51,7 +51,7 @@ class CacheTagsRepository
                 'tag' => $tag,
                 'cache_hash' => $cacheHash,
             ])
-            ->executeStatement  ();
+            ->executeStatement();
     }
 
     public function getByCacheHash(string $cacheHash): \Traversable
