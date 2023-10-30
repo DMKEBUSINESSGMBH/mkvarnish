@@ -7,3 +7,8 @@ parameters:
         - %currentWorkingDirectory%/ext_localconf.php
         - %currentWorkingDirectory%/ext_emconf.php
     reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        -
+            message: "#^Property DMK\\\\Mkvarnish\\\\Utility\\\\CurlQueue\\:\\:\\$curlQueue has unknown class CurlMultiHandle as its type\\.$#"
+            count: 1
+            path: Classes/Utility/CurlQueue.php
