@@ -441,7 +441,7 @@ class VarnishBackendTest extends UnitTestCase
     }
 
     /**
-     * @return \DMK\Mkvarnish\Cache\VarnishBackend
+     * @return VarnishBackend
      */
     private function getVarnishBackendInstance()
     {
