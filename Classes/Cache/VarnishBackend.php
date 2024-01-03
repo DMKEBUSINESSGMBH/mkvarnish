@@ -172,7 +172,7 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * @return \DMK\Mkvarnish\Utility\CurlQueue
+     * @return CurlQueue
      */
     protected function getCurlQueueUtility()
     {
@@ -188,7 +188,7 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * @return \DMK\Mkvarnish\Utility\Configuration
+     * @return Configuration
      */
     protected function getConfigurationUtility()
     {
@@ -214,7 +214,7 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * @return \DMK\Mkvarnish\Repository\CacheTagsRepository
+     * @return CacheTagsRepository
      */
     protected function getCacheTagsRepository()
     {
