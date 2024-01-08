@@ -25,7 +25,7 @@
 return [
     'frontend' => [
         'dmk/mkvarnish/set-varnish-headers' => [
-            'target' => \DMK\Mkvarnish\Middleware\VarnishHeadersMiddleware::class,
+            'target' => DMK\Mkvarnish\Middleware\VarnishHeadersMiddleware::class,
             'after' => [
                 'typo3/cms-frontend/tsfe',
             ],

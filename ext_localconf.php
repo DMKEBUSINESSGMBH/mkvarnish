@@ -26,13 +26,13 @@ defined('TYPO3') || exit('Access denied.');
 
 call_user_func(
     function () {
-        $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
+        $configurationUtility = new DMK\Mkvarnish\Utility\Configuration();
         $typoScriptSetup = '';
         if ($configurationUtility->isSendCacheHeadersEnabled()) {
             $typoScriptSetup .= 'config.sendCacheHeaders = 1';
         }
 
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
+        TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
             'varnish',
             'setup',
             $typoScriptSetup,
@@ -41,8 +41,8 @@ call_user_func(
 
         if ($configurationUtility->isSendCacheHeadersEnabled()) {
             $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['varnish'] = [
-                'backend' => \DMK\Mkvarnish\Cache\VarnishBackend::class,
-                'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
+                'backend' => DMK\Mkvarnish\Cache\VarnishBackend::class,
+                'frontend' => TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
                 'groups' => ['pages', 'all'],
             ];
         }
