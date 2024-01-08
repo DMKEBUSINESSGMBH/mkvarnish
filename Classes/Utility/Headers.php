@@ -142,7 +142,7 @@ class Headers
      */
     protected function getHmacForSitename()
     {
-        $configurationUtility = new \DMK\Mkvarnish\Utility\Configuration();
+        $configurationUtility = new Configuration();
 
         return $configurationUtility->getHmacForSitename();
     }
