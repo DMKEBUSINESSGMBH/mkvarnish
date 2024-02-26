@@ -1,6 +1,6 @@
 <?php
 
-namespace DMK\Mkvarnish\Tests\Unit\Hooks;
+namespace DMK\Mkvarnish\Tests\Unit\Cache;
 
 use DMK\Mkvarnish\Cache\VarnishBackend;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
@@ -50,10 +50,17 @@ class VarnishBackendTest extends UnitTestCase
      */
     private $extConfBackup = [];
 
+    /**
+     * @var string
+     */
+    private $encryptionKeyBackup;
+
     protected function setUp(): void
     {
         $this->siteNameBackup = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'];
         $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] ?? [];
+        $this->encryptionKeyBackup = $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] ?? '';
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] = 'testKey';
         parent::setUp();
     }
 
@@ -61,6 +68,7 @@ class VarnishBackendTest extends UnitTestCase
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = $this->siteNameBackup;
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = $this->extConfBackup;
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']  = $this->encryptionKeyBackup;
         parent::tearDown();
     }
 
