@@ -68,7 +68,7 @@ class VarnishBackendTest extends UnitTestCase
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = $this->siteNameBackup;
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = $this->extConfBackup;
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']  = $this->encryptionKeyBackup;
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] = $this->encryptionKeyBackup;
         parent::tearDown();
     }
 
