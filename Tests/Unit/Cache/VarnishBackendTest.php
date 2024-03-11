@@ -50,12 +50,19 @@ class VarnishBackendTest extends UnitTestCase
      */
     private $extConfBackup = [];
 
+    /**
+     * @var string|null
+     */
+    private $encryptionKeyBackup;
+
     protected bool $resetSingletonInstances = true;
 
     protected function setUp(): void
     {
         $this->siteNameBackup = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'];
         $this->extConfBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] ?? [];
+        $this->encryptionKeyBackup = $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] ?? [];
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] = 'test';
         parent::setUp();
     }
 
@@ -63,6 +70,7 @@ class VarnishBackendTest extends UnitTestCase
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = $this->siteNameBackup;
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = $this->extConfBackup;
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] = $this->encryptionKeyBackup;
         parent::tearDown();
     }
 
