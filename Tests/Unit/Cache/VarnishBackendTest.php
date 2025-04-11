@@ -1,11 +1,37 @@
 <?php
 
-namespace DMK\Mkvarnish\Tests\Unit\Hooks;
+/*
+ * Copyright notice
+ *
+ * (c) DMK E-BUSINESS GmbH <dev@dmk-ebusiness.de>
+ * All rights reserved
+ *
+ * This file is part of the "mklog" Extension for TYPO3 CMS.
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GNU Lesser General Public License can be found at
+ * www.gnu.org/licenses/lgpl.html
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ */
+
+namespace DMK\Mkvarnish\Tests\Unit\Cache;
 
 use DMK\Mkvarnish\Cache\VarnishBackend;
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
 use DMK\Mkvarnish\Utility\Configuration;
 use DMK\Mkvarnish\Utility\CurlQueue;
+use PHPUnit\Framework\Attributes\DataProvider;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /***************************************************************
@@ -43,17 +69,17 @@ class VarnishBackendTest extends UnitTestCase
     /**
      * @var string
      */
-    private $siteNameBackup;
+    private mixed $siteNameBackup;
 
     /**
      * @var array
      */
-    private $extConfBackup = [];
+    private mixed $extConfBackup = [];
 
     /**
      * @var string|null
      */
-    private $encryptionKeyBackup;
+    private mixed $encryptionKeyBackup;
 
     protected bool $resetSingletonInstances = true;
 
@@ -74,7 +100,7 @@ class VarnishBackendTest extends UnitTestCase
         parent::tearDown();
     }
 
-    public function testThrowExceptionIfNotImplemented()
+    public function testThrowExceptionIfNotImplemented(): void
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('the varnish cache backend can only remove cache entries by tags or the complete cache at the moment');
@@ -84,10 +110,11 @@ class VarnishBackendTest extends UnitTestCase
     /**
      * @dataProvider dataProviderUnimplementedMethods
      */
-    public function testUnimplementedMethods($method, array $arguments)
+    #[DataProvider('dataProviderUnimplementedMethods')]
+    public function testUnimplementedMethods(string $method, array $arguments): void
     {
         $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
-            ->setMethods(['throwExceptionIfNotImplemented'])
+            ->onlyMethods(['throwExceptionIfNotImplemented'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -101,7 +128,7 @@ class VarnishBackendTest extends UnitTestCase
     /**
      * @return string[][]|string[][][]
      */
-    public static function dataProviderUnimplementedMethods()
+    public static function dataProviderUnimplementedMethods(): array
     {
         return [
             'method set, line: '.__LINE__ => ['set', ['test', []]],
@@ -112,10 +139,7 @@ class VarnishBackendTest extends UnitTestCase
         ];
     }
 
-    /**
-     * @return void
-     */
-    public function testGetHmacForSitename()
+    public function testGetHmacForSitename(): void
     {
         $varnishBackend = $this->getVarnishBackendInstance();
         $firstHmac = $varnishBackend->_call('getHmacForSitename');
@@ -130,10 +154,7 @@ class VarnishBackendTest extends UnitTestCase
         self::assertNotSame($firstHmac, $hmacAfterSiteNameChanged, 'hmac for different site names is not different');
     }
 
-    /**
-     * @return void
-     */
-    public function testConvertCacheTagForPurge()
+    public function testConvertCacheTagForPurge(): void
     {
         $convertedCacheTagForPurge = $this->getVarnishBackendInstance()->_call(
             'convertCacheTagForPurge',
@@ -143,10 +164,7 @@ class VarnishBackendTest extends UnitTestCase
         self::assertEquals('(tt_content_5)(,.+)?$', $convertedCacheTagForPurge);
     }
 
-    /**
-     * @return void
-     */
-    public function testGetHostNamesForPurge()
+    public function testGetHostNamesForPurge(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish']['hostnames'] = '127.0.0.1';
         $varnishBackend = $this->getVarnishBackendInstance();
@@ -157,10 +175,7 @@ class VarnishBackendTest extends UnitTestCase
         );
     }
 
-    /**
-     * @return void
-     */
-    public function testGetCurlQueueUtility()
+    public function testGetCurlQueueUtility(): void
     {
         self::assertInstanceOf(
             CurlQueue::class,
@@ -168,10 +183,7 @@ class VarnishBackendTest extends UnitTestCase
         );
     }
 
-    /**
-     * @return void
-     */
-    public function testExecutePurge()
+    public function testExecutePurge(): void
     {
         $varnishBackend = $this->getAccessibleMock(
             VarnishBackend::class,
@@ -182,66 +194,78 @@ class VarnishBackendTest extends UnitTestCase
         $varnishBackend
             ->expects(self::once())
             ->method('getHmacForSitename')
-            ->will($this->returnValue('abc123'));
+            ->willReturn('abc123');
 
         $varnishBackend
             ->expects(self::once())
             ->method('getHostNamesForPurge')
-            ->will($this->returnValue(['firstHost', 'secondHost']));
+            ->willReturn(['firstHost', 'secondHost']);
 
         $curlQueueUtility = $this->getMockBuilder(CurlQueue::class)
-            ->setMethods(['addCommand'])
+            ->onlyMethods(['addCommand'])
             ->getMock();
+
+        $matcher = self::exactly(2);
         $curlQueueUtility
-            ->expects(self::exactly(2))
+            ->expects($matcher)
             ->method('addCommand')
-            ->withConsecutive(
-                [
-                    'PURGE',
-                    'firstHost',
-                    ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123'],
-                ],
-                [
-                    'PURGE',
-                    'secondHost',
-                    ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123'],
-                ]
+            ->with(
+                'PURGE',
+                $this->callback(function (string $host) use ($matcher): bool {
+                    self::assertSame(
+                        match ($matcher->numberOfInvocations()) {
+                            1 => 'firstHost',
+                            2 => 'secondHost',
+                        },
+                        $host
+                    );
+
+                    return true;
+                }),
+                $this->callback(function (array $headers) use ($matcher): bool {
+                    self::assertSame(
+                        match ($matcher->numberOfInvocations()) {
+                            1 => ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123'],
+                            2 => ['X-Varnish-Purge-All: 1', 'X-TYPO3-Sitename: abc123'],
+                        },
+                        $headers
+                    );
+
+                    return true;
+                }),
             )
             ->willReturnOnConsecutiveCalls(
-                $this->returnValue($curlQueueUtility),
-                $this->returnValue($curlQueueUtility)
+                $curlQueueUtility,
+                $curlQueueUtility
             );
 
         $varnishBackend
             ->expects(self::once())
             ->method('getCurlQueueUtility')
-            ->will($this->returnValue($curlQueueUtility));
+            ->willReturn($curlQueueUtility);
 
         $varnishBackend->_call('executePurge', ['X-Varnish-Purge-All' => 1]);
     }
 
-    /**
-     * @return void
-     */
-    public function testFlush()
+    public function testFlush(): void
     {
         $configurationUtility = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->onlyMethods(['isSendCacheHeadersEnabled'])
             ->getMock();
         $configurationUtility
             ->expects(self::once())
             ->method('isSendCacheHeadersEnabled')
-            ->will(self::returnValue(true));
+            ->willReturn(true);
 
         $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
-            ->setMethods(['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'])
+            ->onlyMethods(['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $varnishBackend
             ->expects(self::once())
             ->method('getConfigurationUtility')
-            ->will(self::returnValue($configurationUtility));
+            ->willReturn($configurationUtility);
 
         $varnishBackend
             ->expects(self::once())
@@ -255,28 +279,25 @@ class VarnishBackendTest extends UnitTestCase
         $varnishBackend->flush();
     }
 
-    /**
-     * @return void
-     */
-    public function testFlushWhenNotSendCacheHeaderEnabled()
+    public function testFlushWhenNotSendCacheHeaderEnabled(): void
     {
         $configurationUtility = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->onlyMethods(['isSendCacheHeadersEnabled'])
             ->getMock();
         $configurationUtility
             ->expects(self::once())
             ->method('isSendCacheHeadersEnabled')
-            ->will(self::returnValue(false));
+            ->willReturn(false);
 
         $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
-            ->setMethods(['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'])
+            ->onlyMethods(['executePurge', 'truncateCacheTagsTable', 'getConfigurationUtility'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $varnishBackend
             ->expects(self::once())
             ->method('getConfigurationUtility')
-            ->will(self::returnValue($configurationUtility));
+            ->willReturn($configurationUtility);
 
         $varnishBackend
             ->expects(self::never())
@@ -289,34 +310,31 @@ class VarnishBackendTest extends UnitTestCase
         $varnishBackend->flush();
     }
 
-    /**
-     * @return void
-     */
-    public function testFlushByTag()
+    public function testFlushByTag(): void
     {
         $configurationUtility = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->onlyMethods(['isSendCacheHeadersEnabled'])
             ->getMock();
         $configurationUtility
             ->expects(self::once())
             ->method('isSendCacheHeadersEnabled')
-            ->will(self::returnValue(true));
+            ->willReturn(true);
 
         $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
-            ->setMethods(['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'])
+            ->onlyMethods(['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $varnishBackend
             ->expects(self::once())
             ->method('getConfigurationUtility')
-            ->will(self::returnValue($configurationUtility));
+            ->willReturn($configurationUtility);
 
         $varnishBackend
             ->expects(self::once())
             ->method('convertCacheTagForPurge')
             ->with('testTag')
-            ->will($this->returnValue('convertedTag'));
+            ->willReturn('convertedTag');
 
         $varnishBackend
             ->expects(self::once())
@@ -331,28 +349,25 @@ class VarnishBackendTest extends UnitTestCase
         $varnishBackend->flushByTag('testTag');
     }
 
-    /**
-     * @return void
-     */
-    public function testFlushByTagWhenNotSendCacheHeaderEnabled()
+    public function testFlushByTagWhenNotSendCacheHeaderEnabled(): void
     {
         $configurationUtility = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isSendCacheHeadersEnabled'])
+            ->onlyMethods(['isSendCacheHeadersEnabled'])
             ->getMock();
         $configurationUtility
             ->expects(self::once())
             ->method('isSendCacheHeadersEnabled')
-            ->will(self::returnValue(false));
+            ->willReturn(false);
 
         $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
-            ->setMethods(['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'])
+            ->onlyMethods(['executePurge', 'convertCacheTagForPurge', 'deleteFromCacheTagsTableByTag', 'getConfigurationUtility'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $varnishBackend
             ->expects(self::once())
             ->method('getConfigurationUtility')
-            ->will(self::returnValue($configurationUtility));
+            ->willReturn($configurationUtility);
 
         $varnishBackend
             ->expects(self::never())
@@ -369,10 +384,7 @@ class VarnishBackendTest extends UnitTestCase
         $varnishBackend->flushByTag('testTag');
     }
 
-    /**
-     * @group unit
-     */
-    public function testGetCacheTagsRepository()
+    public function testGetCacheTagsRepository(): void
     {
         self::assertInstanceOf(
             CacheTagsRepository::class,
@@ -380,15 +392,10 @@ class VarnishBackendTest extends UnitTestCase
         );
     }
 
-    /**
-     * @return void
-     *
-     * @test
-     */
-    public function testTruncateCacheTagsTable()
+    public function testTruncateCacheTagsTable(): void
     {
         $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['truncateTable'])
+            ->onlyMethods(['truncateTable'])
             ->getMock();
 
         $cacheTagsRepository
@@ -403,20 +410,15 @@ class VarnishBackendTest extends UnitTestCase
         $varnishBackend
             ->expects(self::once())
             ->method('getCacheTagsRepository')
-            ->will($this->returnValue($cacheTagsRepository));
+            ->willReturn($cacheTagsRepository);
 
         $varnishBackend->_call('truncateCacheTagsTable');
     }
 
-    /**
-     * @return void
-     *
-     * @test
-     */
-    public function testDeleteFromCacheTagsTableByTag()
+    public function testDeleteFromCacheTagsTableByTag(): void
     {
         $cacheTagsRepository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['deleteByTag'])
+            ->onlyMethods(['deleteByTag'])
             ->getMock();
 
         $cacheTagsRepository
@@ -432,15 +434,12 @@ class VarnishBackendTest extends UnitTestCase
         $varnishBackend
             ->expects(self::once())
             ->method('getCacheTagsRepository')
-            ->will($this->returnValue($cacheTagsRepository));
+            ->willReturn($cacheTagsRepository);
 
         $varnishBackend->_call('deleteFromCacheTagsTableByTag', 'test_tag');
     }
 
-    /**
-     * @group unit
-     */
-    public function testGetConfigurationUtility()
+    public function testGetConfigurationUtility(): void
     {
         self::assertInstanceOf(
             Configuration::class,

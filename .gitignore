@@ -2,5 +2,4 @@
 /.project
 /.settings
 /.buildpath
-.php-cs-fixer.cache
 /composer.lock

@@ -1,8 +1,36 @@
 <?php
 
+/*
+ * Copyright notice
+ *
+ * (c) DMK E-BUSINESS GmbH <dev@dmk-ebusiness.de>
+ * All rights reserved
+ *
+ * This file is part of the "mklog" Extension for TYPO3 CMS.
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GNU Lesser General Public License can be found at
+ * www.gnu.org/licenses/lgpl.html
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ */
+
 namespace DMK\Mkvarnish\Utility;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Cache\CacheTag;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -39,37 +67,23 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  */
 class Headers
 {
-    /**
-     * @var CacheTagsRepository
-     */
-    protected $cacheTagsRepository;
-
-    /**
-     * @var Configuration
-     */
-    protected $configuration;
-
     public function __construct(
-        CacheTagsRepository $cacheTagsRepository,
-        Configuration $configuration
+        protected CacheTagsRepository $cacheTagsRepository,
+        protected Configuration $configuration,
     ) {
-        $this->cacheTagsRepository = $cacheTagsRepository;
-        $this->configuration = $configuration;
     }
 
     public function get(): array
     {
-        $headers = [];
-
         if ($this->configuration->isSendCacheHeadersEnabled() && $this->isLiveWorkspace()) {
-            $headers = $this->getHeadersForVarnish();
+            return $this->getHeadersForVarnish();
         }
 
-        return $headers;
+        return [];
     }
 
     /**
-     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings("PHPMD.Superglobals")
      */
     protected function isLiveWorkspace(): bool
     {
@@ -91,13 +105,11 @@ class Headers
     }
 
     /**
-     * @SuppressWarnings(PHPMD.ElseExpression)
+     * @SuppressWarnings("PHPMD.ElseExpression")
      */
     protected function getHeadersForCacheTags(): array
     {
-        $tsfe = $this->getTsFe();
-
-        $cacheTags = array_unique($tsfe->getPageCacheTags());
+        $cacheTags = array_unique($this->getPageCacheTags());
 
         // When the page content is delivered from the TYPO3 cache the
         // cache tags won't be present anymore. That's why we save them
@@ -107,18 +119,34 @@ class Headers
         // a logged in FE user makes the first request, the page is not
         // cacheable by Varnish. On subsequent requests the page would
         // still not be cacheable because of missing cache tags.
-        if (empty($cacheTags)) {
+        if ([] === $cacheTags) {
             $cacheTags = $this->getCacheTagsByCacheHash($this->getCurrentCacheHash());
         } else {
             $this->saveCacheTagsByCacheHash($cacheTags, $this->getCurrentCacheHash());
         }
+
         $headers['X-Cache-Tags'] = implode(',', $cacheTags);
 
         return $headers;
     }
 
     /**
-     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings("PHPMD.Superglobals")
+     */
+    protected function getPageCacheTags(): array
+    {
+        if ((new Typo3Version())->getMajorVersion() < 13) {
+            return $this->getTsFe()->getPageCacheTags();
+        }
+
+        return array_map(
+            fn (CacheTag $cacheTag): string => $cacheTag->name,
+            $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.cache.collector')->getCacheTags()
+        );
+    }
+
+    /**
+     * @SuppressWarnings("PHPMD.Superglobals")
      */
     protected function getTsFe(): TypoScriptFrontendController
     {
@@ -146,10 +174,7 @@ class Headers
         return $cacheTags;
     }
 
-    /**
-     * @return mixed
-     */
-    protected function getHmacForSitename()
+    protected function getHmacForSitename(): string
     {
         $configurationUtility = new Configuration();
 
@@ -160,7 +185,16 @@ class Headers
     {
         $typoscriptFrontendController = $this->getTsFe();
 
-        return $typoscriptFrontendController->newHash ?:
-            $typoscriptFrontendController->getPageArguments()->get('cHash');
+        return '' !== $typoscriptFrontendController->newHash && '0' !== $typoscriptFrontendController->newHash
+            ? $typoscriptFrontendController->newHash
+            : $this->getRequest()->getAttribute('routing')->get('cHash');
+    }
+
+    /**
+     * @SuppressWarnings("PHPMD.Superglobals")
+     */
+    private function getRequest(): ServerRequestInterface
+    {
+        return $GLOBALS['TYPO3_REQUEST'];
     }
 }

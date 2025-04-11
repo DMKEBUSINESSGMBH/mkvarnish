@@ -15,6 +15,11 @@
             "name": "Michael Wagner",
             "email": "michael.wagner@dmk-ebusiness.de",
             "role": "Developer"
+        },
+        {
+            "name": "Hannes Bochmann",
+            "email": "hannes.bochmann@dmk-ebusiness.de",
+            "role": "Developer"
         }
     ],
     "support": {
@@ -26,8 +31,7 @@
         "typo3-ter/mkvarnish": "self.version"
     },
     "require": {
-        "php": "^7.4 || ^8.0",
-        "typo3/cms-core": "^11.5.7 || ^12.4.7"
+        "typo3/cms-core": "^12.4 || ^13.4"
     },
     "autoload": {
         "psr-4": {
@@ -35,15 +39,19 @@
         }
     },
     "require-dev": {
+        "captainhook/captainhook": "^5.10",
+        "friendsofphp/php-cs-fixer": "^3.8",
+        "guzzlehttp/guzzle": "^7.4",
+        "helmich/typo3-typoscript-lint": "^3.1",
         "php-parallel-lint/php-parallel-lint": "^1.3",
-        "phpcompatibility/php-compatibility": "^9.3.5",
+        "phpcompatibility/php-compatibility": "^9.3",
         "namelesscoder/typo3-repository-client": "^1.2",
-        "typo3/testing-framework": "^6.0 || ^7.0",
-        "friendsofphp/php-cs-fixer": "^3.3",
+        "typo3/testing-framework": "^8.0 || ^9.0",
         "phpmd/phpmd": "^2.14",
-        "phpunit/phpunit": "^9.6",
-        "phpstan/phpstan": "^1.1",
-        "saschaegerer/phpstan-typo3": "^1.9"
+        "phpstan/phpstan": "^1.1 || ^2.0",
+        "rector/rector": "^1.0 || 2.0.10",
+        "saschaegerer/phpstan-typo3": "^1.0 || ^2.0",
+        "ssch/typo3-rector": "^2.8 | ^3.1"
     },
     "autoload-dev": {
         "psr-4": {
@@ -64,34 +72,31 @@
     },
     "scripts": {
         "post-autoload-dump": [
-            "mkdir -p .Build/Web/typo3conf/ext/",
-            "[ -L .Build/Web/typo3conf/ext/mkvarnish ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/mkvarnish"
+            "[ -e .Build/bin/captainhook ] && .Build/bin/captainhook install -f || echo 'CaptainHook missing, skip install.'"
         ],
         "lint:php": [
             "[ -e .Build/bin/parallel-lint ] || composer update",
-            ".Build/bin/parallel-lint ./Classes"
+            "echo 'parallel-lint fails with a exception if executed inside the vendor/dmk/mkvarnish folder'",
+            "[ ! -e ../../autoload.php ] || mv ../../autoload.php ../../autoload.php.bak",
+            ".Build/bin/parallel-lint ./*",
+            "[ ! -e ../../autoload.php.bak ] || mv ../../autoload.php.bak ../../autoload.php"
         ],
         "lint": [
             "@lint:php"
         ],
         "test:phpcs": [
-            "[ -e .Build/bin/php-cs-fixer ] || composer update --ansi",
-            ".Build/bin/php-cs-fixer fix -v --dry-run --diff --ansi"
+            "[ -e .Build/bin/php-cs-fixer ] || composer update",
+            "export PHP_CS_FIXER_IGNORE_ENV=1 && .Build/bin/php-cs-fixer fix -v --dry-run --diff"
+        ],
+        "test:rector": [
+            "[ -e .Build/bin/rector ] || composer update",
+            ".Build/bin/rector process --dry-run"
         ],
         "test:phpcompatibility": [
-            "@test:phpcompatibility:7.4",
-            "@test:phpcompatibility:8.0",
             "@test:phpcompatibility:8.1",
             "@test:phpcompatibility:8.2",
-            "@test:phpcompatibility:8.3"
-        ],
-        "test:phpcompatibility:7.4": [
-            "[ -e .Build/bin/phpcs ] || composer update",
-            ".Build/bin/phpcs --ignore=.Build/* -p . --standard=.Build/vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 7.4"
-        ],
-        "test:phpcompatibility:8.0": [
-            "[ -e .Build/bin/phpcs ] || composer update",
-            ".Build/bin/phpcs --ignore=.Build/* -p . --standard=.Build/vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 8.0"
+            "@test:phpcompatibility:8.3",
+            "@test:phpcompatibility:8.4"
         ],
         "test:phpcompatibility:8.1": [
             "[ -e .Build/bin/phpcs ] || composer update",
@@ -104,6 +109,10 @@
         "test:phpcompatibility:8.3": [
             "[ -e .Build/bin/phpcs ] || composer update",
             ".Build/bin/phpcs --ignore=.Build/* -p . --standard=.Build/vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 8.3"
+        ],
+        "test:phpcompatibility:8.4": [
+            "[ -e .Build/bin/phpcs ] || composer update",
+            ".Build/bin/phpcs --ignore=.Build/* -p . --standard=.Build/vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 8.4"
         ],
         "test:phpmd": [
             "[ -e .Build/bin/phpmd ] || composer update --ansi",
@@ -119,22 +128,33 @@
         ],
         "test": [
             "@test:phpcs",
+            "@test:rector",
             "@test:phpcompatibility",
             "@test:phpmd",
             "@test:phpstan",
             "@test:phpunit"
         ],
         "fix:phpcs": [
-            "[ -e .Build/bin/php-cs-fixer ] || composer update --ansi",
-            ".Build/bin/php-cs-fixer fix -v"
+            "[ -e .Build/bin/php-cs-fixer ] || composer update",
+            "export PHP_CS_FIXER_IGNORE_ENV=1 && .Build/bin/php-cs-fixer fix -v"
+        ],
+        "fix:rector": [
+            "[ -e .Build/bin/rector ] || composer update",
+            ".Build/bin/rector process"
         ],
         "fix": [
-            "@fix:phpcs"
+            "@fix:phpcs",
+            "@fix:rector"
+        ],
+        "runqa": [
+            "@fix",
+            "@lint",
+            "@test"
         ]
     },
     "extra": {
         "branch-alias" : {
-            "dev-12.4": "12.0.x-dev"
+            "dev-13.4": "13.0.x-dev"
         },
         "typo3/cms": {
             "cms-package-dir": "{$vendor-dir}/typo3/cms",

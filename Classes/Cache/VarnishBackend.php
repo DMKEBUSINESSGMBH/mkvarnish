@@ -1,5 +1,30 @@
 <?php
 
+/*
+ * Copyright notice
+ *
+ * (c) DMK E-BUSINESS GmbH <dev@dmk-ebusiness.de>
+ * All rights reserved
+ *
+ * This file is part of the "mklog" Extension for TYPO3 CMS.
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GNU Lesser General Public License can be found at
+ * www.gnu.org/licenses/lgpl.html
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ */
+
 namespace DMK\Mkvarnish\Cache;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
@@ -43,11 +68,11 @@ use DMK\Mkvarnish\Utility\CurlQueue;
 class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend implements \TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface
 {
     /**
-     * {@inheritdoc}
-     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::set()
+     *
+     * @SuppressWarnings("PHPMD.UnusedFormalParameter")
      */
-    public function set($entryIdentifier, $data, array $tags = [], $lifetime = null)
+    public function set($entryIdentifier, $data, array $tags = [], $lifetime = null): void
     {
         $this->throwExceptionIfNotImplemented();
     }
@@ -63,21 +88,21 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::get()
+     *
+     * @SuppressWarnings("PHPMD.UnusedFormalParameter")
      */
-    public function get($entryIdentifier)
+    public function get($entryIdentifier): void
     {
         $this->throwExceptionIfNotImplemented();
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::has()
+     *
+     * @SuppressWarnings("PHPMD.UnusedFormalParameter")
      */
-    public function has($entryIdentifier)
+    public function has($entryIdentifier): bool
     {
         $this->throwExceptionIfNotImplemented();
 
@@ -85,11 +110,11 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::remove()
+     *
+     * @SuppressWarnings("PHPMD.UnusedFormalParameter")
      */
-    public function remove($entryIdentifier)
+    public function remove($entryIdentifier): bool
     {
         $this->throwExceptionIfNotImplemented();
 
@@ -97,11 +122,11 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @see \TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface::findIdentifiersByTag()
+     *
+     * @SuppressWarnings("PHPMD.UnusedFormalParameter")
      */
-    public function findIdentifiersByTag($tag)
+    public function findIdentifiersByTag($tag): array
     {
         $this->throwExceptionIfNotImplemented();
 
@@ -109,11 +134,9 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::flush()
      */
-    public function flush()
+    public function flush(): void
     {
         if ($this->getConfigurationUtility()->isSendCacheHeadersEnabled()) {
             $this->executePurge(['X-Varnish-Purge-All' => 1]);
@@ -122,11 +145,9 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @see \TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface::flushByTag()
      */
-    public function flushByTag($tag)
+    public function flushByTag($tag): void
     {
         if ($this->getConfigurationUtility()->isSendCacheHeadersEnabled()) {
             $this->executePurge(['X-Cache-Tags' => $this->convertCacheTagForPurge($tag)]);
@@ -138,10 +159,8 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
      * Escapes the tag and creates the regex.
      *
      * @param string $tag
-     *
-     * @return string
      */
-    protected function convertCacheTagForPurge($tag)
+    protected function convertCacheTagForPurge($tag): string
     {
         $escapedTag = array_map('preg_quote', [$tag]);
 
@@ -149,8 +168,6 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * @param array $headers
-     *
      * @return void
      */
     protected function executePurge(array $headers)
@@ -169,34 +186,22 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
         }
     }
 
-    /**
-     * @return mixed|string
-     */
-    protected function getHmacForSitename()
+    protected function getHmacForSitename(): string
     {
         return $this->getConfigurationUtility()->getHmacForSitename();
     }
 
-    /**
-     * @return CurlQueue
-     */
-    protected function getCurlQueueUtility()
+    protected function getCurlQueueUtility(): CurlQueue
     {
         return new CurlQueue();
     }
 
-    /**
-     * @return array
-     */
-    protected function getHostNamesForPurge()
+    protected function getHostNamesForPurge(): array
     {
         return $this->getConfigurationUtility()->getHostNamesForPurge();
     }
 
-    /**
-     * @return Configuration
-     */
-    protected function getConfigurationUtility()
+    protected function getConfigurationUtility(): Configuration
     {
         return new Configuration();
     }
@@ -210,29 +215,22 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * @param string $tag
-     *
      * @return void
      */
-    protected function deleteFromCacheTagsTableByTag($tag)
+    protected function deleteFromCacheTagsTableByTag(string $tag)
     {
         $this->getCacheTagsRepository()->deleteByTag($tag);
     }
 
-    /**
-     * @return CacheTagsRepository
-     */
-    protected function getCacheTagsRepository()
+    protected function getCacheTagsRepository(): CacheTagsRepository
     {
         return new CacheTagsRepository();
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @see \TYPO3\CMS\Core\Cache\Backend\BackendInterface::collectGarbage()
      */
-    public function collectGarbage()
+    public function collectGarbage(): void
     {
         // varnish handles garbage collection itself
     }

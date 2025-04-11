@@ -9,6 +9,21 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         -
-            message: "#^Property DMK\\\\Mkvarnish\\\\Utility\\\\CurlQueue\\:\\:\\$curlQueue has unknown class CurlMultiHandle as its type\\.$#"
+            message: "#^Call to method hmac\\(\\) on an unknown class TYPO3\\\\CMS\\\\Core\\\\Crypto\\\\HashService\\.$#"
             count: 1
-            path: Classes/Utility/CurlQueue.php
+            path: Classes/Utility/Configuration.php
+
+        -
+            message: "#^Class TYPO3\\\\CMS\\\\Core\\\\Crypto\\\\HashService not found\\.$#"
+            count: 1
+            path: Classes/Utility/Configuration.php
+
+        -
+            message: "#^Access to property \\$name on an unknown class TYPO3\\\\CMS\\\\Core\\\\Cache\\\\CacheTag\\.$#"
+            count: 1
+            path: Classes/Utility/Headers.php
+
+        -
+            message: "#^Parameter \\$cacheTag of anonymous function has invalid type TYPO3\\\\CMS\\\\Core\\\\Cache\\\\CacheTag\\.$#"
+            count: 1
+            path: Classes/Utility/Headers.php

@@ -1,5 +1,30 @@
 <?php
 
+/*
+ * Copyright notice
+ *
+ * (c) DMK E-BUSINESS GmbH <dev@dmk-ebusiness.de>
+ * All rights reserved
+ *
+ * This file is part of the "mklog" Extension for TYPO3 CMS.
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GNU Lesser General Public License can be found at
+ * www.gnu.org/licenses/lgpl.html
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ */
+
 namespace DMK\Mkvarnish\Tests\Unit\Utility;
 
 /***************************************************************
@@ -54,16 +79,7 @@ class ConfigurationTest extends UnitTestCase
         parent::tearDown();
     }
 
-    /**
-     * Test the getExtConfValue method.
-     *
-     * @return void
-     *
-     * @group unit
-     *
-     * @test
-     */
-    public function testGetExtConfValue()
+    public function testGetExtConfValue(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['my_key' => 'my_value'];
 
@@ -81,24 +97,15 @@ class ConfigurationTest extends UnitTestCase
         );
     }
 
-    /**
-     * Test the isSendCacheHeadersEnabled method.
-     *
-     * @return void
-     *
-     * @group unit
-     *
-     * @test
-     */
-    public function testIsSendCacheHeadersEnabledChecksReverseProxy()
+    public function testIsSendCacheHeadersEnabledChecksReverseProxy(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['sendCacheHeaders' => '0'];
 
         $mock = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isRevProxy'])
+            ->onlyMethods(['isRevProxy'])
             ->getMock();
 
-        $mock->expects($this->once())->method('isRevProxy')->will($this->returnValue('rp'));
+        $mock->expects($this->once())->method('isRevProxy')->willReturn('rp');
 
         // should return rp
         $this->assertEquals(
@@ -107,21 +114,12 @@ class ConfigurationTest extends UnitTestCase
         );
     }
 
-    /**
-     * Test the isSendCacheHeadersEnabled method.
-     *
-     * @return void
-     *
-     * @group unit
-     *
-     * @test
-     */
-    public function testIsSendCacheHeadersEnabledShouldReturnTrue()
+    public function testIsSendCacheHeadersEnabledShouldReturnTrue(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['sendCacheHeaders' => '1'];
 
         $mock = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isRevProxy'])
+            ->onlyMethods(['isRevProxy'])
             ->getMock();
         $mock->expects($this->never())->method('isRevProxy');
 
@@ -129,21 +127,12 @@ class ConfigurationTest extends UnitTestCase
         $this->assertTrue($mock->isSendCacheHeadersEnabled());
     }
 
-    /**
-     * Test the isSendCacheHeadersEnabled method.
-     *
-     * @return void
-     *
-     * @group unit
-     *
-     * @test
-     */
-    public function testIsSendCacheHeadersEnabledShouldReturnFalse()
+    public function testIsSendCacheHeadersEnabledShouldReturnFalse(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['sendCacheHeaders' => '2'];
 
         $mock = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['isRevProxy'])
+            ->onlyMethods(['isRevProxy'])
             ->getMock();
         $mock->expects($this->never())->method('isRevProxy');
 
@@ -151,16 +140,7 @@ class ConfigurationTest extends UnitTestCase
         $this->assertFalse($mock->isSendCacheHeadersEnabled());
     }
 
-    /**
-     * Test the getHostNamesForPurge method.
-     *
-     * @return void
-     *
-     * @group unit
-     *
-     * @test
-     */
-    public function testGetHostNamesForPurgeIfConfigured()
+    public function testGetHostNamesForPurgeIfConfigured(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['hostnames' => '127.0.0.1, 192.168.0.1'];
 
@@ -173,15 +153,10 @@ class ConfigurationTest extends UnitTestCase
         $this->assertEquals('192.168.0.1', $hostnames[1]);
     }
 
-    /**
-     * @return void
-     *
-     * @test
-     */
-    public function testGetHostNamesForPurgeIfNoneConfigured()
+    public function testGetHostNamesForPurgeIfNoneConfigured(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['mkvarnish'] = ['hostnames' => ''];
-        $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_HOST'] ?? '127.0.0.1';
+        $_SERVER['HTTP_HOST'] ??= '127.0.0.1';
         $mock = new Configuration();
 
         $hostnames = $mock->getHostNamesForPurge();

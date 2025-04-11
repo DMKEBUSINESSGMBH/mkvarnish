@@ -1,8 +1,36 @@
 <?php
 
+/*
+ * Copyright notice
+ *
+ * (c) DMK E-BUSINESS GmbH <dev@dmk-ebusiness.de>
+ * All rights reserved
+ *
+ * This file is part of the "mklog" Extension for TYPO3 CMS.
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GNU Lesser General Public License can be found at
+ * www.gnu.org/licenses/lgpl.html
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ */
+
 namespace DMK\Mkvarnish\Utility;
 
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Crypto\HashService;
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -35,7 +63,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @license http://www.gnu.org/licenses/lgpl.html
  *          GNU Lesser General Public License, version 3 or later
  */
-class Configuration implements \TYPO3\CMS\Core\SingletonInterface
+class Configuration implements SingletonInterface
 {
     /**
      * The extension configuration.
@@ -50,8 +78,6 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
      * @param string $key
      *
      * @visibility private Only protected for Unittests
-     *
-     * @return mixed
      */
     protected function getExtConfValue($key)
     {
@@ -59,7 +85,7 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
             $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('mkvarnish');
         }
 
-        return isset($this->extConf[$key]) ? $this->extConf[$key] : null;
+        return $this->extConf[$key] ?? null;
     }
 
     /**
@@ -67,18 +93,15 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
      *
      * @return bool
      * */
-    public function isSendCacheHeadersEnabled()
+    public function isSendCacheHeadersEnabled(): string|bool|array|null
     {
         $forced = (int) self::getExtConfValue('sendCacheHeaders');
-        switch ($forced) {
-            case 1:
-                return true;
-            case 2:
-                return false;
-            case 0:
-            default:
-                return $this->isRevProxy();
-        }
+
+        return match ($forced) {
+            1 => true,
+            2 => false,
+            default => $this->isRevProxy(),
+        };
     }
 
     /**
@@ -86,7 +109,7 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
      *
      * @return bool
      * */
-    public function isRevProxy()
+    public function isRevProxy(): string|bool|array|null
     {
         return GeneralUtility::getIndpEnv('TYPO3_REV_PROXY');
     }
@@ -94,28 +117,31 @@ class Configuration implements \TYPO3\CMS\Core\SingletonInterface
     /**
      * Returns HMAC of the sitename.
      *
-     * @return mixed
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings("PHPMD.Superglobals")
      */
-    public function getHmacForSitename()
+    public function getHmacForSitename(): string
     {
-        return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+        if ((new Typo3Version())->getMajorVersion() < 13) {
+            return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+        }
+
+        return GeneralUtility::makeInstance(HashService::class)->hmac(
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'],
+            'mkvarnish'
+        );
     }
 
     /**
      * Returns a list of hosts to purge.
-     *
-     * @return array
      */
-    public function getHostNamesForPurge()
+    public function getHostNamesForPurge(): array
     {
         $hosts = GeneralUtility::trimExplode(
             ',',
             self::getExtConfValue('hostnames'),
             true
         );
-        if (empty($hosts)) {
+        if ([] === $hosts) {
             $hosts[] = GeneralUtility::getIndpEnv('HTTP_HOST');
         }
 

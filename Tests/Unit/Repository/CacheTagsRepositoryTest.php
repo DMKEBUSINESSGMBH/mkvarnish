@@ -1,5 +1,30 @@
 <?php
 
+/*
+ * Copyright notice
+ *
+ * (c) DMK E-BUSINESS GmbH <dev@dmk-ebusiness.de>
+ * All rights reserved
+ *
+ * This file is part of the "mklog" Extension for TYPO3 CMS.
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GNU Lesser General Public License can be found at
+ * www.gnu.org/licenses/lgpl.html
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ */
+
 namespace DMK\Mkvarnish\Tests\Unit\Repository;
 
 use DMK\Mkvarnish\Repository\CacheTagsRepository;
@@ -41,10 +66,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  */
 class CacheTagsRepositoryTest extends UnitTestCase
 {
-    /**
-     * @group unit
-     */
-    public function testGetQueryBuilder()
+    public function testGetQueryBuilder(): void
     {
         $cacheTagsRepository = $this->getAccessibleMock(
             CacheTagsRepository::class,
@@ -69,14 +91,11 @@ class CacheTagsRepositoryTest extends UnitTestCase
         );
     }
 
-    /**
-     * @group unit
-     */
-    public function testInsertByTagAndCacheHash()
+    public function testInsertByTagAndCacheHash(): void
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['insert', 'values', 'executeStatement'])
+            ->onlyMethods(['insert', 'values', 'executeStatement'])
             ->getMock();
 
         $queryBuilder
@@ -101,29 +120,26 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->method('executeStatement');
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getQueryBuilder'])
+            ->onlyMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
             ->method('getQueryBuilder')
-            ->will(self::returnValue($queryBuilder));
+            ->willReturn($queryBuilder);
 
         $repository->insertByTagAndCacheHash('test_tag', 'test_hash');
     }
 
-    /**
-     * @group unit
-     */
-    public function testGetByCacheHash()
+    public function testGetByCacheHash(): void
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['select', 'from', 'where', 'executeQuery', 'expr', 'createNamedParameter'])
+            ->onlyMethods(['select', 'from', 'where', 'executeQuery', 'expr', 'createNamedParameter'])
             ->getMock();
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['eq'])
+            ->onlyMethods(['eq'])
             ->getMock();
 
         $queryBuilder
@@ -173,29 +189,26 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->willReturn('test_hash');
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getQueryBuilder'])
+            ->onlyMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
             ->method('getQueryBuilder')
-            ->will(self::returnValue($queryBuilder));
+            ->willReturn($queryBuilder);
 
         self::assertSame($resultArray, $repository->getByCacheHash('test_hash'));
     }
 
-    /**
-     * @group unit
-     */
-    public function testDeleteByCacheHash()
+    public function testDeleteByCacheHash(): void
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['delete', 'where', 'executeStatement', 'expr', 'createNamedParameter'])
+            ->onlyMethods(['delete', 'where', 'executeStatement', 'expr', 'createNamedParameter'])
             ->getMock();
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['eq'])
+            ->onlyMethods(['eq'])
             ->getMock();
 
         $queryBuilder
@@ -232,29 +245,26 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->willReturn('test_hash');
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getQueryBuilder'])
+            ->onlyMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
             ->method('getQueryBuilder')
-            ->will(self::returnValue($queryBuilder));
+            ->willReturn($queryBuilder);
 
         $repository->deleteByCacheHash('test_hash');
     }
 
-    /**
-     * @group unit
-     */
-    public function testTruncateTable()
+    public function testTruncateTable(): void
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getConnection', 'createNamedParameter'])
+            ->onlyMethods(['getConnection', 'createNamedParameter'])
             ->getMock();
 
         $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
-            ->setMethods(['truncate'])
+            ->onlyMethods(['truncate'])
             ->getMock();
 
         $queryBuilder
@@ -269,20 +279,17 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->willReturn(1);
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getQueryBuilder'])
+            ->onlyMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
             ->method('getQueryBuilder')
-            ->will(self::returnValue($queryBuilder));
+            ->willReturn($queryBuilder);
 
         $repository->truncateTable();
     }
 
-    /**
-     * @group unit
-     */
-    public function testGetByTag()
+    public function testGetByTag(): void
     {
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
@@ -291,7 +298,7 @@ class CacheTagsRepositoryTest extends UnitTestCase
 
         $expressionBuilder = $this->getMockBuilder(ExpressionBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(['eq'])
+            ->onlyMethods(['eq'])
             ->getMock();
 
         $queryBuilder
@@ -341,23 +348,20 @@ class CacheTagsRepositoryTest extends UnitTestCase
             ->willReturn('test_tag');
 
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getQueryBuilder'])
+            ->onlyMethods(['getQueryBuilder'])
             ->getMock();
         $repository
             ->expects(self::once())
             ->method('getQueryBuilder')
-            ->will(self::returnValue($queryBuilder));
+            ->willReturn($queryBuilder);
 
         self::assertSame($resultArray, $repository->getByTag('test_tag'));
     }
 
-    /**
-     * @group unit
-     */
-    public function testDeleteByTag()
+    public function testDeleteByTag(): void
     {
         $repository = $this->getMockBuilder(CacheTagsRepository::class)
-            ->setMethods(['getByTag', 'deleteByCacheHash', 'createNamedParameter'])
+            ->onlyMethods(['getByTag', 'deleteByCacheHash'])
             ->getMock();
         $repository
             ->expects(self::once())
@@ -368,10 +372,23 @@ class CacheTagsRepositoryTest extends UnitTestCase
                 1 => ['cache_hash' => 456],
             ]));
 
+        $matcher = self::exactly(2);
         $repository
-            ->expects(self::exactly(2))
+            ->expects($matcher)
             ->method('deleteByCacheHash')
-            ->withConsecutive([123], [456]);
+            ->with(
+                $this->callback(function (string $cacheHash) use ($matcher): bool {
+                    self::assertSame(
+                        match ($matcher->numberOfInvocations()) {
+                            1 => '123',
+                            2 => '456',
+                        },
+                        $cacheHash
+                    );
+
+                    return true;
+                }),
+            );
 
         $repository->deleteByTag('test_tag');
     }
