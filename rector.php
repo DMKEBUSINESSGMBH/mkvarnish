@@ -8,7 +8,7 @@ declare(strict_types=1);
  * (c) DMK E-BUSINESS GmbH <dev@dmk-ebusiness.de>
  * All rights reserved
  *
- * This file is part of the "mklog" Extension for TYPO3 CMS.
+ * This file is part of the "mkvarnish" Extension for TYPO3 CMS.
  *
  * This script is part of the TYPO3 project. The TYPO3 project is
  * free software; you can redistribute it and/or modify
