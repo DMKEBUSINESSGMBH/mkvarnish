@@ -81,6 +81,7 @@ return static function (RectorConfig $rectorConfig): void {
 
         Ssch\TYPO3Rector\TYPO313\v1\MigrateGeneralUtilityHmacToHashServiceHmacRector::class => [
             // Needed so the code for TYPO3 12.4 get's nit migrated
+            // can be removed when support for TYPO3 12.4 is dropped
             __DIR__.'/Classes/Utility/Configuration.php',
         ],
 
