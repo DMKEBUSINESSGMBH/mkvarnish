@@ -87,8 +87,12 @@ return static function (RectorConfig $rectorConfig): void {
 
         // makes double-quoted strings, we don't want this at the moment.
         Rector\CodingStyle\Rector\String_\SymplifyQuoteEscapeRector::class,
-
-        // because of the backwards compatibility to TYPO3 12.4 we take care of that by ourselves
-        Ssch\TYPO3Rector\TYPO313\v3\MigrateTypoScriptFrontendControllerAddCacheTagsAndGetPageCacheTagsRector::class,
     ]);
+
+    if (class_exists(Ssch\TYPO3Rector\TYPO313\v3\MigrateTypoScriptFrontendControllerAddCacheTagsAndGetPageCacheTagsRector::class)) {
+        $rectorConfig->skip([
+            // because of the backwards compatibility to TYPO3 12.4 we take care of that by ourselves
+            Ssch\TYPO3Rector\TYPO313\v3\MigrateTypoScriptFrontendControllerAddCacheTagsAndGetPageCacheTagsRector::class,
+        ]);
+    }
 };
