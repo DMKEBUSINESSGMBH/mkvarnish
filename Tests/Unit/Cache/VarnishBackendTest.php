@@ -113,14 +113,9 @@ class VarnishBackendTest extends UnitTestCase
     #[DataProvider('dataProviderUnimplementedMethods')]
     public function testUnimplementedMethods(string $method, array $arguments): void
     {
-        $varnishBackend = $this->getMockBuilder(VarnishBackend::class)
-            ->onlyMethods(['throwExceptionIfNotImplemented'])
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $varnishBackend
-            ->expects(self::once())
-            ->method('throwExceptionIfNotImplemented');
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('the varnish cache backend can only remove cache entries by tags or the complete cache at the moment');
+        $varnishBackend = new VarnishBackend('testing');
 
         call_user_func_array([$varnishBackend, $method], $arguments);
     }

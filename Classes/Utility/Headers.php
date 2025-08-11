@@ -136,7 +136,7 @@ class Headers
     protected function getPageCacheTags(): array
     {
         if ((new Typo3Version())->getMajorVersion() < 13) {
-            return $this->getTsFe()->getPageCacheTags();
+            return $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.cache.collector')->getCacheTags();
         }
 
         return array_map(

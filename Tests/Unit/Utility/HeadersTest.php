@@ -191,7 +191,7 @@ class HeadersTest extends UnitTestCase
                 ->with('frontend.cache.collector')
                 ->willReturn($cacheDataCollector);
         } else {
-            $tsfe->addCacheTags(['tag1', 'tag2', 'tag2']);
+            $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.cache.collector')->addCacheTags(new CacheTag('tag1', 3600), new CacheTag('tag2', 3600), new CacheTag('tag2', 3600));
         }
 
         $headersUtility = $this->getAccessibleMock(

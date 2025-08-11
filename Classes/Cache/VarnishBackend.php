@@ -78,11 +78,9 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * @return void
-     *
      * @throws \Exception
      */
-    protected function throwExceptionIfNotImplemented()
+    protected function throwExceptionIfNotImplemented(): never
     {
         throw new \Exception('the varnish cache backend can only remove cache entries by tags or the complete cache at the moment');
     }
@@ -105,8 +103,6 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     public function has($entryIdentifier): bool
     {
         $this->throwExceptionIfNotImplemented();
-
-        return true;
     }
 
     /**
@@ -117,8 +113,6 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     public function remove($entryIdentifier): bool
     {
         $this->throwExceptionIfNotImplemented();
-
-        return true;
     }
 
     /**
@@ -129,8 +123,6 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     public function findIdentifiersByTag($tag): array
     {
         $this->throwExceptionIfNotImplemented();
-
-        return [];
     }
 
     /**
