@@ -30,6 +30,7 @@ as soon as the content is changed through the TYPO3 backend.
  *  ready to use configration for Varnish and TYPO3
  *  Varnish based caching for all pages using cache-tags
  *  TYPO3 clear cache hook to clear cache or smart ban relevant pages in Varnish
+ *  Provide a page content error handler which does not bypass Varnish like the dafault handler does. This way 404 handling leverages Varnish too.
 
 
 ### Background
@@ -68,6 +69,15 @@ composer require dmk/mkvarnish
  *  do not use sessions, the fe_typo_user cookie will disable the caching
  *  dont set `no_cache=1`
  *  the use of *_INT objects will disable the cache too, dont use it (You can find them with the Admin Panel.)
+ *  Configure the page content error handler in the site configuration like this instead of the default "Page" handler if your 404 page is cachable through Varnish. Otherwise the content won't be cached/delivered through Varnish:
+    ```yaml
+    errorHandling:
+      -
+        errorHandler: PHP
+        errorPhpClassFQCN: DMK\Mkvarnish\Error\PageErrorHandler\PageContentErrorHandler
+        errorCode: '404'
+        errorContentSource: 't3://page?uid=123'
+    ```
 
 ### USER_INT objects
 Sometimes there is a page that should be cached through Varnish but contains USER_INT plugins, for example a news detail page with a comment plugin. To migrate such a plugin to a USER plugin might be a hassle or even impossible. But there is a easy solution: The plugin needs to be lazy loaded with Ajax. To achieve this you can use the Ajax Content Renderer feature of [mktools](https://github.com/DMKEBUSINESSGMBH/typo3-mktools/blob/master/Documentation/Utilities/AjaxContentRenderer/Index.md).
