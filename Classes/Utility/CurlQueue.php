@@ -148,7 +148,7 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
 
         // destroy all the handles
         foreach ($this->curlHandles as $handle) {
-            if (200 != curl_getinfo($handle, CURLINFO_HTTP_CODE)) {
+            if (200 !== curl_getinfo($handle, CURLINFO_HTTP_CODE)) {
                 GeneralUtility::makeInstance(LogManager::class)->getLogger('mkvarnish')->error(
                     'curl request returned no 200 HTTP code. Check devlog for more information.',
                     ['handle' => curl_getinfo($handle)]
