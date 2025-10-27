@@ -154,7 +154,7 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
      */
     protected function convertCacheTagForPurge($tag): string
     {
-        $escapedTag = array_map('preg_quote', [$tag]);
+        $escapedTag = array_map(preg_quote(...), [$tag]);
 
         return sprintf('(%s)(,.+)?$', implode('|', $escapedTag));
     }
