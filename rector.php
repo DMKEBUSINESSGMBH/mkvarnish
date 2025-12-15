@@ -84,9 +84,6 @@ return static function (RectorConfig $rectorConfig): void {
             // can be removed when support for TYPO3 12.4 is dropped
             __DIR__.'/Classes/Utility/Configuration.php',
         ],
-
-        // makes double-quoted strings, we don't want this at the moment.
-        Rector\CodingStyle\Rector\String_\SymplifyQuoteEscapeRector::class,
     ]);
 
     if (class_exists(Ssch\TYPO3Rector\TYPO313\v3\MigrateTypoScriptFrontendControllerAddCacheTagsAndGetPageCacheTagsRector::class)) {
