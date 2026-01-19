@@ -114,8 +114,6 @@ class CurlQueue implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Class destructor.
-     *
-     * @return void
      */
     public function __destruct()
     {
