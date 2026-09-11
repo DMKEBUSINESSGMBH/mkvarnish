@@ -148,15 +148,23 @@ class VarnishBackend extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend imple
     }
 
     /**
-     * Escapes the tag and creates the regex.
+     * Escapes the tag and creates the regex to match it against the (compressed)
+     * X-Cache-Tags header set in \DMK\Mkvarnish\Utility\Headers.
+     *
+     * Record specific tags (e.g. tt_content_5) are stored compressed as
+     * "tt_content{,…,5,…,}", so the uid has to be matched within its table group.
+     * Table wide or custom tags (e.g. tt_content, pages) are matched either as a
+     * standalone token or as the prefix of such a compressed group.
      *
      * @param string $tag
      */
     protected function convertCacheTagForPurge($tag): string
     {
-        $escapedTag = array_map(preg_quote(...), [$tag]);
+        if (1 === preg_match('/^([a-z0-9_]+)_(\d+)$/i', (string) $tag, $matches)) {
+            return '(^|,)'.preg_quote($matches[1]).'\{[^}]*,'.preg_quote($matches[2]).',';
+        }
 
-        return sprintf('(%s)(,.+)?$', implode('|', $escapedTag));
+        return '(^|,)'.preg_quote((string) $tag).'(\{|,|$)';
     }
 
     /**

@@ -149,14 +149,40 @@ class VarnishBackendTest extends UnitTestCase
         self::assertNotSame($firstHmac, $hmacAfterSiteNameChanged, 'hmac for different site names is not different');
     }
 
-    public function testConvertCacheTagForPurge(): void
+    public function testConvertCacheTagForPurgeWithRecordTag(): void
     {
         $convertedCacheTagForPurge = $this->getVarnishBackendInstance()->_call(
             'convertCacheTagForPurge',
             'tt_content_5'
         );
 
-        self::assertEquals('(tt_content_5)(,.+)?$', $convertedCacheTagForPurge);
+        self::assertEquals('(^|,)tt_content\{[^}]*,5,', $convertedCacheTagForPurge);
+
+        // the regex must match the compressed representation of the tag ...
+        self::assertSame(1, preg_match('/'.$convertedCacheTagForPurge.'/', 'pages,tt_content{,3,5,8,}'));
+        self::assertSame(1, preg_match('/'.$convertedCacheTagForPurge.'/', 'tt_content{,5,}'));
+        // ... but not a different uid which only shares a common prefix
+        self::assertSame(0, preg_match('/'.$convertedCacheTagForPurge.'/', 'tt_content{,15,58,}'));
+        // ... and not a different table which only shares a common suffix
+        self::assertSame(0, preg_match('/'.$convertedCacheTagForPurge.'/', 'tx_foo_tt_content{,5,}'));
+    }
+
+    public function testConvertCacheTagForPurgeWithTableOrCustomTag(): void
+    {
+        $convertedCacheTagForPurge = $this->getVarnishBackendInstance()->_call(
+            'convertCacheTagForPurge',
+            'tt_content'
+        );
+
+        self::assertEquals('(^|,)tt_content(\{|,|$)', $convertedCacheTagForPurge);
+
+        // matches a standalone token ...
+        self::assertSame(1, preg_match('/'.$convertedCacheTagForPurge.'/', 'pages,tt_content'));
+        self::assertSame(1, preg_match('/'.$convertedCacheTagForPurge.'/', 'tt_content,pages'));
+        // ... as well as the prefix of a compressed group ...
+        self::assertSame(1, preg_match('/'.$convertedCacheTagForPurge.'/', 'pages,tt_content{,3,5,}'));
+        // ... but not a table which only shares a common prefix
+        self::assertSame(0, preg_match('/'.$convertedCacheTagForPurge.'/', 'tt_content_foo{,5,}'));
     }
 
     public function testGetHostNamesForPurge(): void
