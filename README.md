@@ -81,3 +81,7 @@ composer require dmk/mkvarnish
 
 ### USER_INT objects
 Sometimes there is a page that should be cached through Varnish but contains USER_INT plugins, for example a news detail page with a comment plugin. To migrate such a plugin to a USER plugin might be a hassle or even impossible. But there is a easy solution: The plugin needs to be lazy loaded with Ajax. To achieve this you can use the Ajax Content Renderer feature of [mktools](https://github.com/DMKEBUSINESSGMBH/typo3-mktools/blob/master/Documentation/Utilities/AjaxContentRenderer/Index.md).
+ 
+## Changelog
+
+13.0.2: Cache tags header that is sent to Varnish is shortened to avoid issues with max length of headers in Apache.
