@@ -84,4 +84,5 @@ Sometimes there is a page that should be cached through Varnish but contains USE
  
 ## Changelog
 
+13.0.3: Fix TER release
 13.0.2: Cache tags header that is sent to Varnish is shortened to avoid issues with max length of headers in Apache.
