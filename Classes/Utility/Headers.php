@@ -125,9 +125,72 @@ class Headers
             $this->saveCacheTagsByCacheHash($cacheTags, $this->getCurrentCacheHash());
         }
 
+        // The raw cache tags are persisted above and are used as is when purging.
+        // The X-Cache-Tags header itself is compressed to keep it short. With a lot
+        // of cache tags the header could otherwise easily exceed the maximum header
+        // length allowed e.g. by Apache (8192 bytes).
+        $cacheTags = $this->compressCacheTags($this->simplifyCacheTags($cacheTags));
+
         $headers['X-Cache-Tags'] = implode(',', $cacheTags);
 
         return $headers;
+    }
+
+    /**
+     * Removes all record specific cache tags (e.g. tt_content_5) for which the
+     * whole table is tagged anyway (e.g. tt_content). The table wide tag already
+     * covers the records so the record specific tags are redundant in the header.
+     *
+     * @SuppressWarnings("PHPMD.Superglobals")
+     */
+    protected function simplifyCacheTags(array $cacheTags): array
+    {
+        $tableCacheTags = array_filter(
+            $cacheTags,
+            static fn (string $cacheTag): bool => array_key_exists($cacheTag, $GLOBALS['TCA'] ?? [])
+        );
+
+        if ([] === $tableCacheTags) {
+            return $cacheTags;
+        }
+
+        $recordCacheTagPattern = '/^(?:'
+            .implode('|', array_map(static fn (string $table): string => preg_quote($table, '/'), $tableCacheTags))
+            .')_\d+$/';
+
+        return array_filter(
+            $cacheTags,
+            static fn (string $cacheTag): bool => 1 !== preg_match($recordCacheTagPattern, $cacheTag)
+        );
+    }
+
+    /**
+     * Compresses record specific cache tags to keep the X-Cache-Tags header short.
+     * Multiple record cache tags of the same table are combined into a single tag
+     * containing the table and the list of uids in the form:
+     *
+     * table{,uid1,uid2,}
+     *
+     * The corresponding purge regex is built in
+     * \DMK\Mkvarnish\Cache\VarnishBackend::convertCacheTagForPurge().
+     */
+    protected function compressCacheTags(array $cacheTags): array
+    {
+        $uidsByTable = [];
+        foreach ($cacheTags as $key => $cacheTag) {
+            if (1 === preg_match('/^([a-z0-9_]+)_(\d+)$/i', (string) $cacheTag, $matches)) {
+                unset($cacheTags[$key]);
+                $uidsByTable[$matches[1]][] = $matches[2];
+            }
+        }
+
+        foreach ($uidsByTable as $table => $uids) {
+            $cacheTags[] = $table.'{,'.implode(',', $uids).',}';
+        }
+
+        sort($cacheTags);
+
+        return $cacheTags;
     }
 
     /**

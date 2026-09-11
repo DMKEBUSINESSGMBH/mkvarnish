@@ -250,6 +250,63 @@ class HeadersTest extends UnitTestCase
         $this->assertEquals('tag1,tag2', $headers['X-Cache-Tags']);
     }
 
+    public function testGetHeadersForCacheTagsCompressesRecordTagsButSavesRawTags(): void
+    {
+        $headersUtility = $this->getAccessibleMock(
+            Headers::class,
+            ['getPageCacheTags', 'getCurrentCacheHash', 'saveCacheTagsByCacheHash'],
+            [],
+            '',
+            false
+        );
+        $headersUtility->expects(self::any())->method('getCurrentCacheHash')->willReturn('cachehash');
+        $headersUtility
+            ->expects(self::any())
+            ->method('getPageCacheTags')
+            ->willReturn(['pages_419', 'tt_content_1', 'tt_content_2']);
+        // the raw tags have to be persisted, only the header itself is compressed
+        $headersUtility
+            ->expects(self::once())
+            ->method('saveCacheTagsByCacheHash')
+            ->with(['pages_419', 'tt_content_1', 'tt_content_2'], 'cachehash');
+
+        $headers = $headersUtility->_call('getHeadersForCacheTags');
+
+        self::assertSame('pages{,419,},tt_content{,1,2,}', $headers['X-Cache-Tags']);
+    }
+
+    public function testCompressCacheTags(): void
+    {
+        $headersUtility = $this->getAccessibleMock(Headers::class, ['getTsFe'], [], '', false);
+
+        self::assertSame(
+            ['customtag', 'pages{,419,}', 'tt_content{,1,3,}'],
+            $headersUtility->_call(
+                'compressCacheTags',
+                ['pages_419', 'tt_content_1', 'tt_content_3', 'customtag']
+            )
+        );
+    }
+
+    /**
+     * @SuppressWarnings("PHPMD.Superglobals")
+     */
+    public function testSimplifyCacheTagsRemovesRecordTagsCoveredByTableTag(): void
+    {
+        $GLOBALS['TCA'] = ['tt_content' => [], 'pages' => []];
+        $headersUtility = $this->getAccessibleMock(Headers::class, ['getTsFe'], [], '', false);
+
+        self::assertSame(
+            ['tt_content', 'pages_419', 'customtag'],
+            array_values($headersUtility->_call(
+                'simplifyCacheTags',
+                ['tt_content', 'tt_content_5', 'tt_content_9', 'pages_419', 'customtag']
+            ))
+        );
+
+        unset($GLOBALS['TCA']);
+    }
+
     public function testSaveCacheTagsByCacheHash(): void
     {
         $configuration = $this->getMockBuilder(Configuration::class)->getMock();
