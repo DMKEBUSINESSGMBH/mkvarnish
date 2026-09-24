@@ -1,9 +1,9 @@
 # MK VARNISH
 
-![TYPO3 compatibility](https://img.shields.io/badge/TYPO3-10.4%20%7C%2011.5-orange?maxAge=3600&style=flat-square&logo=typo3)
+![TYPO3 compatibility](https://img.shields.io/badge/TYPO3-12.4%20%7C%2013.4-orange?maxAge=3600&style=flat-square&logo=typo3)
 [![Latest Stable Version](https://img.shields.io/packagist/v/dmk/mkvarnish.svg?maxAge=3600&style=flat-square&logo=composer)](https://packagist.org/packages/dmk/mkvarnish)
 [![Total Downloads](https://img.shields.io/packagist/dt/dmk/mkvarnish.svg?maxAge=3600&style=flat-square)](https://packagist.org/packages/dmk/mkvarnish)
-[![Build Status](https://img.shields.io/github/workflow/status/DMKEBUSINESSGMBH/mkvarnish/PHP-CI.svg?maxAge=3600&style=flat-square&logo=github-actions)](https://github.com/DMKEBUSINESSGMBH/mkvarnish/actions?query=workflow%3APHP-CI)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/DMKEBUSINESSGMBH/mkvarnish/phpci.yml?maxAge=3600&style=flat-square&logo=github-actions)](https://github.com/DMKEBUSINESSGMBH/mkvarnish/actions/workflows/phpci.yml)
 [![License](https://img.shields.io/packagist/l/dmk/mkvarnish.svg?maxAge=3600&style=flat-square&logo=gnu)](https://packagist.org/packages/dmk/mkvarnish)
 
 
